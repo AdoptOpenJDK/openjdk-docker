@@ -1,0 +1,66 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM alpine:3.6
+
+MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+
+RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+    && GLIBC_VER="2.25-r0" \
+    && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
+    && apk add --allow-untrusted /tmp/${GLIBC_VER}.apk \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
+    && mkdir /tmp/gcc \
+    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
+    && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && apk del binutils \
+    && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /var/cache/apk/*
+
+ENV JAVA_VERSION jdk-9+181
+
+RUN set -eux; \
+    ARCH="$(apk --print-arch)"; \
+    case "${ARCH}" in \
+       amd64|x86_64) \
+         ESUM='74c7656a1f538476fe01471255e2d2bae57dfbd36cc6ab3bccb9c98b486c1a48'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/x64_linux/latest/binary"; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='32001755bac5677d8e1e0393429ac25170b31e9c89f4931a7cc99d6e42702354'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/ppc64le_linux/latest/binary"; \
+         ;; \
+       s390x) \
+         ESUM='e72da7026a7dac1aead810d908cb9f665ad6409b903340b0937289d1cdc70587'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/s390x_linux/latest/binary"; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz; \
+    rm -f /tmp/openjdk.tar.gz;
+
+ENV PATH=/opt/java/openjdk/jdk-9+181/bin:$PATH

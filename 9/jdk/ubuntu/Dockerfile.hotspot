@@ -1,0 +1,57 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM ubuntu:16.04
+
+MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk-9+181
+
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "${ARCH}" in \
+       amd64|x86_64) \
+         ESUM='17ed2dc4d883cd4b03f923270fcb4326a5ce5a4496c467f9fcd61045a359c877'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/x64_linux/latest/binary"; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='56338d19b9093ab8862e7441d351e47828c79ed056b1ecc454d4c9e7231b0be3'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/ppc64le_linux/latest/binary"; \
+         ;; \
+       s390x) \
+         ESUM='06e5ebb0fa3f8580f70d9cbb9f59b53007c691cb2f30be4993b586f7a1b1cc0a'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/s390x_linux/latest/binary"; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz; \
+    rm -f /tmp/openjdk.tar.gz;
+
+ENV PATH=/opt/java/openjdk/jdk-9+181/bin:$PATH
