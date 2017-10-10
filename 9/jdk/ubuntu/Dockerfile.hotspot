@@ -31,15 +31,15 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='17ed2dc4d883cd4b03f923270fcb4326a5ce5a4496c467f9fcd61045a359c877'; \
+         ESUM='29ad50f9414ed3e3399b90a1fd29043ccf9c3817edf32f6954e6f4da7a08742f'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/x64_linux/latest/binary"; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='56338d19b9093ab8862e7441d351e47828c79ed056b1ecc454d4c9e7231b0be3'; \
+         ESUM='94db4b4395840c45ef9cecb3c78eb8c9b5e3eba1ff2bb24527a4d0a7c786795d'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/ppc64le_linux/latest/binary"; \
          ;; \
        s390x) \
-         ESUM='06e5ebb0fa3f8580f70d9cbb9f59b53007c691cb2f30be4993b586f7a1b1cc0a'; \
+         ESUM='222deb9c1cd415b0d1d3213e5a208005a0b3721f6d7a0f898e555d582f63baa5'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/s390x_linux/latest/binary"; \
          ;; \
        *) \
