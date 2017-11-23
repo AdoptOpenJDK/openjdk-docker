@@ -19,7 +19,8 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 # 2. Build images and tag them appropriately
      $ cd openjdk-docker
-     $ ./build_latest.sh
+	 # version = 8|9
+     $ ./build_latest.sh $version
 
 # 3. The above script generates a script (push_commands.sh) that has the right commands to push to
 #    hub.docker.com. Make sure to login to hub.docker first
@@ -34,11 +35,11 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 #    lists and push them to hub.docker.com. The script generate_manifest_script.sh can be used to
 #    generate the right manifest commands. This needs to be run only on x86_64 after docker images
 #    for all architecures have been built and made available on hub.docker.com
-     $ ./generate_manifest_script.sh
+     $ ./generate_manifest_script.sh $version
 
 # 5. generate_manifest_script.sh generates a script manifest-commands.sh, that creates the manifest
 #    list and pushes them to hub.docker.com. 
-     $ ./manifest-commands.sh
+     $ ./manifest_commands.sh
 
 # We should now have the proper manifest lists pushed to hub.docker.com to support multi-arch pulls.
 ```
@@ -46,15 +47,15 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 # Info on other scripts
 ```
 # Run generate_latest_sums.sh to get the shasums for the latest binaries on adoptopenjdk.net
-  $ ./generate_latest_sums.sh
+  $ ./generate_latest_sums.sh $version
 
-# You should now have two files, hotspot-shasums-latest.sh and openj9-shasums-latest.sh. These will
+# You should now have two files, hotspot_shasums_latest.sh and openj9_shasums_latest.sh. These will
 # have the shasums for the latest version for each of the supported arches for hotspot and
 # Eclipse OpenJ9 respectively.
 
-# You can now run update-multiarch.sh to generate the Dockerfiles for all supported arches for both
+# You can now run update_multiarch.sh to generate the Dockerfiles for all supported arches for both
 # hotspot and Eclipse OpenJ9.
-  $ ./update-multiarch.sh
+  $ ./update_multiarch.sh $version
 
 # build_latest.sh will do all of the above and build the docker images for the current arch with the
 # right set of tags
