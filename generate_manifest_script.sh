@@ -12,12 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -e pipefail
+set -o pipefail
 
 root_dir="$PWD"
-man_file=${root_dir}/manifest-commands.sh
+man_file=${root_dir}/manifest_commands.sh
 source_prefix="adoptopenjdk"
 source_repo="openjdk"
+version="9"
+
+source ./common_functions.sh
+
+if [ ! -z "$1" ]; then
+	version=$1
+fi
+
+if [ ! -z "$(check_version $version)" ]; then
+	echo "ERROR: Invalid Version"
+	echo "Usage: $0 [8|9]"
+	exit 1
+fi
 
 # Where is the manifest tool installed?"
 # Manifest tool (docker with manifest support) needs to be added from here
@@ -40,10 +53,10 @@ fi
 rm -rf ~/.docker/manifests
 
 # Find the latest version and get the corresponding shasums
-./generate_latest_sums.sh
+./generate_latest_sums.sh ${version}
 
-source ./hotspot-shasums-latest.sh
-source ./openj9-shasums-latest.sh
+source ./hotspot_shasums_latest.sh
+source ./openj9_shasums_latest.sh
 
 # Set the params based on the arch we are on currently
 machine=`uname -m`
@@ -52,28 +65,24 @@ aarch64)
 	arch="aarch64"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot"
 	;;
 ppc64le)
 	arch="ppc64le"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 s390x)
 	arch="s390x"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 x86_64)
 	arch="x86_64"
 	oses="ubuntu alpine"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 *)
@@ -98,7 +107,7 @@ function check_image() {
 }
 
 # Get the supported architectures for a given VM (Hotspot, OpenJ9).
-# This is based on the hotspot-shasums-latest.sh/openj9-shasums-latest.sh
+# This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
 function get_arches() {
 	archsums="$(declare -p $1)";
 	eval "declare -A sums="${archsums#*=};

@@ -12,50 +12,51 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 ```
 # Steps 1-3 needs to be run on all supported arches.
-# i.e aarch64, ppc64le, s390x and x86_64.
+# i.e aarch64, ppc64le, s390x and x86\_64.
 
 # 1. Clone this github repo
      $ git clone https://github.com/AdoptOpenJDK/openjdk-docker
 
 # 2. Build images and tag them appropriately
      $ cd openjdk-docker
-     $ ./build_latest.sh
+	 # version = 8|9
+     $ ./build_latest.sh $version
 
-# 3. The above script generates a script (push_commands.sh) that has the right commands to push to
+# 3. The above script generates a script (push\_commands.sh) that has the right commands to push to
 #    hub.docker.com. Make sure to login to hub.docker first
      $ cat ~/my_password.txt | docker login --username foo --password-stdin
      $ ./push_commands.sh
 
-# Steps 4-5 needs to be run only on x86_64
+# Steps 4-5 needs to be run only on x86\_64
 
-# 4. build_latest.sh and push_commands.sh should be run on all supported architectures to build and
+# 4. build\_latest.sh and push\_commands.sh should be run on all supported architectures to build and
 #    push images to the docker registry. The images should now be available on hub.docker.com but
 #    without multi-arch support. To add multi-arch support, we need to generate the right manifest
-#    lists and push them to hub.docker.com. The script generate_manifest_script.sh can be used to
-#    generate the right manifest commands. This needs to be run only on x86_64 after docker images
+#    lists and push them to hub.docker.com. The script generate\_manifest\_script.sh can be used to
+#    generate the right manifest commands. This needs to be run only on x86\_64 after docker images
 #    for all architecures have been built and made available on hub.docker.com
-     $ ./generate_manifest_script.sh
+     $ ./generate_manifest_script.sh $version
 
-# 5. generate_manifest_script.sh generates a script manifest-commands.sh, that creates the manifest
+# 5. generate\_manifest\_script.sh generates a script manifest-commands.sh, that creates the manifest
 #    list and pushes them to hub.docker.com. 
-     $ ./manifest-commands.sh
+     $ ./manifest_commands.sh
 
 # We should now have the proper manifest lists pushed to hub.docker.com to support multi-arch pulls.
 ```
 
 # Info on other scripts
 ```
-# Run generate_latest_sums.sh to get the shasums for the latest binaries on adoptopenjdk.net
-  $ ./generate_latest_sums.sh
+# Run generate\_latest\_sums.sh to get the shasums for the latest binaries on adoptopenjdk.net
+  $ ./generate_latest_sums.sh $version
 
-# You should now have two files, hotspot-shasums-latest.sh and openj9-shasums-latest.sh. These will
+# You should now have two files, hotspot\_shasums\_latest.sh and openj9\_shasums\_latest.sh. These will
 # have the shasums for the latest version for each of the supported arches for hotspot and
 # Eclipse OpenJ9 respectively.
 
-# You can now run update-multiarch.sh to generate the Dockerfiles for all supported arches for both
+# You can now run update\_multiarch.sh to generate the Dockerfiles for all supported arches for both
 # hotspot and Eclipse OpenJ9.
-  $ ./update-multiarch.sh
+  $ ./update_multiarch.sh $version
 
-# build_latest.sh will do all of the above and build the docker images for the current arch with the
+# build\_latest.sh will do all of the above and build the docker images for the current arch with the
 # right set of tags
 ```

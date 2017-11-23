@@ -14,13 +14,10 @@
 #
 set -eo pipefail
 
-if [ ! -f hotspot-shasums-latest.sh -o ! -f openj9-shasums-latest.sh ]; then
+if [ ! -f hotspot_shasums_latest.sh -o ! -f openj9_shasums_latest.sh ]; then
 	echo "Run ./generate_latest_sums.sh to get the latest shasums first"
 	exit 1
 fi
-
-source ./hotspot-shasums-latest.sh
-source ./openj9-shasums-latest.sh
 
 # Dockerfiles to be generated
 version="9"
@@ -28,6 +25,21 @@ package="jdk"
 arches="ppc64le s390x x86_64"
 jvm="hotspot openj9"
 osver="ubuntu alpine"
+
+source ./common_functions.sh
+
+if [ ! -z "$1" ]; then
+	version=$1
+fi
+
+if [ ! -z "$(check_version $version)" ]; then
+	echo "ERROR: Invalid Version"
+	echo "Usage: $0 [8|9]"
+	exit 1
+fi
+
+source ./hotspot_shasums_latest.sh
+source ./openj9_shasums_latest.sh
 
 # Generate the common license and copyright header
 print_legal() {
@@ -249,9 +261,9 @@ do
 			do
 				file=${ver}/${pack}/${os}/Dockerfile.${vm}
 				if [ "$vm" == "hotspot" ]; then
-					reldir="openjdk9";
+					reldir="openjdk${version}";
 				elif [ "$vm" == "openj9" ]; then
-					reldir="openjdk9-openj9";
+					reldir="openjdk${version}-openj9";
 				fi
 				# Ubuntu is supported for everything
 				if [ "${os}" == "ubuntu" ]; then

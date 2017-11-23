@@ -19,10 +19,22 @@ jvm="hotspot openj9"
 arches="aarch64 ppc64le s390x x86_64"
 rootdir="$PWD"
 
+source ./common_functions.sh
+
+if [ ! -z "$1" ]; then
+	version=$1
+fi
+
+if [ ! -z "$(check_version $version)" ]; then
+	echo "ERROR: Invalid Version"
+	echo "Usage: $0 [8|9]"
+	exit 1
+fi
+
 function get_shasums() {
 	ver=$1
 	vm=$2
-	ofile="${rootdir}/${vm}-shasums-latest.sh"
+	ofile="${rootdir}/${vm}_shasums_latest.sh"
 
 	if [ "$vm" == "openj9" ]; then
 		reldir="openjdk${ver}-openj9"

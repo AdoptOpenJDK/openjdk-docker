@@ -17,15 +17,28 @@ set -o pipefail
 root_dir="$PWD"
 push_cmdfile=${root_dir}/push_commands.sh
 target_repo="adoptopenjdk/openjdk"
+version="9"
+
+source ./common_functions.sh
+
+if [ ! -z "$1" ]; then
+	version=$1
+fi
+
+if [ ! -z "$(check_version $version)" ]; then
+	echo "ERROR: Invalid Version"
+	echo "Usage: $0 [8|9]"
+	exit 1
+fi
 
 # Find the latest version and get the corresponding shasums
-./generate_latest_sums.sh
+./generate_latest_sums.sh $version
 
-source ./hotspot-shasums-latest.sh
-source ./openj9-shasums-latest.sh
+source ./hotspot_shasums_latest.sh
+source ./openj9_shasums_latest.sh
 
 # Generate the Dockerfiles for the latest version
-./update-multiarch.sh
+./update_multiarch.sh $version
 
 # Build the docker images and tag it based on the arch that we are on currently
 machine=`uname -m`
@@ -34,28 +47,24 @@ aarch64)
 	arch="aarch64"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot"
 	;;
 ppc64le)
 	arch="ppc64le"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 s390x)
 	arch="s390x"
 	oses="ubuntu"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 x86_64)
 	arch="x86_64"
 	oses="ubuntu alpine"
 	package="jdk"
-	version="9"
 	vms="hotspot openj9"
 	;;
 *)
