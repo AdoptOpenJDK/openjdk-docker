@@ -22,7 +22,6 @@ fi
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-arches="ppc64le s390x x86_64"
 jvm="hotspot openj9"
 osver="ubuntu alpine"
 
@@ -30,12 +29,11 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-fi
-
-if [ ! -z "$(check_version $version)" ]; then
-	echo "ERROR: Invalid Version"
-	echo "Usage: $0 [8|9]"
-	exit 1
+	if [ ! -z "$(check_version $version)" ]; then
+		echo "ERROR: Invalid Version"
+		echo "Usage: $0 [8|9]"
+		exit 1
+	fi
 fi
 
 source ./hotspot_shasums_latest.sh
@@ -134,21 +132,41 @@ EOI
 }
 
 # OS independent portion (Works for both Alpine and Ubuntu)
-# For Java 9 we use jlink to derive the JRE and the SFJ images.
 print_java_install() {
-	cat >> $1 <<-EOI
-       amd64|x86_64) \\
-         ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest/binary"; \\
+	supported_arches=$(get_arches ${shasums})
+	for sarch in ${supported_arches}
+	do
+		if [ "${sarch}" == "aarch64" ]; then
+			cat >> $1 <<-EOI
+       aarch64|arm64) \\
+         ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/aarch64_linux/latest/binary"; \\
          ;; \\
+		EOI
+		elif [ "${sarch}" == "ppc64le" ]; then
+			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
          JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/ppc64le_linux/latest/binary"; \\
          ;; \\
+		EOI
+		elif [ "${sarch}" == "s390x" ]; then
+			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
          JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/s390x_linux/latest/binary"; \\
          ;; \\
+		EOI
+		elif [ "${sarch}" == "x86_64" ]; then
+			cat >> $1 <<-EOI
+       amd64|x86_64) \\
+         ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest/binary"; \\
+         ;; \\
+		EOI
+		fi
+	done
+			cat >> $1 <<-EOI
        *) \\
          echo "Unsupported arch: \${ARCH}"; \\
          exit 1; \\

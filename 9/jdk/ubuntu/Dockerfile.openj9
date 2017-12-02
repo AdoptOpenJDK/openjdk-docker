@@ -30,17 +30,17 @@ ENV JAVA_VERSION jdk-9+181
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       amd64|x86_64) \
-         ESUM='74c7656a1f538476fe01471255e2d2bae57dfbd36cc6ab3bccb9c98b486c1a48'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/x64_linux/latest/binary"; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='32001755bac5677d8e1e0393429ac25170b31e9c89f4931a7cc99d6e42702354'; \
+         ESUM='23b04570478c0d703adac8e3841106d10e6126b9478f14bfc75a7be3f597fae1'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/ppc64le_linux/latest/binary"; \
          ;; \
        s390x) \
-         ESUM='e72da7026a7dac1aead810d908cb9f665ad6409b903340b0937289d1cdc70587'; \
+         ESUM='4d4dfecbb8a759eaacdd91fe025a1810b6c6c2f866e288f5fb5513dfc2db119a'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/s390x_linux/latest/binary"; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='e0d31d25adb81005eea1ad1095f8d48c1df9da02c39d4b02b201c55f8bb4dca3'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/releases/x64_linux/latest/binary"; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -30,10 +30,6 @@ ENV JAVA_VERSION jdk-9+181
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       amd64|x86_64) \
-         ESUM='29ad50f9414ed3e3399b90a1fd29043ccf9c3817edf32f6954e6f4da7a08742f'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/x64_linux/latest/binary"; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='94db4b4395840c45ef9cecb3c78eb8c9b5e3eba1ff2bb24527a4d0a7c786795d'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/ppc64le_linux/latest/binary"; \
@@ -42,7 +38,11 @@ RUN set -eux; \
          ESUM='222deb9c1cd415b0d1d3213e5a208005a0b3721f6d7a0f898e555d582f63baa5'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/s390x_linux/latest/binary"; \
          ;; \
-       arm64) \
+       amd64|x86_64) \
+         ESUM='29ad50f9414ed3e3399b90a1fd29043ccf9c3817edf32f6954e6f4da7a08742f'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/x64_linux/latest/binary"; \
+         ;; \
+       aarch64|arm64) \
          ESUM='063c33c102427eb7de207c855b3d639acc38a1d16ab068aa43f23c18ce33d150'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/aarch64_linux/latest/binary"; \
          ;; \
