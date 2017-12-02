@@ -42,6 +42,10 @@ RUN set -eux; \
          ESUM='222deb9c1cd415b0d1d3213e5a208005a0b3721f6d7a0f898e555d582f63baa5'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/s390x_linux/latest/binary"; \
          ;; \
+       arm64) \
+         ESUM='063c33c102427eb7de207c855b3d639acc38a1d16ab068aa43f23c18ce33d150'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/releases/aarch64_linux/latest/binary"; \
+         ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
