@@ -24,4 +24,15 @@ function check_version()
 	esac
 }
 
-
+# Get the supported architectures for a given VM (Hotspot, OpenJ9).
+# This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
+function get_arches() {
+	archsums="$(declare -p $1)";
+	eval "declare -A sums="${archsums#*=};
+	for arch in ${!sums[@]};
+	do
+		if [ "${arch}" != "version" ]; then
+			echo "${arch} "
+		fi
+	done
+}

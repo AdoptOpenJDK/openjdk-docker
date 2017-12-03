@@ -23,12 +23,11 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-fi
-
-if [ ! -z "$(check_version $version)" ]; then
-	echo "ERROR: Invalid Version"
-	echo "Usage: $0 [8|9]"
-	exit 1
+	if [ ! -z "$(check_version $version)" ]; then
+		echo "ERROR: Invalid Version"
+		echo "Usage: $0 [8|9]"
+		exit 1
+	fi
 fi
 
 # Find the latest version and get the corresponding shasums

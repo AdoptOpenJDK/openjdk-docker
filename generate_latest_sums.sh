@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -eo pipefail
+set -o pipefail
 
 version="9"
 jvm="hotspot openj9"
@@ -23,12 +23,11 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-fi
-
-if [ ! -z "$(check_version $version)" ]; then
-	echo "ERROR: Invalid Version"
-	echo "Usage: $0 [8|9]"
-	exit 1
+	if [ ! -z "$(check_version $version)" ]; then
+		echo "ERROR: Invalid Version"
+		echo "Usage: $0 [8|9]"
+		exit 1
+	fi
 fi
 
 function get_shasums() {
@@ -49,7 +48,6 @@ function get_shasums() {
 	do
 		case ${arch} in
 		aarch64)
-			if [ "${vm}" == "openj9" ]; then continue; fi;
 			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/releases/aarch64_linux/latest";
 			;;
 		ppc64le)
@@ -65,10 +63,12 @@ function get_shasums() {
 			echo "Unsupported arch: ${arch}"
 		esac
 		curl -Lso ${arch}_latest ${LATEST_URL};
-
-		shasums_url=$(cat ${arch}_latest | grep "checksum_link" | awk -F'"' '{ print $4 }');
-		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-		printf "\t[%s]=\"%s\"\n" ${arch} ${shasum} >> ${ofile}
+		availability=$(grep "No matches" ${arch}_latest);
+		if [ -z "${availability}" ]; then
+			shasums_url=$(cat ${arch}_latest | grep "checksum_link" | awk -F'"' '{ print $4 }');
+			shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+			printf "\t[%s]=\"%s\"\n" ${arch} ${shasum} >> ${ofile}
+		fi
 		rm -f ${arch}_latest
 	done
 	printf ")\n" >> ${ofile}

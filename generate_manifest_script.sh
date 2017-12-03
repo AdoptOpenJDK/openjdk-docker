@@ -18,18 +18,18 @@ root_dir="$PWD"
 man_file=${root_dir}/manifest_commands.sh
 source_prefix="adoptopenjdk"
 source_repo="openjdk"
+vms="hotspot openj9"
 version="9"
 
 source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-fi
-
-if [ ! -z "$(check_version $version)" ]; then
-	echo "ERROR: Invalid Version"
-	echo "Usage: $0 [8|9]"
-	exit 1
+	if [ ! -z "$(check_version $version)" ]; then
+		echo "ERROR: Invalid Version"
+		echo "Usage: $0 [8|9]"
+		exit 1
+	fi
 fi
 
 # Where is the manifest tool installed?"
@@ -65,25 +65,21 @@ aarch64)
 	arch="aarch64"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot"
 	;;
 ppc64le)
 	arch="ppc64le"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 s390x)
 	arch="s390x"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 x86_64)
 	arch="x86_64"
 	oses="ubuntu alpine"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 *)
 	echo "ERROR: Unsupported arch:${machine}, Exiting"
@@ -104,19 +100,6 @@ function check_image() {
 		exit 1
 	fi
 	echo "done"
-}
-
-# Get the supported architectures for a given VM (Hotspot, OpenJ9).
-# This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
-function get_arches() {
-	archsums="$(declare -p $1)";
-	eval "declare -A sums="${archsums#*=};
-	for arch in ${!sums[@]};
-	do
-		if [ "${arch}" != "version" ]; then
-			echo "${arch} "
-		fi
-	done
 }
 
 # build a set of valid docker image tags based on the VM and the supported arches.
