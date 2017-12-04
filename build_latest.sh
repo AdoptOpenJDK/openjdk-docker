@@ -25,7 +25,7 @@ if [ ! -z "$1" ]; then
 	version=$1
 	if [ ! -z "$(check_version $version)" ]; then
 		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [8|9]"
+		echo "Usage: $0 [${supported_versions}]"
 		exit 1
 	fi
 fi
@@ -33,8 +33,16 @@ fi
 # Find the latest version and get the corresponding shasums
 ./generate_latest_sums.sh $version
 
-source ./hotspot_shasums_latest.sh
-source ./openj9_shasums_latest.sh
+# source the hotspot and openj9 shasums scripts
+supported_jvms=""
+if [ -f hotspot_shasums_latest.sh ]; then
+	source ./hotspot_shasums_latest.sh
+	supported_jvms="hotspot"
+fi
+if [ -f openj9_shasums_latest.sh ]; then
+	source ./openj9_shasums_latest.sh
+	supported_jvms="${supported_jvms} openj9"
+fi
 
 # Generate the Dockerfiles for the latest version
 ./update_multiarch.sh $version
@@ -46,25 +54,21 @@ aarch64)
 	arch="aarch64"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot"
 	;;
 ppc64le)
 	arch="ppc64le"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 s390x)
 	arch="s390x"
 	oses="ubuntu"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 x86_64)
 	arch="x86_64"
 	oses="ubuntu alpine"
 	package="jdk"
-	vms="hotspot openj9"
 	;;
 *)
 	echo "ERROR: Unsupported arch:$machine, Exiting"
@@ -87,10 +91,11 @@ function build_image() {
 	echo "INFO: docker build --no-cache ${tags} -f Dockerfile.${vm} ."
 	echo "#####################################################"
 	docker build --no-cache ${tags} -f Dockerfile.${vm} . 
+	if [ $? != 0 ]; then
+		echo "ERROR: Docker build of image: ${tags} from Dockerfile.${vm} failed."
+		exit 1
+	fi
 }
-
-# Delete any old images for our target_repo on localhost
-docker rmi -f $(docker images | grep -e "${target_repo}" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
 
 # Script that has the push commands for the images that we are building.
 echo "#!/bin/bash" > ${push_cmdfile}
@@ -101,7 +106,7 @@ echo >> ${push_cmdfile}
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}
 for os in ${oses}
 do
-	for vm in ${vms}
+	for vm in ${supported_jvms}
 	do
 		shasums="${package}"_"${vm}"_"${version}"_sums
 		jverinfo=${shasums}[version]

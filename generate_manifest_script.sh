@@ -18,7 +18,6 @@ root_dir="$PWD"
 man_file=${root_dir}/manifest_commands.sh
 source_prefix="adoptopenjdk"
 source_repo="openjdk"
-vms="hotspot openj9"
 version="9"
 
 source ./common_functions.sh
@@ -27,7 +26,7 @@ if [ ! -z "$1" ]; then
 	version=$1
 	if [ ! -z "$(check_version $version)" ]; then
 		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [8|9]"
+		echo "Usage: $0 [${supported_versions}]"
 		exit 1
 	fi
 fi
@@ -55,8 +54,16 @@ rm -rf ~/.docker/manifests
 # Find the latest version and get the corresponding shasums
 ./generate_latest_sums.sh ${version}
 
-source ./hotspot_shasums_latest.sh
-source ./openj9_shasums_latest.sh
+# source the hotspot and openj9 shasums scripts
+supported_jvms=""
+if [ -f hotspot_shasums_latest.sh ]; then
+	source ./hotspot_shasums_latest.sh
+	supported_jvms="hotspot"
+fi
+if [ -f openj9_shasums_latest.sh ]; then
+	source ./openj9_shasums_latest.sh
+	supported_jvms="${supported_jvms} openj9"
+fi
 
 # Set the params based on the arch we are on currently
 machine=`uname -m`
@@ -183,7 +190,7 @@ function print_tags() {
 #
 declare -A manifest_tags_ubuntu
 declare -A manifest_tags_alpine
-for vm in ${vms}
+for vm in ${supported_jvms}
 do
 	shasums="${package}"_"${vm}"_"${version}"_sums
 	jverinfo=${shasums}[version]

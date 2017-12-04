@@ -19,7 +19,7 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 # 2. Build images and tag them appropriately
      $ cd openjdk-docker
-	 # version = 8|9
+	 # version = 8|9|10
      $ ./build_latest.sh $version
 
 # 3. The above script generates a script (push_commands.sh) that has the right commands to push to
