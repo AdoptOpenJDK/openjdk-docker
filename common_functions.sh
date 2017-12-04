@@ -13,10 +13,13 @@
 # limitations under the License.
 #
 
+# Current JVM versions supported
+export supported_versions="8 9 10"
+
 function check_version()
 {
 	case $version in
-	8|9)
+	8|9|10)
 		;;
 	*)
 		echo "ERROR: Invalid version"
@@ -36,3 +39,12 @@ function get_arches() {
 		fi
 	done
 }
+
+function cleanup_images() {
+	# Delete any old containers that have exited.
+	docker rm $(docker ps -a | grep "Exited" | awk '{ print $1 }') 2>/dev/null
+
+	# Delete any old images for our target_repo on localhost.
+	docker rmi -f $(docker images | grep -e "${target_repo}" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
+}
+

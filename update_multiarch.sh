@@ -14,15 +14,9 @@
 #
 set -eo pipefail
 
-if [ ! -f hotspot_shasums_latest.sh -o ! -f openj9_shasums_latest.sh ]; then
-	echo "Run ./generate_latest_sums.sh to get the latest shasums first"
-	exit 1
-fi
-
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-jvm="hotspot openj9"
 osver="ubuntu alpine"
 
 source ./common_functions.sh
@@ -31,13 +25,25 @@ if [ ! -z "$1" ]; then
 	version=$1
 	if [ ! -z "$(check_version $version)" ]; then
 		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [8|9]"
+		echo "Usage: $0 [${supported_versions}]"
 		exit 1
 	fi
 fi
 
-source ./hotspot_shasums_latest.sh
-source ./openj9_shasums_latest.sh
+# source the hotspot and openj9 shasums scripts
+supported_jvms=""
+if [ -f hotspot_shasums_latest.sh ]; then
+	source ./hotspot_shasums_latest.sh
+	supported_jvms="hotspot"
+fi
+if [ -f openj9_shasums_latest.sh ]; then
+	source ./openj9_shasums_latest.sh
+	supported_jvms="${supported_jvms} openj9"
+fi
+if [ "${supported_jvms}" = "" ]; then
+	echo "Run ./generate_latest_sums.sh to get the latest shasums first"
+	exit 1
+fi
 
 # Generate the common license and copyright header
 print_legal() {
@@ -275,7 +281,7 @@ do
 	do
 		for os in ${osver}
 		do
-			for vm in ${jvm}
+			for vm in ${supported_jvms}
 			do
 				file=${ver}/${pack}/${os}/Dockerfile.${vm}
 				if [ "$vm" == "hotspot" ]; then

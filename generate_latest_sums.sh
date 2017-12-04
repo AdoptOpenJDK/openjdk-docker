@@ -15,7 +15,7 @@
 set -o pipefail
 
 version="9"
-jvm="hotspot openj9"
+jvms="hotspot openj9"
 arches="aarch64 ppc64le s390x x86_64"
 rootdir="$PWD"
 
@@ -25,7 +25,7 @@ if [ ! -z "$1" ]; then
 	version=$1
 	if [ ! -z "$(check_version $version)" ]; then
 		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [8|9]"
+		echo "Usage: $0 [${supported_versions}]"
 		exit 1
 	fi
 fi
@@ -41,7 +41,12 @@ function get_shasums() {
 		reldir="openjdk${ver}"
 	fi
 	info_url="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest"
-	full_version=$(curl -Ls ${info_url} | grep "release_name" | awk -F'"' '{ print $4 }');
+	info=$(curl -Ls ${info_url})
+	err=$(echo ${info} | grep -e "Error" -e "No matches")
+	if [ "${err}" != ""  ]; then
+		return;
+	fi
+	full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
 	printf "declare -A jdk_%s_%s_sums=(\n" $vm $ver > ${ofile}
 	printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
 	for arch in ${arches}
@@ -83,7 +88,7 @@ function get_shasums() {
 echo "Getting latest shasum info for major version: $version"
 for ver in ${version}
 do
-	for vm in ${jvm}
+	for vm in ${jvms}
 	do
 		get_shasums ${ver} ${vm}
 	done
