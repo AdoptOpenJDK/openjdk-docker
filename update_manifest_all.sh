@@ -16,23 +16,24 @@ set -o pipefail
 
 source ./common_functions.sh
 
-# Cleanup any old containers and images
+# Cleanup any old containers, images and manifest entries.
 cleanup_images
+cleanup_manifest
 
 for ver in ${supported_versions}
 do
 	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
 
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                    Building Docker Images for Version ${ver}                  "
+	echo "                 Generating Manifest Entries for Version ${ver}                "
 	echo "                                                                               "
 	echo "==============================================================================="
-	./build_latest.sh ${ver}
+	./generate_manifest_script.sh ${ver}
 
 	err=$?
-	if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
+	if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
 		echo
 		echo "ERROR: Docker Build for version ${ver} failed."
 		echo
@@ -43,12 +44,13 @@ do
 	echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
 	echo
 	sleep 5
-	# Now push the images to hub.docker.com
+
+	# Now push the manifest entries to hub.docker.com
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                    Pushing Docker Images for Version ${ver}                   "
+	echo "                 Pushing Manifest Entries for Version ${ver}                   "
 	echo "                                                                               "
 	echo "==============================================================================="
-	cat push_commands.sh
-	./push_commands.sh
+	cat manifest_commands.sh
+	./manifest_commands.sh
 done
