@@ -48,3 +48,8 @@ function cleanup_images() {
 	docker rmi -f $(docker images | grep -e "${target_repo}" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
 }
 
+function cleanup_manifest() {
+	# Remove any previously created manifest lists.
+	# Currently there is no way to do this using the tool.
+	rm -rf ~/.docker/manifests
+}

@@ -47,10 +47,6 @@ if [ ! -f ${manifest_tool} ]; then
 	exit 1
 fi
 
-# Remove any previously created manifest lists.
-# Currently there is no way to do this using the tool.
-rm -rf ~/.docker/manifests
-
 # Find the latest version and get the corresponding shasums
 ./generate_latest_sums.sh ${version}
 
@@ -147,11 +143,14 @@ function print_manifest_cmd() {
 
 	main_tags=""
 	os="$(echo ${arch_tags} | awk '{ print $1 }' | awk -F':' '{ print $2 }' | awk -F'-' '{ print $2 }')"
+	# For ubuntu, :$release and :latest are the additional generic tags
+	# For alpine, :$release-alpine and :alpine are the additional generic tags
 	if [ ${os} == "ubuntu" ]; then
-		main_tags=${trepo}:$release
+		main_tags=${trepo}:${release}
 		main_tags="${main_tags} ${trepo}:latest"
 	else
-		main_tags=${trepo}:$release-alpine
+		main_tags=${trepo}:${release}-alpine
+		main_tags="${main_tags} ${trepo}:alpine"
 	fi
 
 	for main_tag in ${main_tags}
@@ -185,8 +184,10 @@ function print_tags() {
 }
 
 # Valid image tags
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}
+#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel} ${rel} latest
+#adoptopenjdk/openjdk${version}:${rel}-alpine alpine
+#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel} ${rel} latest
+#adoptopenjdk/openjdk${version}-openj9:${rel}-alpine alpine
 #
 declare -A manifest_tags_ubuntu
 declare -A manifest_tags_alpine
