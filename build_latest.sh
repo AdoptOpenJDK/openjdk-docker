@@ -34,14 +34,14 @@ fi
 ./generate_latest_sums.sh $version
 
 # source the hotspot and openj9 shasums scripts
-supported_jvms=""
+avail_jvms=""
 if [ -f hotspot_shasums_latest.sh ]; then
 	source ./hotspot_shasums_latest.sh
-	supported_jvms="hotspot"
+	avail_jvms="hotspot"
 fi
 if [ -f openj9_shasums_latest.sh ]; then
 	source ./openj9_shasums_latest.sh
-	supported_jvms="${supported_jvms} openj9"
+	avail_jvms="${avail_jvms} openj9"
 fi
 
 # Generate the Dockerfiles for the latest version
@@ -106,18 +106,22 @@ echo >> ${push_cmdfile}
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}
 for os in ${oses}
 do
-	for vm in ${supported_jvms}
+	for vm in ${avail_jvms}
 	do
 		shasums="${package}"_"${vm}"_"${version}"_sums
+		sup=$(vm_supported_onarch ${vm} ${shasums})
+		if [ -z "${sup}" ]; then
+			continue;
+		fi
 		jverinfo=${shasums}[version]
 		eval jrel=\${$jverinfo}
 		rel=$(echo $jrel | sed 's/+/./')
 	
 		file="${root_dir}/${version}/${package}/${os}/Dockerfile.${vm}"
-		if [ ! -f $file ]; then
+		if [ ! -f ${file} ]; then
 			continue;
 		fi
-		ddir=`dirname $file`
+		ddir=`dirname ${file}`
 		pushd $ddir >/dev/null
 		if [ "${vm}" == "hotspot" ]; then
 			trepo=${target_repo}${version}

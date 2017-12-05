@@ -40,6 +40,18 @@ function get_arches() {
 	done
 }
 
+# Check if the given VM is supported on the current architecture.
+# This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
+function vm_supported_onarch() {
+	vm=$1
+	sums=$2
+	currarch=`uname -m`
+
+	suparches=$(get_arches ${sums})
+	sup=$(echo ${suparches} | grep ${currarch})
+	echo ${sup}
+}
+
 function cleanup_images() {
 	# Delete any old containers that have exited.
 	docker rm $(docker ps -a | grep "Exited" | awk '{ print $1 }') 2>/dev/null
