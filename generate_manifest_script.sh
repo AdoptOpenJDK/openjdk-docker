@@ -120,6 +120,7 @@ function build_tag_list() {
 	arch_tags=""
 	for sarch in ${supported_arches}
 	do
+		# Have '%' as FS to retrieve the OS and Rel info later.
 		tag="${sarch}%${os}%${rel}"
 		arch_tags="${arch_tags} ${tag}"
 	done
@@ -137,13 +138,16 @@ function print_annotate_cmd() {
 	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> ${man_file}
 }
 
+# Space separated list of tags in parameter array
 function print_manifest_cmd() {
 	atags=$@
 
 	main_tags=""
+	# Get the OS and Release info from the tag list.
 	declare -a tarr=( ${atags} )
 	os="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $2 }')"
 	release="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $3 }')"
+	# Remove the '%' and add back '-' as the FS
 	arch_tags=$(echo ${atags} | sed 's/%/-/g')
 
 	# For ubuntu, :$release and :latest are the additional generic tags
