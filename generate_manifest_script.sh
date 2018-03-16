@@ -94,8 +94,9 @@ esac
 # This script errors out if the image does not exist.
 function check_image() {
 	lrepo=$1
-	tag=$2
+	stag=$2
 
+	tag=$(echo ${stag} | sed 's/%/-/g')
 	echo -n "INFO: Pulling image: ${lrepo}:${tag}..."
 	docker pull ${lrepo}:${tag} >/dev/null
 	if [ $? != 0 ]; then
@@ -119,7 +120,7 @@ function build_tag_list() {
 	arch_tags=""
 	for sarch in ${supported_arches}
 	do
-		tag=${sarch}-${os}-${rel}
+		tag="${sarch}%${os}%${rel}"
 		arch_tags="${arch_tags} ${tag}"
 	done
 	echo "${arch_tags}"
@@ -137,12 +138,14 @@ function print_annotate_cmd() {
 }
 
 function print_manifest_cmd() {
-	release=$1
-	shift
-	arch_tags=$@
+	atags=$@
 
 	main_tags=""
-	os="$(echo ${arch_tags} | awk '{ print $1 }' | awk -F':' '{ print $2 }' | awk -F'-' '{ print $2 }')"
+	declare -a tarr=( ${atags} )
+	os="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $2 }')"
+	release="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $3 }')"
+	arch_tags=$(echo ${atags} | sed 's/%/-/g')
+
 	# For ubuntu, :$release and :latest are the additional generic tags
 	# For alpine, :$release-alpine and :alpine are the additional generic tags
 	if [ ${os} == "ubuntu" ]; then
@@ -179,7 +182,7 @@ function print_tags() {
 			check_image ${trepo} ${tarr[$i]}
 			create_cmd="${create_cmd} ${trepo}:${tarr[$i]}"
 		done
-		print_manifest_cmd ${rel} ${create_cmd}
+		print_manifest_cmd ${create_cmd}
 	done
 }
 
