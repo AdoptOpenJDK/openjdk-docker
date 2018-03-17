@@ -94,8 +94,9 @@ esac
 # This script errors out if the image does not exist.
 function check_image() {
 	lrepo=$1
-	tag=$2
+	stag=$2
 
+	tag=$(echo ${stag} | sed 's/%/-/g')
 	echo -n "INFO: Pulling image: ${lrepo}:${tag}..."
 	docker pull ${lrepo}:${tag} >/dev/null
 	if [ $? != 0 ]; then
@@ -119,7 +120,8 @@ function build_tag_list() {
 	arch_tags=""
 	for sarch in ${supported_arches}
 	do
-		tag=${sarch}-${os}-${rel}
+		# Have '%' as FS to retrieve the OS and Rel info later.
+		tag="${sarch}%${os}%${rel}"
 		arch_tags="${arch_tags} ${tag}"
 	done
 	echo "${arch_tags}"
@@ -136,13 +138,18 @@ function print_annotate_cmd() {
 	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> ${man_file}
 }
 
+# Space separated list of tags in parameter array
 function print_manifest_cmd() {
-	release=$1
-	shift
-	arch_tags=$@
+	atags=$@
 
 	main_tags=""
-	os="$(echo ${arch_tags} | awk '{ print $1 }' | awk -F':' '{ print $2 }' | awk -F'-' '{ print $2 }')"
+	# Get the OS and Release info from the tag list.
+	declare -a tarr=( ${atags} )
+	os="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $2 }')"
+	release="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $3 }')"
+	# Remove the '%' and add back '-' as the FS
+	arch_tags=$(echo ${atags} | sed 's/%/-/g')
+
 	# For ubuntu, :$release and :latest are the additional generic tags
 	# For alpine, :$release-alpine and :alpine are the additional generic tags
 	if [ ${os} == "ubuntu" ]; then
@@ -179,7 +186,7 @@ function print_tags() {
 			check_image ${trepo} ${tarr[$i]}
 			create_cmd="${create_cmd} ${trepo}:${tarr[$i]}"
 		done
-		print_manifest_cmd ${rel} ${create_cmd}
+		print_manifest_cmd ${create_cmd}
 	done
 }
 
