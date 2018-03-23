@@ -34,22 +34,26 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && apk del binutils \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk8u162-b12_openj9-0.8.0
+ENV JAVA_VERSION jdk-9+181
 
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='c985d22a58d43165561fa5c0c483acefb2afd407a6a0539da66d06d13c2af00c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/ppc64le_linux/latest/binary"; \
+         ESUM='b401d9b8f88f2efbe70734edb4e19d8a2ffe27f5721cfddf382cbdb6b05aee45'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/ppc64le_linux/latest/binary"; \
          ;; \
        s390x) \
-         ESUM='b1eb77b49ae94c77df1762d372897ff52d918c8a25ce8b6dcb9c18e9ad7a58db'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/s390x_linux/latest/binary"; \
+         ESUM='bc5795411d4ab5790858a398c18d28f607aa716707ded84b0a55c0fc622cc3b2'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/s390x_linux/latest/binary"; \
          ;; \
        amd64|x86_64) \
-         ESUM='4a90944fbe96cb6452391e952cc7c9b5136fb042a445eb205e31a029fd72fd7c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/x64_linux/latest/binary"; \
+         ESUM='c72d4857df8f7ea1f636cefb8b920f1ebc5d235c835a3a4b9e6fff9c8b7865cb'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/x64_linux/latest/binary"; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='b6b2b9de921198a35e3d2439f076c33be9b0e255cdd0d29df5e96675e93dc48c'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/aarch64_linux/latest/binary"; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -63,4 +67,4 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     rm -f /tmp/openjdk.tar.gz;
 
-ENV PATH=/opt/java/openjdk/jdk8u162-b12_openj9-0.8.0/bin:$PATH
+ENV PATH=/opt/java/openjdk/jdk-9+181/bin:$PATH

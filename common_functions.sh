@@ -16,6 +16,9 @@
 # Current JVM versions supported
 export supported_versions="8 9 10"
 
+# Current build types supported
+export build_types="releases nightly"
+
 function check_version()
 {
 	case $version in
