@@ -126,7 +126,7 @@ EOI
 # Print the Java version that is being installed here
 print_env() {
 	srcpkg=$2
-	shasums="${srcpkg}"_"${vm}"_"${ver}"_sums
+	shasums="${srcpkg}"_"${vm}"_"${ver}"_"${buildtype}"_sums
 	jverinfo=${shasums}[version]
 	eval jver=\${$jverinfo}
 
@@ -146,28 +146,28 @@ print_java_install() {
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/aarch64_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/aarch64_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/ppc64le_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/ppc64le_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/s390x_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/s390x_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest/binary"; \\
          ;; \\
 		EOI
 		fi
@@ -279,22 +279,29 @@ for ver in ${version}
 do
 	for pack in ${package}
 	do
-		for os in ${osver}
+		for buildtype in ${build_types}
 		do
-			for vm in ${supported_jvms}
+			for os in ${osver}
 			do
-				file=${ver}/${pack}/${os}/Dockerfile.${vm}
-				if [ "$vm" == "hotspot" ]; then
-					reldir="openjdk${version}";
-				elif [ "$vm" == "openj9" ]; then
-					reldir="openjdk${version}-openj9";
-				fi
-				# Ubuntu is supported for everything
-				if [ "${os}" == "ubuntu" ]; then
-					generate_ubuntu ${file}
-				elif [ "${os}" == "alpine" ]; then
-					generate_alpine ${file}
-				fi
+				for vm in ${supported_jvms}
+				do
+					if [ "${buildtype}" == "nightly" ]; then
+						file=${ver}/${pack}/${os}/Dockerfile.${vm}.${buildtype}
+					else
+						file=${ver}/${pack}/${os}/Dockerfile.${vm}
+					fi
+					if [ "$vm" == "hotspot" ]; then
+						reldir="openjdk${version}";
+					elif [ "$vm" == "openj9" ]; then
+						reldir="openjdk${version}-openj9";
+					fi
+					# Ubuntu is supported for everything
+					if [ "${os}" == "ubuntu" ]; then
+						generate_ubuntu ${file}
+					elif [ "${os}" == "alpine" ]; then
+						generate_alpine ${file}
+					fi
+				done
 			done
 		done
 	done

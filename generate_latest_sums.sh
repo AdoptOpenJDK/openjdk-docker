@@ -46,42 +46,46 @@ function get_shasums() {
 	if [ "${err}" != ""  ]; then
 		return;
 	fi
-	full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
-	printf "declare -A jdk_%s_%s_sums=(\n" $vm $ver > ${ofile}
-	printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
-	for arch in ${arches}
+	for buildtype in ${build_types}
 	do
-		case ${arch} in
-		aarch64)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/releases/aarch64_linux/latest";
-			;;
-		ppc64le)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/releases/ppc64le_linux/latest";
-			;;
-		s390x)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/releases/s390x_linux/latest";
-			;;
-		x86_64)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest";
-			;;
-		*)
-			echo "Unsupported arch: ${arch}"
-		esac
-		curl -Lso ${arch}_latest ${LATEST_URL};
-		availability=$(grep "No matches" ${arch}_latest);
-		if [ -z "${availability}" ]; then
-			shasums_url=$(cat ${arch}_latest | grep "checksum_link" | awk -F'"' '{ print $4 }');
-			shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-			printf "\t[%s]=\"%s\"\n" ${arch} ${shasum} >> ${ofile}
-		fi
-		rm -f ${arch}_latest
-	done
-	printf ")\n" >> ${ofile}
-	chmod +x ${ofile}
+		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
+		printf "declare -A jdk_%s_%s_%s_sums=(\n" ${vm} ${ver} ${buildtype} >> ${ofile}
+		printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
+		for arch in ${arches}
+		do
+			case ${arch} in
+			aarch64)
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/aarch64_linux/latest";
+				;;
+			ppc64le)
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/ppc64le_linux/latest";
+				;;
+			s390x)
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/s390x_linux/latest";
+				;;
+			x86_64)
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest";
+				;;
+			*)
+				echo "Unsupported arch: ${arch}"
+			esac
+			shasum_file="${arch}_${buildtype}_latest"
+			curl -Lso ${shasum_file} ${LATEST_URL};
+			availability=$(grep "No matches" ${shasum_file});
+			if [ -z "${availability}" ]; then
+				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | awk -F'"' '{ print $4 }');
+				shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+				printf "\t[%s]=\"%s\"\n" ${arch} ${shasum} >> ${ofile}
+			fi
+			rm -f ${shasum_file}
+		done
+		printf ")\n" >> ${ofile}
 
-	echo
-	echo "sha256sums for the version: ${full_version} now available in ${ofile}"
-	echo
+		echo
+		echo "sha256sums for the version ${full_version} for build type \"${buildtype}\" is now available in ${ofile}"
+		echo
+	done
+	chmod +x ${ofile}
 }
 
 

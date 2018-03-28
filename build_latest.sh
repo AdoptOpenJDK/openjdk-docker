@@ -87,12 +87,18 @@ function build_image() {
 		echo "docker push ${repo}:${tag}" >> ${push_cmdfile}
 	done
 
+	if [ "${buildtype}" == "nightly" ]; then
+		dockerfile="Dockerfile.${vm}.nightly"	
+	else
+		dockerfile="Dockerfile.${vm}"
+	fi
+
 	echo "#####################################################"
-	echo "INFO: docker build --no-cache ${tags} -f Dockerfile.${vm} ."
+	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	docker build --no-cache ${tags} -f Dockerfile.${vm} . 
+	docker build --no-cache ${tags} -f ${dockerfile} . 
 	if [ $? != 0 ]; then
-		echo "ERROR: Docker build of image: ${tags} from Dockerfile.${vm} failed."
+		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 		exit 1
 	fi
 }
@@ -103,35 +109,48 @@ echo >> ${push_cmdfile}
 
 # Valid image tags
 #adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}
+#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}-nightly
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}
+#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
 for os in ${oses}
 do
 	for vm in ${avail_jvms}
 	do
-		shasums="${package}"_"${vm}"_"${version}"_sums
-		sup=$(vm_supported_onarch ${vm} ${shasums})
-		if [ -z "${sup}" ]; then
-			continue;
-		fi
-		jverinfo=${shasums}[version]
-		eval jrel=\${$jverinfo}
-		rel=$(echo $jrel | sed 's/+/./')
-	
-		file="${root_dir}/${version}/${package}/${os}/Dockerfile.${vm}"
-		if [ ! -f ${file} ]; then
-			continue;
-		fi
-		ddir=`dirname ${file}`
-		pushd $ddir >/dev/null
-		if [ "${vm}" == "hotspot" ]; then
-			trepo=${target_repo}${version}
-		else
-			trepo=${target_repo}${version}-${vm}
-		fi
-		tag=${arch}-${os}-${rel}
-		echo "INFO: Building ${trepo} ${tag} from $file ..."
-		build_image ${trepo} ${tag}
-		popd >/dev/null
+		for buildtype in ${build_types}
+		do
+			shasums="${package}"_"${vm}"_"${version}"_"${buildtype}"_sums
+			sup=$(vm_supported_onarch ${vm} ${shasums})
+			if [ -z "${sup}" ]; then
+				continue;
+			fi
+			jverinfo=${shasums}[version]
+			eval jrel=\${$jverinfo}
+			rel=$(echo $jrel | sed 's/+/./')
+		
+			if [ "${buildtype}" == "nightly" ]; then
+				file="${root_dir}/${version}/${package}/${os}/Dockerfile.${vm}.nightly"
+			else
+				file="${root_dir}/${version}/${package}/${os}/Dockerfile.${vm}"
+			fi
+			if [ ! -f ${file} ]; then
+				continue;
+			fi
+			ddir=`dirname ${file}`
+			pushd $ddir >/dev/null
+			if [ "${vm}" == "hotspot" ]; then
+				trepo=${target_repo}${version}
+			else
+				trepo=${target_repo}${version}-${vm}
+			fi
+			if [ "${buildtype}" == "nightly" ]; then
+				tag=${arch}-${os}-${rel}-nightly
+			else
+				tag=${arch}-${os}-${rel}
+			fi
+			echo "INFO: Building ${trepo} ${tag} from $file ..."
+			build_image ${trepo} ${tag}
+			popd >/dev/null
+		done
 	done
 done
 chmod +x ${push_cmdfile}

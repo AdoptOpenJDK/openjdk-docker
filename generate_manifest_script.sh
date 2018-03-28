@@ -111,6 +111,7 @@ function build_tag_list() {
 	sums=$1
 	os=$2
 	rel=$3
+	btype=$4
 
 	if [ ${os} == "ubuntu" ]; then
 		supported_arches=$(get_arches ${sums})
@@ -121,7 +122,11 @@ function build_tag_list() {
 	for sarch in ${supported_arches}
 	do
 		# Have '%' as FS to retrieve the OS and Rel info later.
-		tag="${sarch}%${os}%${rel}"
+		if [ "${btype}" == "nightly" ]; then
+			tag=${sarch}%${os}%${rel}%nightly
+		else
+			tag=${sarch}%${os}%${rel}
+		fi
 		arch_tags="${arch_tags} ${tag}"
 	done
 	echo "${arch_tags}"
@@ -147,17 +152,28 @@ function print_manifest_cmd() {
 	declare -a tarr=( ${atags} )
 	os="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $2 }')"
 	release="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $3 }')"
+	btype="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $NF }')"
 	# Remove the '%' and add back '-' as the FS
 	arch_tags=$(echo ${atags} | sed 's/%/-/g')
 
 	# For ubuntu, :$release and :latest are the additional generic tags
 	# For alpine, :$release-alpine and :alpine are the additional generic tags
 	if [ ${os} == "ubuntu" ]; then
-		main_tags=${trepo}:${release}
-		main_tags="${main_tags} ${trepo}:latest"
+		if [ "${btype}" == "nightly" ]; then
+			main_tags=${trepo}:${release}-nightly
+			main_tags="${main_tags} ${trepo}:nightly"
+		else
+			main_tags=${trepo}:${release}
+			main_tags="${main_tags} ${trepo}:latest"
+		fi
 	else
-		main_tags=${trepo}:${release}-alpine
-		main_tags="${main_tags} ${trepo}:alpine"
+		if [ "${btype}" == "nightly" ]; then
+			main_tags=${trepo}:${release}-alpine-nightly
+			main_tags="${main_tags} ${trepo}:alpine-nightly"
+		else
+			main_tags=${trepo}:${release}-alpine
+			main_tags="${main_tags} ${trepo}:alpine"
+		fi
 	fi
 
 	for main_tag in ${main_tags}
@@ -191,38 +207,53 @@ function print_tags() {
 }
 
 # Valid image tags
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel} ${rel} latest
-#adoptopenjdk/openjdk${version}:${rel}-alpine alpine
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel} ${rel} latest
-#adoptopenjdk/openjdk${version}-openj9:${rel}-alpine alpine
+#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel} ${rel} latest ${rel}-nightly nightly
+#adoptopenjdk/openjdk${version}:${rel}-alpine alpine ${rel}-alpine-nightly alpine-nightly
+#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel} ${rel} latest ${rel}-nightly nightly
+#adoptopenjdk/openjdk${version}-openj9:${rel}-alpine alpine ${rel}-alpine-nightly alpine-nightly
 #
 declare -A manifest_tags_ubuntu
 declare -A manifest_tags_alpine
+
+declare -A manifest_tags_ubuntu_nightly
+declare -A manifest_tags_alpine_nightly
+
 for vm in ${supported_jvms}
 do
-	shasums="${package}"_"${vm}"_"${version}"_sums
-	jverinfo=${shasums}[version]
-	eval jrel=\${$jverinfo}
-	rel=$(echo $jrel | sed 's/+/./')
-
-	if [ "${vm}" == "hotspot" ]; then
-		srepo=${source_repo}${version}
-	else
-		srepo=${source_repo}${version}-${vm}
-	fi
-	for os in ${oses}
+	for buildtype in ${build_types}
 	do
-		echo -n "INFO: Building tag list for [${vm}] and [${os}]..."
-		tag_list=$(build_tag_list ${shasums} ${os} ${rel})
-		if [ $os == "ubuntu" ]; then
-			manifest_tags_ubuntu[${srepo}]=${tag_list}
-		elif [ $os == "alpine" ]; then
-			manifest_tags_alpine[${srepo}]=${tag_list}
+		shasums="${package}"_"${vm}"_"${version}"_"${buildtype}"_sums
+		jverinfo=${shasums}[version]
+		eval jrel=\${$jverinfo}
+		rel=$(echo $jrel | sed 's/+/./')
+
+		if [ "${vm}" == "hotspot" ]; then
+			srepo=${source_repo}${version}
 		else
-			echo "ERROR: Unsupported OS: ${os}"
-			exit 1
+			srepo=${source_repo}${version}-${vm}
 		fi
-		echo "done"
+		for os in ${oses}
+		do
+			echo -n "INFO: Building tag list for [${vm}] and [${os}] for build type [${buildtype}]..."
+			tag_list=$(build_tag_list ${shasums} ${os} ${rel} ${buildtype})
+			if [ $os == "ubuntu" ]; then
+				if [ "${buildtype}" == "nightly" ]; then
+					manifest_tags_ubuntu_nightly[${srepo}]=${tag_list}
+				else
+					manifest_tags_ubuntu[${srepo}]=${tag_list}
+				fi
+			elif [ $os == "alpine" ]; then
+				if [ "${buildtype}" == "nightly" ]; then
+					manifest_tags_alpine_nightly[${srepo}]=${tag_list}
+				else
+					manifest_tags_alpine[${srepo}]=${tag_list}
+				fi
+			else
+				echo "ERROR: Unsupported OS: ${os}"
+				exit 1
+			fi
+			echo "done"
+		done
 	done
 done
 
@@ -231,7 +262,9 @@ echo "#!/bin/bash" > ${man_file}
 echo  >> ${man_file}
 
 print_tags manifest_tags_ubuntu
+print_tags manifest_tags_ubuntu_nightly
 print_tags manifest_tags_alpine
+print_tags manifest_tags_alpine_nightly
 
 chmod +x ${man_file}
 echo "INFO: Manifest commands in file: ${man_file}"
