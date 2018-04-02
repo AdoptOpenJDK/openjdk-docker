@@ -40,15 +40,19 @@ function get_shasums() {
 	else
 		reldir="openjdk${ver}"
 	fi
-	info_url="https://api.adoptopenjdk.net/${reldir}/releases/x64_linux/latest"
-	info=$(curl -Ls ${info_url})
-	err=$(echo ${info} | grep -e "Error" -e "No matches")
-	if [ "${err}" != ""  ]; then
-		return;
-	fi
 	for buildtype in ${build_types}
 	do
+		info_url="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest"
+		info=$(curl -Ls ${info_url})
+		err=$(echo ${info} | grep -e "Error" -e "No matches")
+		if [ "${err}" != ""  ]; then
+			return;
+		fi
 		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
+		if [ "${buildtype}" == "nightly" ]; then
+			# remove date at the end of full_version for nightly builds
+			full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}$//')
+		fi
 		printf "declare -A jdk_%s_%s_%s_sums=(\n" ${vm} ${ver} ${buildtype} >> ${ofile}
 		printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
 		for arch in ${arches}
