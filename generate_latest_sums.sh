@@ -46,7 +46,7 @@ function get_shasums() {
 		info=$(curl -Ls ${info_url})
 		err=$(echo ${info} | grep -e "Error" -e "No matches")
 		if [ "${err}" != ""  ]; then
-			return;
+			continue;
 		fi
 		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
 		if [ "${buildtype}" == "nightly" ]; then

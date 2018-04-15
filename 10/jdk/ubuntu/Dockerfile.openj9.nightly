@@ -25,18 +25,22 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-10+23
+ENV JAVA_VERSION jdk-10+46
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='633ff0ce1a66c797d99da33a4269a2ebbd817f62c0f24ae83250638eb70ae023'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/ppc64le_linux/latest/binary"; \
+         ESUM='6d4a9704510cf833909f8eed10e7512d364e27c408163488186c98aafb2ce6b1'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk10-openj9/nightly/ppc64le_linux/latest/binary"; \
+         ;; \
+       s390x) \
+         ESUM='b86f26acaf071709f8fa1949d234839d8f03e0134ad8c7d7bd8958980a78cd0f'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk10-openj9/nightly/s390x_linux/latest/binary"; \
          ;; \
        amd64|x86_64) \
-         ESUM='37292e843552441329e49c1e0a4efc446647ba8ba6e4bc140910e72e1bea19d7'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/x64_linux/latest/binary"; \
+         ESUM='61b43dd5e399dc56d8f83ad0afbe40a304ef2d8f592b5ffd5aeed0c223d818df'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk10-openj9/nightly/x64_linux/latest/binary"; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -50,4 +54,4 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     rm -f /tmp/openjdk.tar.gz;
 
-ENV PATH=/opt/java/openjdk/jdk-10+23/bin:$PATH
+ENV PATH=/opt/java/openjdk/jdk-10+46/bin:$PATH
