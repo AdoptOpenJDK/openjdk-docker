@@ -81,7 +81,7 @@ print_ubuntu_os() {
 # Print the supported Alpine OS
 print_alpine_os() {
 	cat >> $1 <<-EOI
-	FROM alpine:3.6
+	FROM alpine:3.7
 
 	EOI
 }
@@ -118,8 +118,12 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
     && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
     && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/zlib/download > /tmp/libz.tar.xz \
+    && mkdir /tmp/libz \
+    && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
+    && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del binutils \
-    && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /var/cache/apk/*
+    && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 EOI
 }
 
@@ -285,6 +289,12 @@ do
 			do
 				for vm in ${supported_jvms}
 				do
+					shasums="${package}"_"${vm}"_"${ver}"_"${buildtype}"_sums
+					jverinfo=${shasums}[version]
+					eval jver=\${$jverinfo}
+					if [[ -z ${jver} ]]; then
+						continue;
+					fi
 					if [ "${buildtype}" == "nightly" ]; then
 						file=${ver}/${pack}/${os}/Dockerfile.${vm}.${buildtype}
 					else
