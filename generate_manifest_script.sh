@@ -225,6 +225,9 @@ do
 		shasums="${package}"_"${vm}"_"${version}"_"${buildtype}"_sums
 		jverinfo=${shasums}[version]
 		eval jrel=\${$jverinfo}
+		if [[ -z ${jrel} ]]; then
+			continue;
+		fi
 		rel=$(echo $jrel | sed 's/+/./')
 
 		if [ "${vm}" == "hotspot" ]; then
