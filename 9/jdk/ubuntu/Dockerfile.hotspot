@@ -58,4 +58,5 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     rm -f /tmp/openjdk.tar.gz;
 
-ENV PATH=/opt/java/openjdk/jdk-9+181/bin:$PATH
+ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
+ENV PATH=$JAVA_HOME/bin:$PATH
