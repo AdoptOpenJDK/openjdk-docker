@@ -67,4 +67,5 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     rm -f /tmp/openjdk.tar.gz;
 
-ENV PATH=/opt/java/openjdk/jdk8u144-b01/bin:$PATH
+ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
+ENV PATH=$JAVA_HOME/bin:$PATH
