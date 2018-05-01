@@ -219,12 +219,10 @@ EOI
 }
 
 print_java_env() {
-	JPATH="/opt/java/openjdk/${jver}/bin"
-	TPATH="PATH=${JPATH}:\$PATH"
-
 	cat >> $1 <<-EOI
 
-ENV ${TPATH}
+ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
+ENV PATH=$JAVA_HOME/bin:$PATH
 EOI
 }
 
