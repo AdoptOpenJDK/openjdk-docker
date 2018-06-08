@@ -15,10 +15,12 @@
 set -o pipefail
 
 root_dir="$PWD"
-man_file=${root_dir}/manifest_commands.sh
 source_prefix="adoptopenjdk"
 source_repo="openjdk"
 version="9"
+tag_aliases=""
+arch_tags=""
+man_file=${root_dir}/manifest_commands.sh
 
 source ./common_functions.sh
 
@@ -93,49 +95,23 @@ esac
 # Check if a given docker image exists on the server.
 # This script errors out if the image does not exist.
 function check_image() {
-	lrepo=$1
-	stag=$2
+	img=$1
 
-	tag=$(echo ${stag} | sed 's/%/-/g')
-	echo -n "INFO: Pulling image: ${lrepo}:${tag}..."
-	docker pull ${lrepo}:${tag} >/dev/null
+	echo -n "INFO: Pulling image: ${img}..."
+	docker pull ${img} >/dev/null
 	if [ $? != 0 ]; then
-		echo "ERROR: Docker Image ${lrepo}:${tag} not found on hub.docker\n"
+		echo "ERROR: Docker Image ${img} not found on hub.docker\n"
 		exit 1
 	fi
 	echo "done"
 }
 
-# build a set of valid docker image tags based on the VM and the supported arches.
-function build_tag_list() {
-	sums=$1
-	os=$2
-	rel=$3
-	btype=$4
-
-	if [ ${os} == "ubuntu" ]; then
-		supported_arches=$(get_arches ${sums})
-	else
-		supported_arches="x86_64"
-	fi
-	arch_tags=""
-	for sarch in ${supported_arches}
-	do
-		# Have '%' as FS to retrieve the OS and Rel info later.
-		if [ "${btype}" == "nightly" ]; then
-			tag=${sarch}%${os}%${rel}%nightly
-		else
-			tag=${sarch}%${os}%${rel}
-		fi
-		arch_tags="${arch_tags} ${tag}"
-	done
-	echo "${arch_tags}"
-}
-
+# Print the arch specific annotate command.
 function print_annotate_cmd() {
 	main_tag=$1
 	arch_tag=$2
 
+	# The manifest tool expects "amd64" as arch and not "x86_64"
 	march=$(echo ${arch_tag} | awk -F':' '{ print $2 }' | awk -F'-' '{ print $1 }')
 	if [ ${march} == "x86_64" ]; then
 		march="amd64"
@@ -143,131 +119,125 @@ function print_annotate_cmd() {
 	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> ${man_file}
 }
 
-# Space separated list of tags in parameter array
+# Space separated list of tags
 function print_manifest_cmd() {
-	atags=$@
+	trepo=$1; shift;
+	img_list=$*
 
-	main_tags=""
-	# Get the OS and Release info from the tag list.
-	declare -a tarr=( ${atags} )
-	os="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $2 }')"
-	release="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $3 }')"
-	btype="$(echo ${tarr[0]} | awk -F':' '{ print $2 }' | awk -F'%' '{ print $NF }')"
-	# Remove the '%' and add back '-' as the FS
-	arch_tags=$(echo ${atags} | sed 's/%/-/g')
-
-	# For ubuntu, :$release and :latest are the additional generic tags
-	# For alpine, :$release-alpine and :alpine are the additional generic tags
-	if [ ${os} == "ubuntu" ]; then
-		if [ "${btype}" == "nightly" ]; then
-			main_tags=${trepo}:${release}-nightly
-			main_tags="${main_tags} ${trepo}:nightly"
-		else
-			main_tags=${trepo}:${release}
-			main_tags="${main_tags} ${trepo}:latest"
-		fi
-	else
-		if [ "${btype}" == "nightly" ]; then
-			main_tags=${trepo}:${release}-alpine-nightly
-			main_tags="${main_tags} ${trepo}:alpine-nightly"
-		else
-			main_tags=${trepo}:${release}-alpine
-			main_tags="${main_tags} ${trepo}:alpine"
-		fi
-	fi
-
-	for main_tag in ${main_tags}
+	# Global variable tag_aliases has the alias list
+	for talias in ${tag_aliases}
 	do
-		echo "${manifest_tool} manifest create ${main_tag} ${arch_tags}" >> ${man_file}
-		declare -a tarr=( ${arch_tags} )
-		for i in `seq 0 $(( ${#tarr[@]} - 1 ))`
+		echo "${manifest_tool} manifest create ${trepo}:${talias} ${img_list}" >> ${man_file}
+		for img in ${img_list}
 		do
-			print_annotate_cmd ${main_tag} ${tarr[$i]}
+			print_annotate_cmd ${trepo}:${talias} ${img}
 		done
-		echo "${manifest_tool} manifest push ${main_tag}" >> ${man_file}
+		echo "${manifest_tool} manifest push ${trepo}:${talias}" >> ${man_file}
 		echo >> ${man_file}
 	done
 }
 
+# Check each of the images in the global variable arch_tags exist and
+# Create the tag list from the arch_tags list.
 function print_tags() {
-	mantags="$(declare -p $1)";
-	eval "declare -A mtags="${mantags#*=};
-	for repo in ${!mtags[@]}
+	repo=$1
+	img_list=""
+	# Check if all the individual docker images exist for each expected arch
+	for arch_tag in ${arch_tags}
 	do
-		create_cmd=""
-		declare -a tarr=( ${mtags[$repo]} )
-		for i in `seq 0 $(( ${#tarr[@]} - 1 ))`
-		do
-			trepo=${source_prefix}/${repo}
-			check_image ${trepo} ${tarr[$i]}
-			create_cmd="${create_cmd} ${trepo}:${tarr[$i]}"
-		done
-		print_manifest_cmd ${create_cmd}
+		trepo=${source_prefix}/${repo}
+		check_image ${trepo}:${arch_tag}
+		img_list="${img_list} ${trepo}:${arch_tag}"
 	done
+	print_manifest_cmd ${trepo} ${img_list}
 }
 
-# Valid image tags
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel} ${rel} latest ${rel}-nightly nightly
-#adoptopenjdk/openjdk${version}:${rel}-alpine alpine ${rel}-alpine-nightly alpine-nightly
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel} ${rel} latest ${rel}-nightly nightly
-#adoptopenjdk/openjdk${version}-openj9:${rel}-alpine alpine ${rel}-alpine-nightly alpine-nightly
-#
-declare -A manifest_tags_ubuntu
-declare -A manifest_tags_alpine
+# Build valid image tags using the tags.config file as the base
+function build_tags() {
+	vm=$1; shift
+	ver=$1; shift;
+	rel=$1; shift;
+	os=$1; shift;
+	build=$1; shift;
+	rawtags=$*
+	tmpfile=raw_arch_tags.$$.tmp
 
-declare -A manifest_tags_ubuntu_nightly
-declare -A manifest_tags_alpine_nightly
+	# Get the list of supported arches for this vm / ver /os combo
+	arches=$(parse_vm_entry ${vm} ${ver} ${os} "Architectures:")
+	# Replace the proper version string in the tags
+	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
+	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
+	# Separate the arch and the generic alias tags
+    awk '{ a=0; n=0;
+		for (i=1; i<=NF; i++) {
+			if (match($i, "ARCH") > 0) {
+				atags[a++]=sprintf(" %s", $i);
+			} else {
+				natags[n++]=sprintf(" %s", $i);
+			}
+		}
+	} END {
+		printf("arch_tags: "); for (key in atags) { printf"%s ", atags[key] }; printf"\n";
+		printf("tag_aliases: "); for (key in natags) { printf"%s ", natags[key] }; printf"\n";
+	}' > ${tmpfile}
 
-for vm in ${supported_jvms}
-do
-	for buildtype in ${build_types}
+	tag_aliases=$(cat ${tmpfile} | grep "^tag_aliases:" | sed "s/tag_aliases: //")
+	raw_arch_tags=$(cat ${tmpfile} | grep "^arch_tags:" | sed "s/arch_tags: //")
+	arch_tags=""
+	# Iterate through the arch tags and expand to add the supported arches.
+	for tag in ${raw_arch_tags}
 	do
-		shasums="${package}"_"${vm}"_"${version}"_"${buildtype}"_sums
-		jverinfo=${shasums}[version]
-		eval jrel=\${$jverinfo}
-		if [[ -z ${jrel} ]]; then
-			continue;
-		fi
-		rel=$(echo $jrel | sed 's/+/./')
-
-		if [ "${vm}" == "hotspot" ]; then
-			srepo=${source_repo}${version}
-		else
-			srepo=${source_repo}${version}-${vm}
-		fi
-		for os in ${oses}
+		for arch in ${arches}
 		do
-			echo -n "INFO: Building tag list for [${vm}] and [${os}] for build type [${buildtype}]..."
-			tag_list=$(build_tag_list ${shasums} ${os} ${rel} ${buildtype})
-			if [ $os == "ubuntu" ]; then
-				if [ "${buildtype}" == "nightly" ]; then
-					manifest_tags_ubuntu_nightly[${srepo}]=${tag_list}
-				else
-					manifest_tags_ubuntu[${srepo}]=${tag_list}
-				fi
-			elif [ $os == "alpine" ]; then
-				if [ "${buildtype}" == "nightly" ]; then
-					manifest_tags_alpine_nightly[${srepo}]=${tag_list}
-				else
-					manifest_tags_alpine[${srepo}]=${tag_list}
-				fi
-			else
-				echo "ERROR: Unsupported OS: ${os}"
-				exit 1
-			fi
-			echo "done"
+			atag=$(echo ${tag} | sed "s/{{ARCH}}/${arch}"/g)
+			arch_tags="${arch_tags} ${atag}"
 		done
 	done
-done
+	rm -f ${tmpfile}
+}
 
 # Populate the script to create the manifest list
 echo "#!/bin/bash" > ${man_file}
 echo  >> ${man_file}
 
-print_tags manifest_tags_ubuntu
-print_tags manifest_tags_ubuntu_nightly
-print_tags manifest_tags_alpine
-print_tags manifest_tags_alpine_nightly
+# Go through each vm / os / build / type combination and build the manifest commands
+# vm    = hotspot / openj9
+# os    = alpine / ubuntu
+# build = releases / nightly
+# type  = full / slim
+for vm in ${supported_jvms}
+do
+	for os in ${oses}
+	do
+		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
+		types=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		for build in ${builds}
+		do
+			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+			jverinfo=${shasums}[version]
+			eval jrel=\${$jverinfo}
+			if [[ -z ${jrel} ]]; then
+				continue;
+			fi
+			# Docker image tags cannot have "+" in them, replace it with "." instead.
+			rel=$(echo ${jrel} | sed 's/+/./g')
+
+			srepo=${source_repo}${version}
+			if [ "${vm}" != "hotspot" ]; then
+				srepo=${srepo}-${vm}
+			fi
+			for typ in ${types}
+			do
+				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${typ}]..."
+				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
+				raw_tags=$(parse_tag_entry ${tags_config_file} ${os} ${build} ${typ})
+				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
+				echo "done"
+				print_tags ${srepo}
+			done
+		done
+	done
+done
 
 chmod +x ${man_file}
 echo "INFO: Manifest commands in file: ${man_file}"

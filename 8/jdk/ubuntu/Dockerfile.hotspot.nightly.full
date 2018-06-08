@@ -25,26 +25,22 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-9+181
+ENV JAVA_VERSION jdk8u172-b00
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='b401d9b8f88f2efbe70734edb4e19d8a2ffe27f5721cfddf382cbdb6b05aee45'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/ppc64le_linux/latest/binary"; \
-         ;; \
        s390x) \
-         ESUM='bc5795411d4ab5790858a398c18d28f607aa716707ded84b0a55c0fc622cc3b2'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/s390x_linux/latest/binary"; \
+         ESUM='163aa10ce75d534515fb0223c96d7d6842dd80a1a9f29b4aafb771a8ef1c09a1'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/nightly/s390x_linux/latest/binary"; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='e1dc80416102a1b1eca81d164f7bfd1d391c6dd0e5ac5cb80ca33d6de17d6651'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/nightly/ppc64le_linux/latest/binary"; \
          ;; \
        amd64|x86_64) \
-         ESUM='c72d4857df8f7ea1f636cefb8b920f1ebc5d235c835a3a4b9e6fff9c8b7865cb'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/x64_linux/latest/binary"; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='b6b2b9de921198a35e3d2439f076c33be9b0e255cdd0d29df5e96675e93dc48c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/aarch64_linux/latest/binary"; \
+         ESUM='be06bdea08db8972c97ea6a43644c778176c6fe827bf635f9685e68098fd0b64'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/nightly/x64_linux/latest/binary"; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -58,5 +54,5 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     rm -f /tmp/openjdk.tar.gz;
 
-ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
-ENV PATH=$JAVA_HOME/bin:$PATH
+ENV JAVA_HOME=/opt/java/openjdk/jdk8u172-b00 \
+    PATH="/opt/java/openjdk/jdk8u172-b00/bin:$PATH"

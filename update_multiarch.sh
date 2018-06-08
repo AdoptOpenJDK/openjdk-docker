@@ -23,7 +23,7 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-	if [ ! -z "$(check_version $version)" ]; then
+	if [ ! -z "$(check_version ${version})" ]; then
 		echo "ERROR: Invalid Version"
 		echo "Usage: $0 [${supported_versions}]"
 		exit 1
@@ -40,7 +40,7 @@ if [ -f openj9_shasums_latest.sh ]; then
 	source ./openj9_shasums_latest.sh
 	supported_jvms="${supported_jvms} openj9"
 fi
-if [ "${supported_jvms}" = "" ]; then
+if [ "${supported_jvms}" == "" ]; then
 	echo "Run ./generate_latest_sums.sh to get the latest shasums first"
 	exit 1
 fi
@@ -129,8 +129,7 @@ EOI
 
 # Print the Java version that is being installed here
 print_env() {
-	srcpkg=$2
-	shasums="${srcpkg}"_"${vm}"_"${ver}"_"${buildtype}"_sums
+	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 	jverinfo=${shasums}[version]
 	eval jver=\${$jverinfo}
 
@@ -142,7 +141,9 @@ EOI
 }
 
 # OS independent portion (Works for both Alpine and Ubuntu)
-print_java_install() {
+print_java_install_pre() {
+	bld=$2
+	typ=$3
 	supported_arches=$(get_arches ${shasums})
 	for sarch in ${supported_arches}
 	do
@@ -150,28 +151,28 @@ print_java_install() {
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/aarch64_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/aarch64_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/ppc64le_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/ppc64le_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/s390x_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/s390x_linux/latest/binary"; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest/binary"; \\
+         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/x64_linux/latest/binary"; \\
          ;; \\
 		EOI
 		fi
@@ -189,129 +190,156 @@ EOI
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz; \
-    rm -f /tmp/openjdk.tar.gz;
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    mv ${jdir}/* /opt/java/openjdk; \
 EOI
+}
 
+print_java_install_post() {
+	cat >> $1 <<-EOI
+    rm -rf \${jdir} /tmp/openjdk.tar.gz;
+EOI
+}
+
+# Call the script to create the slim package
+print_ubuntu_slim_package() {
+	cat >> $1 <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    apt-get update; apt-get install -y --no-install-recommends binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    apt-get remove -y binutils; \\
+    rm -rf /var/lib/apt/lists/*; \\
+EOI
+}
+
+print_alpine_slim_package() {
+	cat >> $1 <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    apk --update add --no-cache bash binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    apk del bash binutils; \\
+    rm -rf /var/cache/apk/*; \\
+EOI
 }
 
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
-	srcpkg=$2
-	dstpkg=$3
+	bld=$2
+	typ=$3
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     ARCH="\$(dpkg --print-architecture)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install ${file} ${srcpkg} ${dstpkg};
+	print_java_install_pre ${file} ${bld} ${typ}
+	if [ "${typ}" == "slim" ]; then
+		print_ubuntu_slim_package $1
+	fi
+	print_java_install_post $1
 }
 
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
-	srcpkg=$2
-	dstpkg=$3
+	bld=$2
+	typ=$3
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install ${file} ${srcpkg} ${dstpkg};
+	print_java_install_pre ${file} ${bld} ${typ}
+	if [ "${typ}" == "slim" ]; then
+		print_alpine_slim_package $1
+	fi
+	print_java_install_post $1
 }
 
 print_java_env() {
-	JPATH="/opt/java/openjdk/${jver}/bin"
-	TPATH="PATH=${JPATH}:\$PATH"
+	jhome="/opt/java/openjdk"
 
 	cat >> $1 <<-EOI
 
-ENV ${TPATH}
+ENV JAVA_HOME=${jhome} \\
+    PATH="${jhome}/bin:\$PATH"
 EOI
 }
 
-print_exclude_file() {
-	srcpkg=$2
-	dstpkg=$3
-	if [ "${ver}" == "9" -a "${dstpkg}" == "sfj" ]; then
-		cp sfj-exclude.txt `dirname ${file}`
+copy_slim_script() {
+	if [ "${typ}" == "slim" ]; then
 		cat >> $1 <<-EOI
-COPY sfj-exclude.txt /tmp
+COPY slim-java.sh /usr/local/bin
 
 EOI
 	fi
-}
-
-generate_java() {
-	srcpkg=${pack};
-	dstpkg=${pack};
-	print_env ${file} ${srcpkg};
-	print_exclude_file ${file} ${srcpkg} ${dstpkg};
-	if [ "${os}" == "ubuntu" ]; then
-		print_ubuntu_java_install ${file} ${srcpkg} ${dstpkg};
-	elif [ "${os}" == "alpine" ]; then
-		print_alpine_java_install ${file} ${srcpkg} ${dstpkg};
-	fi
-	print_java_env ${file} ${srcpkg};
 }
 
 generate_ubuntu() {
 	file=$1
+	bld=$2
+	typ=$3
 	mkdir -p `dirname ${file}` 2>/dev/null
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
 	print_ubuntu_os ${file};
 	print_maint ${file};
 	print_ubuntu_pkg ${file};
-	generate_java ${file};
+	print_env ${file} ${bld} ${typ};
+	copy_slim_script ${file};
+	print_ubuntu_java_install ${file} ${bld} ${typ};
+	print_java_env ${file} ${bld} ${typ};
 	echo "done"
 }
 
 generate_alpine() {
 	file=$1
+	bld=$2
+	typ=$3
 	mkdir -p `dirname ${file}` 2>/dev/null
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
 	print_alpine_os ${file};
 	print_maint ${file};
 	print_alpine_pkg ${file};
-	generate_java ${file};
+	print_env ${file} ${bld} ${typ};
+	copy_slim_script ${file};
+	print_alpine_java_install ${file} ${bld} ${typ};
+	print_java_env ${file} ${bld} ${typ};
 	echo "done"
 }
 
 # Iterate through all the Java versions for each of the supported packages,
 # architectures and supported Operating Systems.
-for ver in ${version}
+for vm in ${supported_jvms}
 do
-	for pack in ${package}
+	oses=$(cat ${vm}.config | grep "OS:" | sed "s/OS: //")
+	for os in ${oses}
 	do
-		for buildtype in ${build_types}
+		# Build = Release or Nightly
+		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
+		# Type = Full or Slim
+		types=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
+
+		for build in ${builds}
 		do
-			for os in ${osver}
+			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+			jverinfo=${shasums}[version]
+			eval jver=\${$jverinfo}
+			if [[ -z ${jver} ]]; then
+				continue;
+			fi
+			for typ in ${types}
 			do
-				for vm in ${supported_jvms}
-				do
-					shasums="${package}"_"${vm}"_"${ver}"_"${buildtype}"_sums
-					jverinfo=${shasums}[version]
-					eval jver=\${$jverinfo}
-					if [[ -z ${jver} ]]; then
-						continue;
-					fi
-					if [ "${buildtype}" == "nightly" ]; then
-						file=${ver}/${pack}/${os}/Dockerfile.${vm}.${buildtype}
-					else
-						file=${ver}/${pack}/${os}/Dockerfile.${vm}
-					fi
-					if [ "$vm" == "hotspot" ]; then
-						reldir="openjdk${version}";
-					elif [ "$vm" == "openj9" ]; then
-						reldir="openjdk${version}-openj9";
-					fi
-					# Ubuntu is supported for everything
-					if [ "${os}" == "ubuntu" ]; then
-						generate_ubuntu ${file}
-					elif [ "${os}" == "alpine" ]; then
-						generate_alpine ${file}
-					fi
-				done
+				file=${dir}/Dockerfile.${vm}.${build}.${typ}
+				# Copy the script to generate slim builds.
+				if [ "${typ}" = "slim" ]; then
+					cp slim-java.sh ${dir}
+				fi
+				reldir="openjdk${version}";
+				if [ "${vm}" != "hotspot" ]; then
+					reldir="${reldir}-${vm}";
+				fi
+				generate_${os} ${file} ${build} ${typ}
 			done
 		done
 	done

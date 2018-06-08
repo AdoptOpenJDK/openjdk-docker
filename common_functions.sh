@@ -13,15 +13,20 @@
 # limitations under the License.
 #
 
+tags_config_file="tags.config"
+openj9_config_file="openj9.config"
+hotspot_config_file="hotspot.config"
+
 # Current JVM versions supported
 export supported_versions="8 9 10"
 
-# Current build types supported
-export build_types="releases nightly"
+# Current builds supported
+export supported_builds="releases nightly"
 
 function check_version()
 {
-	case $version in
+	version=$1
+	case ${version} in
 	8|9|10)
 		;;
 	*)
@@ -67,4 +72,25 @@ function cleanup_manifest() {
 	# Remove any previously created manifest lists.
 	# Currently there is no way to do this using the tool.
 	rm -rf ~/.docker/manifests
+}
+
+# Parse the openj9.config / hotspot.config file for an entry as specified by $4
+# $1 = VM
+# $2 = Version
+# $3 = OS
+# $4 = String to look for.
+function parse_vm_entry() {
+	entry=$(cat ${1}.config | grep -B 4 "$2\/.*\/$3" | grep "$4" | sed "s/$4 //")
+	echo ${entry}
+}
+
+# Read the tags file and parse the specific tag.
+# $1 = Tags file
+# $2 = OS
+# $3 = Build (releases / nightly)
+# $4 = Type (full / slim)
+function parse_tag_entry() {
+	tag="$2-$3-$4-tags:"
+	entry=$(cat $1 | grep ${tag} | sed "s/${tag} //")
+	echo ${entry}
 }

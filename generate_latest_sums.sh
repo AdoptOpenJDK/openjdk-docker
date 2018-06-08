@@ -23,7 +23,7 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-	if [ ! -z "$(check_version $version)" ]; then
+	if [ ! -z "$(check_version ${version})" ]; then
 		echo "ERROR: Invalid Version"
 		echo "Usage: $0 [${supported_versions}]"
 		exit 1
@@ -35,45 +35,45 @@ function get_shasums() {
 	vm=$2
 	ofile="${rootdir}/${vm}_shasums_latest.sh"
 
-	if [ "$vm" == "openj9" ]; then
+	if [ "${vm}" == "openj9" ]; then
 		reldir="openjdk${ver}-openj9"
 	else
 		reldir="openjdk${ver}"
 	fi
-	for buildtype in ${build_types}
+	for build in ${supported_builds}
 	do
-		info_url="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest"
+		info_url="https://api.adoptopenjdk.net/${reldir}/${build}/x64_linux/latest"
 		info=$(curl -Ls ${info_url})
 		err=$(echo ${info} | grep -e "Error" -e "No matches")
 		if [ "${err}" != ""  ]; then
 			continue;
 		fi
 		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
-		if [ "${buildtype}" == "nightly" ]; then
+		if [ "${build}" == "nightly" ]; then
 			# remove date at the end of full_version for nightly builds
 			full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}$//')
 		fi
-		printf "declare -A jdk_%s_%s_%s_sums=(\n" ${vm} ${ver} ${buildtype} >> ${ofile}
+		printf "declare -A jdk_%s_%s_%s_sums=(\n" ${vm} ${ver} ${build} >> ${ofile}
 		printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
 		for arch in ${arches}
 		do
 			case ${arch} in
 			aarch64)
-				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/aarch64_linux/latest";
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${build}/aarch64_linux/latest";
 				;;
 			ppc64le)
-				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/ppc64le_linux/latest";
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${build}/ppc64le_linux/latest";
 				;;
 			s390x)
-				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/s390x_linux/latest";
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${build}/s390x_linux/latest";
 				;;
 			x86_64)
-				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${buildtype}/x64_linux/latest";
+				LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${build}/x64_linux/latest";
 				;;
 			*)
 				echo "Unsupported arch: ${arch}"
 			esac
-			shasum_file="${arch}_${buildtype}_latest"
+			shasum_file="${arch}_${build}_latest"
 			curl -Lso ${shasum_file} ${LATEST_URL};
 			availability=$(grep "No matches" ${shasum_file});
 			if [ -z "${availability}" ]; then
@@ -86,7 +86,7 @@ function get_shasums() {
 		printf ")\n" >> ${ofile}
 
 		echo
-		echo "sha256sums for the version ${full_version} for build type \"${buildtype}\" is now available in ${ofile}"
+		echo "sha256sums for the version ${full_version} for build type \"${build}\" is now available in ${ofile}"
 		echo
 	done
 	chmod +x ${ofile}
@@ -94,10 +94,7 @@ function get_shasums() {
 
 
 echo "Getting latest shasum info for major version: $version"
-for ver in ${version}
+for vm in ${jvms}
 do
-	for vm in ${jvms}
-	do
-		get_shasums ${ver} ${vm}
-	done
+	get_shasums ${version} ${vm}
 done
