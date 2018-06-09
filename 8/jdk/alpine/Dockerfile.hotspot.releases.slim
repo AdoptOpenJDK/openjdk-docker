@@ -71,12 +71,14 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz; \
-    export PATH="/opt/java/openjdk/jdk8u172-b11/bin:$PATH"; \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    mv ${jdir}/* /opt/java/openjdk; \
+    export PATH="/opt/java/openjdk/bin:$PATH"; \
     apk --update add --no-cache bash binutils; \
-    /usr/local/bin/slim-java.sh /opt/java/openjdk/jdk8u172-b11; \
+    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
     apk del bash binutils; \
     rm -rf /var/cache/apk/*; \
-    rm -f /tmp/openjdk.tar.gz;
+    rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
-ENV JAVA_HOME=/opt/java/openjdk/jdk8u172-b11 \
-    PATH="/opt/java/openjdk/jdk8u172-b11/bin:$PATH"
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="${JAVA_HOME}/bin:$PATH"

@@ -260,7 +260,7 @@ print_java_env() {
 	cat >> $1 <<-EOI
 
 ENV JAVA_HOME=${jhome} \\
-    PATH="${jhome}/bin:\$PATH"
+    PATH="\${JAVA_HOME}/bin:\$PATH"
 EOI
 }
 
