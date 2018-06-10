@@ -71,7 +71,7 @@ print_legal() {
 }
 
 # Print the supported Ubuntu OS
-print_ubuntu_os() {
+print_ubuntu_ver() {
 	cat >> $1 <<-EOI
 	FROM ubuntu:16.04
 
@@ -79,7 +79,7 @@ print_ubuntu_os() {
 }
 
 # Print the supported Alpine OS
-print_alpine_os() {
+print_alpine_ver() {
 	cat >> $1 <<-EOI
 	FROM alpine:3.7
 
@@ -273,36 +273,20 @@ EOI
 	fi
 }
 
-generate_ubuntu() {
+generate_java() {
 	file=$1
 	bld=$2
 	typ=$3
+	os=$4
 	mkdir -p `dirname ${file}` 2>/dev/null
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
-	print_ubuntu_os ${file};
+	print_${os}_ver ${file};
 	print_maint ${file};
-	print_ubuntu_pkg ${file};
+	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${typ};
 	copy_slim_script ${file};
-	print_ubuntu_java_install ${file} ${bld} ${typ};
-	print_java_env ${file} ${bld} ${typ};
-	echo "done"
-}
-
-generate_alpine() {
-	file=$1
-	bld=$2
-	typ=$3
-	mkdir -p `dirname ${file}` 2>/dev/null
-	echo -n "Writing ${file} ... "
-	print_legal ${file};
-	print_alpine_os ${file};
-	print_maint ${file};
-	print_alpine_pkg ${file};
-	print_env ${file} ${bld} ${typ};
-	copy_slim_script ${file};
-	print_alpine_java_install ${file} ${bld} ${typ};
+	print_${os}_java_install ${file} ${bld} ${typ};
 	print_java_env ${file} ${bld} ${typ};
 	echo "done"
 }
@@ -339,7 +323,7 @@ do
 				if [ "${vm}" != "hotspot" ]; then
 					reldir="${reldir}-${vm}";
 				fi
-				generate_${os} ${file} ${build} ${typ}
+				generate_java ${file} ${build} ${typ} ${os}
 			done
 		done
 	done

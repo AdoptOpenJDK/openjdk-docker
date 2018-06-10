@@ -85,12 +85,11 @@ function parse_vm_entry() {
 }
 
 # Read the tags file and parse the specific tag.
-# $1 = Tags file
-# $2 = OS
-# $3 = Build (releases / nightly)
-# $4 = Type (full / slim)
+# $1 = OS
+# $2 = Build (releases / nightly)
+# $3 = Type (full / slim)
 function parse_tag_entry() {
-	tag="$2-$3-$4-tags:"
-	entry=$(cat $1 | grep ${tag} | sed "s/${tag} //")
+	tag="$1-$2-$3-tags:"
+	entry=$(cat ${tags_config_file} | grep ${tag} | sed "s/${tag} //")
 	echo ${entry}
 }

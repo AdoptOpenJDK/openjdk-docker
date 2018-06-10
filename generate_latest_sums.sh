@@ -35,10 +35,9 @@ function get_shasums() {
 	vm=$2
 	ofile="${rootdir}/${vm}_shasums_latest.sh"
 
-	if [ "${vm}" == "openj9" ]; then
-		reldir="openjdk${ver}-openj9"
-	else
-		reldir="openjdk${ver}"
+	reldir="openjdk${ver}"
+	if [ "${vm}" != "hotspot" ]; then
+		reldir="${reldir}-${vm}"
 	fi
 	for build in ${supported_builds}
 	do
@@ -53,7 +52,9 @@ function get_shasums() {
 			# remove date at the end of full_version for nightly builds
 			full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}$//')
 		fi
+		# Declare the array with the proper name and write to the vm output file.
 		printf "declare -A jdk_%s_%s_%s_sums=(\n" ${vm} ${ver} ${build} >> ${ofile}
+		# Capture the full version according to adoptopenjdk
 		printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
 		for arch in ${arches}
 		do
@@ -76,6 +77,7 @@ function get_shasums() {
 			shasum_file="${arch}_${build}_latest"
 			curl -Lso ${shasum_file} ${LATEST_URL};
 			availability=$(grep "No matches" ${shasum_file});
+			# Print the arch and the corresponding shasums to the vm output file
 			if [ -z "${availability}" ]; then
 				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | awk -F'"' '{ print $4 }');
 				shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');

@@ -26,7 +26,7 @@ source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
 	version=$1
-	if [ ! -z "$(check_version $version)" ]; then
+	if [ ! -z "$(check_version ${version})" ]; then
 		echo "ERROR: Invalid Version"
 		echo "Usage: $0 [${supported_versions}]"
 		exit 1
@@ -65,7 +65,7 @@ fi
 
 # Set the params based on the arch we are on currently
 machine=`uname -m`
-case $machine in
+case ${machine} in
 aarch64)
 	arch="aarch64"
 	oses="ubuntu"
@@ -230,7 +230,7 @@ do
 			do
 				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${typ}]..."
 				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
-				raw_tags=$(parse_tag_entry ${tags_config_file} ${os} ${build} ${typ})
+				raw_tags=$(parse_tag_entry ${os} ${build} ${typ})
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
 				print_tags ${srepo}

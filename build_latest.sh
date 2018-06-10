@@ -33,7 +33,7 @@ fi
 # Find the latest version and get the corresponding shasums
 ./generate_latest_sums.sh ${version}
 
-# source the hotspot and openj9 shasums scripts
+# Source the hotspot and openj9 shasums scripts
 avail_jvms=""
 if [ -f hotspot_shasums_latest.sh ]; then
 	source ./hotspot_shasums_latest.sh
