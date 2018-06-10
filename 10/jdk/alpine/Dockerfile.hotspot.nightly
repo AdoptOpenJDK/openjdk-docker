@@ -38,24 +38,18 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && apk del binutils \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk8u162-b12_openj9-0.8.0
-
-COPY slim-java.sh /usr/local/bin
+ENV JAVA_VERSION jdk-10+23
 
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       s390x) \
-         ESUM='b1eb77b49ae94c77df1762d372897ff52d918c8a25ce8b6dcb9c18e9ad7a58db'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/s390x_linux/latest/binary"; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='c985d22a58d43165561fa5c0c483acefb2afd407a6a0539da66d06d13c2af00c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/ppc64le_linux/latest/binary"; \
+         ESUM='633ff0ce1a66c797d99da33a4269a2ebbd817f62c0f24ae83250638eb70ae023'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/ppc64le_linux/latest/binary"; \
          ;; \
        amd64|x86_64) \
-         ESUM='4a90944fbe96cb6452391e952cc7c9b5136fb042a445eb205e31a029fd72fd7c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/x64_linux/latest/binary"; \
+         ESUM='37292e843552441329e49c1e0a4efc446647ba8ba6e4bc140910e72e1bea19d7'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/x64_linux/latest/binary"; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -67,14 +61,7 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
-    mv ${jdir}/* /opt/java/openjdk; \
-    export PATH="/opt/java/openjdk/bin:$PATH"; \
-    apk --update add --no-cache bash binutils; \
-    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
-    apk del bash binutils; \
-    rm -rf /var/cache/apk/*; \
-    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+    rm -f /tmp/openjdk.tar.gz;
 
-ENV JAVA_HOME=/opt/java/openjdk \
-    PATH="${JAVA_HOME}/bin:$PATH"
+ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
+ENV PATH=$JAVA_HOME/bin:$PATH

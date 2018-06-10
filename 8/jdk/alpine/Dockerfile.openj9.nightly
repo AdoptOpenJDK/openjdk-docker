@@ -17,27 +17,38 @@
 # limitations under the License.
 #
 
-FROM ubuntu:16.04
+FROM alpine:3.6
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+    && GLIBC_VER="2.25-r0" \
+    && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
+    && apk add --allow-untrusted /tmp/${GLIBC_VER}.apk \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
+    && mkdir /tmp/gcc \
+    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
+    && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && apk del binutils \
+    && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk8u172-b11
-
-COPY slim-java.sh /usr/local/bin
+ENV JAVA_VERSION jdk8u162-b12_openj9-0.8.0
 
 RUN set -eux; \
-    ARCH="$(dpkg --print-architecture)"; \
+    ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='aef82f98663577abfd4ed93e433be6bf87f6aa66d640cc15108e788c31072d07'; \
+         ESUM='0063ecdd7851805e5a2a6ce61018c352f7940b97ba0fec10f4e00a6f50618ba4'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/nightly/ppc64le_linux/latest/binary"; \
          ;; \
+       s390x) \
+         ESUM='89497859a676e6831df4e25bd2c2135f0784f724140ec9df9433f12e04aabbb2'; \
+         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/nightly/s390x_linux/latest/binary"; \
+         ;; \
        amd64|x86_64) \
-         ESUM='6a30ce9ebcb27a8af52fe1516ad17488522626ac1065a72800a645c96d3dbe9d'; \
+         ESUM='a8ffe7245b239ace2b80e13860d133ca7140b4584713f5f570d6312cca0f355e'; \
          JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/nightly/x64_linux/latest/binary"; \
          ;; \
        *) \
@@ -50,14 +61,7 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
-    mv ${jdir}/* /opt/java/openjdk; \
-    export PATH="/opt/java/openjdk/bin:$PATH"; \
-    apt-get update; apt-get install -y --no-install-recommends binutils; \
-    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
-    apt-get remove -y binutils; \
-    rm -rf /var/lib/apt/lists/*; \
-    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+    rm -f /tmp/openjdk.tar.gz;
 
-ENV JAVA_HOME=/opt/java/openjdk \
-    PATH="${JAVA_HOME}/bin:$PATH"
+ENV JAVA_HOME=/opt/java/openjdk/$JAVA_VERSION
+ENV PATH=$JAVA_HOME/bin:$PATH
