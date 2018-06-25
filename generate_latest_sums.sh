@@ -49,7 +49,7 @@ function get_shasums() {
 		fi
 		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
 		if [ "${build}" == "nightly" ]; then
-			# remove date at the end of full_version for nightly builds
+			# remove date and time at the end of full_version for nightly builds
 			full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
 		fi
 		# Declare the array with the proper name and write to the vm output file.
