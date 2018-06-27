@@ -24,74 +24,6 @@ man_file=${root_dir}/manifest_commands.sh
 
 source ./common_functions.sh
 
-if [ ! -z "$1" ]; then
-	version=$1
-	if [ ! -z "$(check_version ${version})" ]; then
-		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [${supported_versions}]"
-		exit 1
-	fi
-fi
-
-# Where is the manifest tool installed?"
-# Manifest tool (docker with manifest support) needs to be added from here
-# https://github.com/clnperez/cli
-# $ cd /opt/manifest_tool
-# $ git clone -b manifest-cmd https://github.com/clnperez/cli.git
-# $ cd cli
-# $ make -f docker.Makefile cross
-manifest_tool_dir="/opt/manifest_tool"
-manifest_tool=${manifest_tool_dir}/cli/build/docker
-
-if [ ! -f ${manifest_tool} ]; then
-	echo
-	echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
-	exit 1
-fi
-
-# Find the latest version and get the corresponding shasums
-./generate_latest_sums.sh ${version}
-
-# source the hotspot and openj9 shasums scripts
-supported_jvms=""
-if [ -f hotspot_shasums_latest.sh ]; then
-	source ./hotspot_shasums_latest.sh
-	supported_jvms="hotspot"
-fi
-if [ -f openj9_shasums_latest.sh ]; then
-	source ./openj9_shasums_latest.sh
-	supported_jvms="${supported_jvms} openj9"
-fi
-
-# Set the params based on the arch we are on currently
-machine=`uname -m`
-case ${machine} in
-aarch64)
-	arch="aarch64"
-	oses="ubuntu"
-	package="jdk"
-	;;
-ppc64le)
-	arch="ppc64le"
-	oses="ubuntu"
-	package="jdk"
-	;;
-s390x)
-	arch="s390x"
-	oses="ubuntu"
-	package="jdk"
-	;;
-x86_64)
-	arch="x86_64"
-	oses="ubuntu alpine"
-	package="jdk"
-	;;
-*)
-	echo "ERROR: Unsupported arch:${machine}, Exiting"
-	exit 1
-	;;
-esac
-
 # Check if a given docker image exists on the server.
 # This script errors out if the image does not exist.
 function check_image() {
@@ -168,7 +100,7 @@ function build_tags() {
 	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
 	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
 	# Separate the arch and the generic alias tags
-    awk '{ a=0; n=0;
+	awk '{ a=0; n=0;
 		for (i=1; i<=NF; i++) {
 			if (match($i, "ARCH") > 0) {
 				atags[a++]=sprintf(" %s", $i);
@@ -196,6 +128,31 @@ function build_tags() {
 	rm -f ${tmpfile}
 }
 
+# Check if the manifest tool is installed
+check_manifest_tool
+
+if [ ! -z "$1" ]; then
+	set_version $1
+fi
+
+# Set the OSes that will be built on based on the current arch
+set_arch_os
+
+# Which JVMs are available for the current version
+./generate_latest_sums.sh ${version}
+
+# Source the hotspot and openj9 shasums scripts
+available_jvms=""
+if [ -f hotspot_shasums_latest.sh ]; then
+	source ./hotspot_shasums_latest.sh
+	available_jvms="hotspot"
+fi
+if [ -f openj9_shasums_latest.sh ]; then
+	source ./openj9_shasums_latest.sh
+	available_jvms="${available_jvms} openj9"
+fi
+
+
 # Populate the script to create the manifest list
 echo "#!/bin/bash" > ${man_file}
 echo  >> ${man_file}
@@ -205,12 +162,12 @@ echo  >> ${man_file}
 # os    = alpine / ubuntu
 # build = releases / nightly
 # type  = full / slim
-for vm in ${supported_jvms}
+for vm in ${available_jvms}
 do
 	for os in ${oses}
 	do
 		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
-		types=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
 		for build in ${builds}
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
@@ -226,11 +183,11 @@ do
 			if [ "${vm}" != "hotspot" ]; then
 				srepo=${srepo}-${vm}
 			fi
-			for typ in ${types}
+			for btype in ${btypes}
 			do
-				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${typ}]..."
+				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
 				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
-				raw_tags=$(parse_tag_entry ${os} ${build} ${typ})
+				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
 				print_tags ${srepo}

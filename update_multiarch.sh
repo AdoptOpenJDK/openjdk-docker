@@ -22,25 +22,20 @@ osver="ubuntu alpine"
 source ./common_functions.sh
 
 if [ ! -z "$1" ]; then
-	version=$1
-	if [ ! -z "$(check_version ${version})" ]; then
-		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [${supported_versions}]"
-		exit 1
-	fi
+	set_version $1
 fi
 
-# source the hotspot and openj9 shasums scripts
-supported_jvms=""
+# Source the hotspot and openj9 shasums scripts
+available_jvms=""
 if [ -f hotspot_shasums_latest.sh ]; then
 	source ./hotspot_shasums_latest.sh
-	supported_jvms="hotspot"
+	available_jvms="hotspot"
 fi
 if [ -f openj9_shasums_latest.sh ]; then
 	source ./openj9_shasums_latest.sh
-	supported_jvms="${supported_jvms} openj9"
+	available_jvms="${available_jvms} openj9"
 fi
-if [ "${supported_jvms}" == "" ]; then
+if [ -z "${available_jvms}" ]; then
 	echo "Run ./generate_latest_sums.sh to get the latest shasums first"
 	exit 1
 fi
@@ -143,7 +138,7 @@ EOI
 # OS independent portion (Works for both Alpine and Ubuntu)
 print_java_install_pre() {
 	bld=$2
-	typ=$3
+	btype=$3
 	supported_arches=$(get_arches ${shasums})
 	for sarch in ${supported_arches}
 	do
@@ -225,14 +220,14 @@ EOI
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
 	bld=$2
-	typ=$3
+	btype=$3
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     ARCH="\$(dpkg --print-architecture)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre ${file} ${bld} ${typ}
-	if [ "${typ}" == "slim" ]; then
+	print_java_install_pre ${file} ${bld} ${btype}
+	if [ "${btype}" == "slim" ]; then
 		print_ubuntu_slim_package $1
 	fi
 	print_java_install_post $1
@@ -241,14 +236,14 @@ EOI
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
 	bld=$2
-	typ=$3
+	btype=$3
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre ${file} ${bld} ${typ}
-	if [ "${typ}" == "slim" ]; then
+	print_java_install_pre ${file} ${bld} ${btype}
+	if [ "${btype}" == "slim" ]; then
 		print_alpine_slim_package $1
 	fi
 	print_java_install_post $1
@@ -265,7 +260,7 @@ EOI
 }
 
 copy_slim_script() {
-	if [ "${typ}" == "slim" ]; then
+	if [ "${btype}" == "slim" ]; then
 		cat >> $1 <<-EOI
 COPY slim-java.sh /usr/local/bin
 
@@ -276,7 +271,7 @@ EOI
 generate_java() {
 	file=$1
 	bld=$2
-	typ=$3
+	btype=$3
 	os=$4
 	mkdir -p `dirname ${file}` 2>/dev/null
 	echo -n "Writing ${file} ... "
@@ -284,24 +279,24 @@ generate_java() {
 	print_${os}_ver ${file};
 	print_maint ${file};
 	print_${os}_pkg ${file};
-	print_env ${file} ${bld} ${typ};
+	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
-	print_${os}_java_install ${file} ${bld} ${typ};
-	print_java_env ${file} ${bld} ${typ};
+	print_${os}_java_install ${file} ${bld} ${btype};
+	print_java_env ${file} ${bld} ${btype};
 	echo "done"
 }
 
 # Iterate through all the Java versions for each of the supported packages,
 # architectures and supported Operating Systems.
-for vm in ${supported_jvms}
+for vm in ${available_jvms}
 do
-	oses=$(cat ${vm}.config | grep "OS:" | sed "s/OS: //")
+	oses=$(cat ${vm}.config | grep "^OS:" | sed "s/OS: //")
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
 		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
-		# Type = Full or Slim
-		types=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		# Build Type = Full or Slim
+		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
 		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
 
 		for build in ${builds}
@@ -312,18 +307,18 @@ do
 			if [[ -z ${jver} ]]; then
 				continue;
 			fi
-			for typ in ${types}
+			for btype in ${btypes}
 			do
-				file=${dir}/Dockerfile.${vm}.${build}.${typ}
+				file=${dir}/Dockerfile.${vm}.${build}.${btype}
 				# Copy the script to generate slim builds.
-				if [ "${typ}" = "slim" ]; then
+				if [ "${btype}" = "slim" ]; then
 					cp slim-java.sh ${dir}
 				fi
 				reldir="openjdk${version}";
 				if [ "${vm}" != "hotspot" ]; then
 					reldir="${reldir}-${vm}";
 				fi
-				generate_java ${file} ${build} ${typ} ${os}
+				generate_java ${file} ${build} ${btype} ${os}
 			done
 		done
 	done

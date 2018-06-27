@@ -21,65 +21,10 @@ version="9"
 
 source ./common_functions.sh
 
-if [ ! -z "$1" ]; then
-	version=$1
-	if [ ! -z "$(check_version ${version})" ]; then
-		echo "ERROR: Invalid Version"
-		echo "Usage: $0 [${supported_versions}]"
-		exit 1
-	fi
-fi
-
-# Find the latest version and get the corresponding shasums
-./generate_latest_sums.sh ${version}
-
-# Source the hotspot and openj9 shasums scripts
-avail_jvms=""
-if [ -f hotspot_shasums_latest.sh ]; then
-	source ./hotspot_shasums_latest.sh
-	avail_jvms="hotspot"
-fi
-if [ -f openj9_shasums_latest.sh ]; then
-	source ./openj9_shasums_latest.sh
-	avail_jvms="${avail_jvms} openj9"
-fi
-
-# Generate the Dockerfiles for the latest version
-./update_multiarch.sh ${version}
-
-# Build the docker images and tag it based on the arch that we are on currently
-machine=`uname -m`
-case $machine in
-aarch64)
-	arch="aarch64"
-	oses="ubuntu"
-	package="jdk"
-	;;
-ppc64le)
-	arch="ppc64le"
-	oses="ubuntu"
-	package="jdk"
-	;;
-s390x)
-	arch="s390x"
-	oses="ubuntu"
-	package="jdk"
-	;;
-x86_64)
-	arch="x86_64"
-	oses="ubuntu alpine"
-	package="jdk"
-	;;
-*)
-	echo "ERROR: Unsupported arch:${machine}, Exiting"
-	exit 1
-	;;
-esac
-
 function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
-	typ=$1; shift;
+	btype=$1; shift;
 
 	tags=""
 	for tag in $*
@@ -88,7 +33,7 @@ function build_image() {
 		echo "docker push ${repo}:${tag}" >> ${push_cmdfile}
 	done
 
-	dockerfile="Dockerfile.${vm}.${build}.${typ}"
+	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
@@ -99,6 +44,30 @@ function build_image() {
 		exit 1
 	fi
 }
+
+if [ ! -z "$1" ]; then
+	set_version $1
+fi
+
+# Set the OSes that will be built on based on the current arch
+set_arch_os
+
+# Which JVMs are available for the current version
+./generate_latest_sums.sh ${version}
+
+# Source the hotspot and openj9 shasums scripts
+available_jvms=""
+if [ -f hotspot_shasums_latest.sh ]; then
+	source ./hotspot_shasums_latest.sh
+	available_jvms="hotspot"
+fi
+if [ -f openj9_shasums_latest.sh ]; then
+	source ./openj9_shasums_latest.sh
+	available_jvms="${available_jvms} openj9"
+fi
+
+# Generate the Dockerfiles for the current version
+./update_multiarch.sh ${version}
 
 # Script that has the push commands for the images that we are building.
 echo "#!/bin/bash" > ${push_cmdfile}
@@ -113,14 +82,14 @@ echo >> ${push_cmdfile}
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-slim
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly-slim
-for vm in ${avail_jvms}
+for vm in ${available_jvms}
 do
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
 		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
 		# Type = Full or Slim
-		types=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
 		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
 
 		for build in ${builds}
@@ -135,9 +104,9 @@ do
 			# Docker image tags cannot have "+" in them, replace it with "." instead.
 			rel=$(echo $jrel | sed 's/+/./')
 
-			for typ in ${types}
+			for btype in ${btypes}
 			do
-				file="${dir}/Dockerfile.${vm}.${build}.${typ}"
+				file="${dir}/Dockerfile.${vm}.${build}.${btype}"
 				if [ ! -f ${file} ]; then
 					continue;
 				fi
@@ -151,11 +120,11 @@ do
 				if [ "${build}" == "nightly" ]; then
 					tag=${tag}-nightly
 				fi
-				if [ "${typ}" == "slim" ]; then
+				if [ "${btype}" == "slim" ]; then
 					tag=${tag}-slim
 				fi
 				echo "INFO: Building ${trepo} ${tag} from $file ..."
-				build_image ${trepo} ${build} ${typ} ${tag}
+				build_image ${trepo} ${build} ${btype} ${tag}
 				popd >/dev/null
 			done
 		done
