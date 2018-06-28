@@ -14,17 +14,45 @@
 #
 set -o pipefail
 
+# Parse arguments
+argc=$#
+if [ ${argc} != 1 ]; then
+	echo " Usage: `basename $0` Full-JDK-path"
+	exit 1
+fi
+
+# Validate prerequisites(tools) necessary for making a slim build
+tools="jar jarsigner pack200 strip"
+for tool in ${tools};
+do
+	if [ "`which ${tool}`" == "" ]; then
+		echo "${tool} not found, please add ${tool} into PATH"
+		exit 1
+	fi
+done
+
+# Set input of this script
+src=$1
+# Store necessary directories paths
+basedir=$(dirname ${src})
+scriptdir=`dirname $0`
+target=${basedir}/slim
+
+# Files for Keep and Del list of classes in rt.jar
+keep_list="${scriptdir}/slim-java_rtjar_keep.list"
+del_list="${scriptdir}/slim-java_rtjar_del.list"
+
 # We only support 64 bit builds now
 proc_type="64bit"
 
-# Files for Keep and Del list of classes in rt.jar
-keep_list="slim-java_rtjar_keep.list"
-del_list="slim-java_rtjar_del.list"
-
+# Find the arch specific dir in jre/lib based on current arch
 function parse_platform_specific() {
 	arch_info=$(uname -m)
 
-	case "${arch}" in
+	case "${arch_info}" in
+		aarch64)
+			echo "aarch64";
+			;;
 		ppc64el|ppc64le)
 			echo "ppc64le";
 			;;
@@ -41,75 +69,56 @@ function parse_platform_specific() {
 	esac
 }
 
+# Strip debug symbols from the given jar file.
 function strip_debug_from_jar() {
 	jar=$1
 	isSigned=`jarsigner -verify ${jar} | grep 'jar verified'`
 	if [ "${isSigned}" == "" ]; then
-		echo "Striping debug info in ${jar}"
+		echo "        Stripping debug info in ${jar}"
 		pack200 --repack --strip-debug -J-Xmx1024m ${jar}.new ${jar}
 		mv ${jar}.new ${jar}
 	fi
 }
 
-# 1. Prepare Env to make a slim
-
-# 1.1. Parse arguments
-argc=$#
-if [ ${argc} != 1 ]; then
-	echo " Usage: `basename $0` Full-JDK-path"
-	exit 1
-fi
-
-# 1.2. Validate prerequisites(tools) necessary for making a slim
-tools="jar jarsigner pack200 strip"
-for tool in ${tools};
-do
-	if [ "`which ${tool}`" == "" ]; then
-		echo "${tool} not found, please add ${tool} into PATH"
-		exit 1
-	fi
-done
-
-# 1.3. Set input of this script
-src=$1
-basedir=$(dirname ${src})
-target=${basedir}/slim
-
-# 1.3.1. Derive arch from src arg
-lib_arch_dir=$(parse_platform_specific)
-
+# Trim the files in jre/lib dir
 function jre_lib_files() {
+	echo -n "INFO: Trimming jre/lib dir..."
 	pushd ${target}/jre/lib >/dev/null
 		rm -rf applet/ boot/ ddr/ deploy desktop/ endorsed/
 		rm -rf images/icons/ locale/ oblique-fonts/ security/javaws.policy aggressive.jar deploy.jar javaws.jar jexec jlm.src.jar plugin.jar
 		pushd ext/ >/dev/null
 			rm -f dnsns.jar dtfj*.jar nashorn.jar traceformat.jar
 		popd >/dev/null
-		# 2.2 Go on to remove unnecessary folders and files
-		pushd ${lib_arch_dir} >/dev/null
-			rm -rf classic/ libdeploy.so libjavaplugin_* libjsoundalsa.so libnpjp2.so libsplashscreen.so
-			# Only remove the default dir for 64bit versions
-			if [ "${proc_type}" == "64bit" ]; then
-				rm -rf default/
-			fi
-		popd >/dev/null
+		# Derive arch from current platorm.
+		lib_arch_dir=$(parse_platform_specific)
+		if [ -d ${lib_arch_dir} ]; then
+			pushd ${lib_arch_dir} >/dev/null
+				rm -rf classic/ libdeploy.so libjavaplugin_* libjsoundalsa.so libnpjp2.so libsplashscreen.so
+				# Only remove the default dir for 64bit versions
+				if [ "${proc_type}" == "64bit" ]; then
+					rm -rf default/
+				fi
+			popd >/dev/null
+		fi
 	popd >/dev/null
+	echo "done"
 }
 
+# Trim the files in the jre dir
 function jre_files() {
+	echo -n "INFO: Trimming jre dir..."
 	pushd ${target}/jre >/dev/null
-
-		# 2.1 Remove unnecessary folders and files
 		rm -f ASSEMBLY_EXCEPTION LICENSE THIRD_PARTY_README
 		rm -rf bin
 		ln -s ../bin bin
-
 	popd >/dev/null
+	echo "done"
 }
 
+# Exclude the zOS specific charsets
 function charset_files() {
 	# 2.3 Special treat for removing ZOS specific charsets
-	echo "Removing charsets..."
+	echo -n "INFO: Trimming charsets..."
 	mkdir -p ${root}/charsets_class
 	pushd ${root}/charsets_class >/dev/null
 		jar -xf ${root}/jre/lib/charsets.jar
@@ -119,7 +128,8 @@ function charset_files() {
 		[ ! -e ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets ] || rm -rf ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets
 		exclude_charsets=""
 
-		for charset in ${ibmEbcdic}; do
+		for charset in ${ibmEbcdic};
+		do
 			rm -f sun/nio/cs/ext/IBM${charset}.class
 			rm -f sun/nio/cs/ext/IBM${charset}\$*.class
 
@@ -132,11 +142,13 @@ function charset_files() {
 		jar -cfm ${root}/jre/lib/charsets.jar META-INF/MANIFEST.MF *
 	popd >/dev/null
 	rm -rf ${root}/charsets_class
+	echo "done"
 }
 
+# Trim the rt.jar classes. The classes deleted are as per slim-java_rtjar_del.list
 function rt_jar_classes() {
 	# 2.4 Remove classes in rt.jar
-	echo "Removing classes in rt.jar..."
+	echo -n "INFO: Trimming classes in rt.jar..."
 	mkdir -p ${root}/rt_class
 	pushd ${root}/rt_class >/dev/null
 		jar -xf ${root}/jre/lib/rt.jar
@@ -158,17 +170,21 @@ function rt_jar_classes() {
 		jar -cfm ${root}/jre/lib/rt.jar META-INF/MANIFEST.MF *
 	popd >/dev/null
 	rm -rf rt_class
+	echo "done"
 }
 
+# Strip the debug info from all jar files as well as ct.sym
 function strip_jar() {
-	# 2.6. Using pack200 to strip debug info in jars
+	# Using pack200 to strip debug info in jars
+	echo "INFO: Strip debug info from jar files"
 	list="`find . -name *.jar`"
 	for jar in ${list};
 	do
 		strip_debug_from_jar ${jar}
 	done
 
-	# 2.7. strip debug info from ct.sym
+	# Strip debug info from ct.sym
+	echo "INFO: Strip debug info from ct.sym"
 	pushd lib >/dev/null
 		mv ct.sym ct.jar
 		strip_debug_from_jar ct.jar
@@ -176,43 +192,49 @@ function strip_jar() {
 	popd >/dev/null
 }
 
+# Strip debug information from share libraries
 function strip_bin() {
-	# 2.8. Using strip to remove debug information in share library
-	echo "Striping debug info in object files"
+	echo -n "INFO: Stripping debug info in object files..."
 	find bin -type f ! -path */java-rmi.cgi -exec strip -s {} \;
 	find . -name *.so* -exec strip -s {} \;
 	find . -name jexec -exec strip -s {} \;
+	echo "done"
 }
 
-# 1.4. Store necessary directories paths
-scriptdir=`dirname $0`
-basedir=`pwd`
-cd ${scriptdir}
-scriptdir=`pwd`
+# Create a new target directory and copy over the source contents.
 cd ${basedir}
 mkdir -p ${target}
 echo "Copying ${src} to ${target}..."
 cp -rf ${src}/* ${target}/
+
 pushd ${target} >/dev/null
 	root=`pwd`
+	echo "Trimming files..."
 
-	# 2. Start to trim full jre
-	echo "Removing files..."
-
+	# Remove examples documentation and sources.
 	rm -rf demo/ sample/ man/ src.zip
 
+	# Trim file in jre dir.
 	jre_files
 
+	# Trim file in jre/lib dir.
 	jre_lib_files
 
+	# Remove IBM zOS charset files.
 	charset_files
 
+	# Trim unneeded rt.jar classes.
+	rt_jar_classes
+
+	# Strip all remaining jar files of debug info.
 	strip_jar
 
+	# Strip object files of debug info.
 	strip_bin
 
 	# Remove temp folders
 	rm -rf ${root}/jre/lib/slim ${src}
 popd >/dev/null
+
 mv ${target} ${src}
 echo "Done"
