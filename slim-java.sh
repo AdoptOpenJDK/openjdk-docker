@@ -214,17 +214,20 @@ pushd ${target} >/dev/null
 	# Remove examples documentation and sources.
 	rm -rf demo/ sample/ man/ src.zip
 
-	# Trim file in jre dir.
-	jre_files
+	# jre dir may not be present on all builds.
+	if [ -d ${target}/jre ]; then
+		# Trim file in jre dir.
+		jre_files
 
-	# Trim file in jre/lib dir.
-	jre_lib_files
+		# Trim file in jre/lib dir.
+		jre_lib_files
 
-	# Remove IBM zOS charset files.
-	charset_files
+		# Remove IBM zOS charset files.
+		charset_files
 
-	# Trim unneeded rt.jar classes.
-	rt_jar_classes
+		# Trim unneeded rt.jar classes.
+		rt_jar_classes
+	fi
 
 	# Strip all remaining jar files of debug info.
 	strip_jar
