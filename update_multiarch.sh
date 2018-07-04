@@ -92,7 +92,7 @@ print_maint() {
 print_ubuntu_pkg() {
 	cat >> $1 <<'EOI'
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 EOI
@@ -255,14 +255,14 @@ print_java_env() {
 	cat >> $1 <<-EOI
 
 ENV JAVA_HOME=${jhome} \\
-    PATH="\${JAVA_HOME}/bin:\$PATH"
+    PATH="${jhome}/bin:\$PATH"
 EOI
 }
 
 copy_slim_script() {
 	if [ "${btype}" == "slim" ]; then
 		cat >> $1 <<-EOI
-COPY slim-java.sh /usr/local/bin
+COPY slim-java* /usr/local/bin/
 
 EOI
 	fi
@@ -312,7 +312,7 @@ do
 				file=${dir}/Dockerfile.${vm}.${build}.${btype}
 				# Copy the script to generate slim builds.
 				if [ "${btype}" = "slim" ]; then
-					cp slim-java.sh ${dir}
+					cp slim-java* ${dir}
 				fi
 				reldir="openjdk${version}";
 				if [ "${vm}" != "hotspot" ]; then

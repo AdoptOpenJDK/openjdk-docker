@@ -35,7 +35,7 @@ function get_shasums() {
 		sleep 1;
 		info=$(curl -Ls ${info_url})
 		err=$(echo ${info} | grep -e "Error" -e "No matches")
-		if [ "${err}" != ""  ]; then
+		if [ ! -z "${err}" ]; then
 			continue;
 		fi
 		full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
@@ -70,17 +70,9 @@ function get_shasums() {
 			availability=$(grep "No matches" ${shasum_file});
 			# Print the arch and the corresponding shasums to the vm output file
 			if [ -z "${availability}" ]; then
-				arch_full_ver=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
-				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | awk -F'"' '{ print $4 }');
-				# If there are multiple builds for a single version, then pick the one for which the timestamp matches.
-				for url in ${shasums_url}
-				do
-					uver=$(echo ${url} | awk -F "/" '{ print $9 }' | awk -F"_" '{ print $4 }' | awk -F "." '{ print $1 }')
-					if [ "${uver}" == "${arch_full_ver}" ]; then
-						break;
-					fi
-				done
-				shasum=$(curl -Ls ${url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+				# If there are multiple builds for a single version, then pick the latest one.
+				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
 				printf "\t[%s]=\"%s\"\n" ${arch} ${shasum} >> ${ofile}
 			fi
 			rm -f ${shasum_file}
