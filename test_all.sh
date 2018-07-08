@@ -26,7 +26,7 @@ do
 
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                 Generating Manifest Entries for Version ${ver}                "
+	echo "                    Testing Docker Images for Version ${ver}                   "
 	echo "                                                                               "
 	echo "==============================================================================="
 	./test_multiarch.sh ${ver}
