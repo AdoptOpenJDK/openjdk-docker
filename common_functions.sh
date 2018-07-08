@@ -121,6 +121,20 @@ function cleanup_manifest() {
 	rm -rf ~/.docker/manifests
 }
 
+# Check if a given docker image exists on the server.
+# This script errors out if the image does not exist.
+function check_image() {
+	img=$1
+
+	echo -n "INFO: Pulling image: ${img}..."
+	docker pull ${img} >/dev/null
+	if [ $? != 0 ]; then
+		echo "ERROR: Docker Image ${img} not found on hub.docker\n"
+		exit 1
+	fi
+	echo "done"
+}
+
 # Parse the openj9.config / hotspot.config file for an entry as specified by $4
 # $1 = VM
 # $2 = Version
@@ -157,4 +171,48 @@ function check_manifest_tool() {
 		echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
 		exit 1
 	fi
+}
+
+# Build valid image tags using the tags.config file as the base
+function build_tags() {
+	vm=$1; shift
+	ver=$1; shift;
+	rel=$1; shift;
+	os=$1; shift;
+	build=$1; shift;
+	rawtags=$*
+	tmpfile=raw_arch_tags.$$.tmp
+
+	# Get the list of supported arches for this vm / ver /os combo
+	arches=$(parse_vm_entry ${vm} ${ver} ${os} "Architectures:")
+	# Replace the proper version string in the tags
+	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
+	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
+	# Separate the arch and the generic alias tags
+	awk '{ a=0; n=0;
+		for (i=1; i<=NF; i++) {
+			if (match($i, "ARCH") > 0) {
+				atags[a++]=sprintf(" %s", $i);
+			} else {
+				natags[n++]=sprintf(" %s", $i);
+			}
+		}
+	} END {
+		printf("arch_tags: "); for (key in atags) { printf"%s ", atags[key] }; printf"\n";
+		printf("tag_aliases: "); for (key in natags) { printf"%s ", natags[key] }; printf"\n";
+	}' > ${tmpfile}
+
+	tag_aliases=$(cat ${tmpfile} | grep "^tag_aliases:" | sed "s/tag_aliases: //")
+	raw_arch_tags=$(cat ${tmpfile} | grep "^arch_tags:" | sed "s/arch_tags: //")
+	arch_tags=""
+	# Iterate through the arch tags and expand to add the supported arches.
+	for tag in ${raw_arch_tags}
+	do
+		for arch in ${arches}
+		do
+			atag=$(echo ${tag} | sed "s/{{ARCH}}/${arch}"/g)
+			arch_tags="${arch_tags} ${atag}"
+		done
+	done
+	rm -f ${tmpfile}
 }
