@@ -41,6 +41,8 @@ target=${basedir}/slim
 # Files for Keep and Del list of classes in rt.jar
 keep_list="${scriptdir}/slim-java_rtjar_keep.list"
 del_list="${scriptdir}/slim-java_rtjar_del.list"
+# jmod files to be deleted
+del_jmod_list="${scriptdir}/slim-java_jmod_del.list"
 
 # We only support 64 bit builds now
 proc_type="64bit"
@@ -201,6 +203,30 @@ function strip_bin() {
 	echo "done"
 }
 
+# Remove all debuginfo files
+function debuginfo_files() {
+	echo -n "INFO: Removing all .debuginfo files..."
+	find . -name "*.debuginfo" -exec rm -f {} \;
+	echo "done"
+}
+
+# Remove all src.zip files
+function srczip_files() {
+	echo -n "INFO: Removing all src.zip files..."
+	find . -name "*src*zip" -exec rm -f {} \;
+	echo "done"
+}
+
+# Remove unnecessary jmod files
+function jmod_files() {
+	pushd ${target}/jmods >/dev/null
+		for jfile in $(cat ${del_jmod_list} | grep -v "^#");
+		do
+			rm -rf ${jfile}
+		done
+	popd >/dev/null
+}
+
 # Create a new target directory and copy over the source contents.
 cd ${basedir}
 mkdir -p ${target}
@@ -212,7 +238,7 @@ pushd ${target} >/dev/null
 	echo "Trimming files..."
 
 	# Remove examples documentation and sources.
-	rm -rf demo/ sample/ man/ src.zip
+	rm -rf demo/ sample/ man/
 
 	# jre dir may not be present on all builds.
 	if [ -d ${target}/jre ]; then
@@ -234,6 +260,15 @@ pushd ${target} >/dev/null
 
 	# Strip object files of debug info.
 	strip_bin
+
+	# Remove all debuginfo files
+	debuginfo_files
+
+	# Remove all src.zip files
+	srczip_files
+
+	# Remove unnecessary jmod files
+	jmod_files
 
 	# Remove temp folders
 	rm -rf ${root}/jre/lib/slim ${src}
