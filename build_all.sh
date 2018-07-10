@@ -51,4 +51,15 @@ do
 	echo "==============================================================================="
 	cat push_commands.sh
 	./push_commands.sh
+
+	# Remove any temporary files
+	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+
+	# Now test the images from hub.docker.com
+	echo "==============================================================================="
+	echo "                                                                               "
+	echo "                    Testing Docker Images for Version ${ver}                   "
+	echo "                                                                               "
+	echo "==============================================================================="
+	./test_multiarch.sh ${ver}
 done

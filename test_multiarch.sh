@@ -24,40 +24,33 @@ man_file=${root_dir}/manifest_commands.sh
 
 source ./common_functions.sh
 
-# Print the arch specific annotate command.
-function print_annotate_cmd() {
-	main_tag=$1
-	arch_tag=$2
-
-	# The manifest tool expects "amd64" as arch and not "x86_64"
-	march=$(echo ${arch_tag} | awk -F':' '{ print $2 }' | awk -F'-' '{ print $1 }')
-	if [ ${march} == "x86_64" ]; then
-		march="amd64"
+# Run a java -version test for a given docker image.
+function test_java_version() {
+	echo
+	echo "TEST: Running java -version test on image: ${img}..."
+	docker run --rm -it ${img} java -version
+	if [ $? != 0 ]; then
+		echo "ERROR: Docker Image ${img} failed the java -version test\n"
+		exit 1
 	fi
-	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> ${man_file}
+	echo
 }
 
 # Space separated list of tags
-function print_manifest_cmd() {
-	trepo=$1; shift;
-	img_list=$*
+function test_aliases() {
+	trepo=$1;
 
 	# Global variable tag_aliases has the alias list
 	for talias in ${tag_aliases}
 	do
-		echo "${manifest_tool} manifest create ${trepo}:${talias} ${img_list}" >> ${man_file}
-		for img in ${img_list}
-		do
-			print_annotate_cmd ${trepo}:${talias} ${img}
-		done
-		echo "${manifest_tool} manifest push ${trepo}:${talias}" >> ${man_file}
-		echo >> ${man_file}
+		check_image ${trepo}:${talias}
+		test_java_version ${trepo}:${talias}
 	done
 }
 
 # Check each of the images in the global variable arch_tags exist and
 # Create the tag list from the arch_tags list.
-function print_tags() {
+function test_tags() {
 	repo=$1
 	img_list=""
 	# Check if all the individual docker images exist for each expected arch
@@ -67,11 +60,8 @@ function print_tags() {
 		check_image ${trepo}:${arch_tag}
 		img_list="${img_list} ${trepo}:${arch_tag}"
 	done
-	print_manifest_cmd ${trepo} ${img_list}
+	test_aliases ${trepo}
 }
-
-# Check if the manifest tool is installed
-check_manifest_tool
 
 if [ ! -z "$1" ]; then
 	set_version $1
@@ -93,11 +83,6 @@ if [ -f openj9_shasums_latest.sh ]; then
 	source ./openj9_shasums_latest.sh
 	available_jvms="${available_jvms} openj9"
 fi
-
-
-# Populate the script to create the manifest list
-echo "#!/bin/bash" > ${man_file}
-echo  >> ${man_file}
 
 # Go through each vm / os / build / type combination and build the manifest commands
 # vm    = hotspot / openj9
@@ -132,11 +117,10 @@ do
 				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
-				print_tags ${srepo}
+				test_tags ${srepo}
 			done
 		done
 	done
 done
 
-chmod +x ${man_file}
-echo "INFO: Manifest commands in file: ${man_file}"
+echo "INFO: Test complete"
