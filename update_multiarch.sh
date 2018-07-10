@@ -260,6 +260,9 @@ EOI
 }
 
 # Turn on JVM specific optimization flags.
+# Hotspot container support = https://bugs.openjdk.java.net/browse/JDK-8189497
+# OpenJ9 container support = https://www.eclipse.org/openj9/docs/xxusecontainersupport/
+# OpenJ9 Idle tuning = https://www.eclipse.org/openj9/docs/xxidletuninggconidle/
 print_java_options() {
 	case ${vm} in
 	hotspot)
