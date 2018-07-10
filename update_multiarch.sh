@@ -259,6 +259,29 @@ ENV JAVA_HOME=${jhome} \\
 EOI
 }
 
+# Turn on JVM specific optimization flags.
+print_java_options() {
+	case ${vm} in
+	hotspot)
+		case ${version} in
+		8|9)
+			JOPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap";
+			;;
+		*)
+			JOPTS="-XX:+UseContainerSupport";
+			;;
+		esac
+		;;
+	openj9)
+		JOPTS="-XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle";
+		;;
+	esac
+
+	cat >> $1 <<-EOI
+ENV JAVA_TOOL_OPTIONS="${JOPTS}"
+EOI
+}
+
 copy_slim_script() {
 	if [ "${btype}" == "slim" ]; then
 		cat >> $1 <<-EOI
@@ -283,6 +306,7 @@ generate_java() {
 	copy_slim_script ${file};
 	print_${os}_java_install ${file} ${bld} ${btype};
 	print_java_env ${file} ${bld} ${btype};
+	print_java_options ${file} ${bld} ${btype};
 	echo "done"
 }
 
