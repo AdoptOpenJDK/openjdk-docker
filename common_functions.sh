@@ -85,6 +85,10 @@ function set_arch_os() {
 # Get the supported architectures for a given VM (Hotspot, OpenJ9).
 # This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
 function get_arches() {
+	# Check if the array has been defined. Array might be undefined if the
+	# corresponding build combination does not exist.
+	# Eg. jdk_openj9_10_release_sums does not exist as we do not have any
+	# release builds for version 10 (Only nightly builds).
 	declare -p $1 >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
 		return;
