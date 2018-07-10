@@ -67,6 +67,9 @@ function get_shasums() {
 			esac
 			shasum_file="${arch}_${build}_latest"
 			curl -Lso ${shasum_file} ${LATEST_URL};
+			if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
+				continue;
+			fi
 			availability=$(grep "No matches" ${shasum_file});
 			# Print the arch and the corresponding shasums to the vm output file
 			if [ -z "${availability}" ]; then
