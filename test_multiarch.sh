@@ -26,6 +26,8 @@ source ./common_functions.sh
 
 # Run a java -version test for a given docker image.
 function test_java_version() {
+	img=$1
+
 	echo
 	echo "TEST: Running java -version test on image: ${img}..."
 	docker run --rm -it ${img} java -version
@@ -36,15 +38,32 @@ function test_java_version() {
 	echo
 }
 
+# Run all test buckets for the given image.
+function run_tests() {
+	img=$1
+
+	for tc in $(cat ${test_buckets_file} | grep -v "^#")
+	do
+		${tc} ${img}
+	done
+}
+
 # Space separated list of tags
 function test_aliases() {
-	trepo=$1;
+	repo=$1
+	trepo=${source_prefix}/${repo}
+
+	# Check if all the individual docker images exist for each expected arch
+	for arch_tag in ${arch_tags}
+	do
+		check_image ${trepo}:${arch_tag}
+	done
 
 	# Global variable tag_aliases has the alias list
 	for talias in ${tag_aliases}
 	do
 		check_image ${trepo}:${talias}
-		test_java_version ${trepo}:${talias}
+		run_tests ${trepo}:${talias}
 	done
 }
 
@@ -52,15 +71,29 @@ function test_aliases() {
 # Create the tag list from the arch_tags list.
 function test_tags() {
 	repo=$1
-	img_list=""
+	trepo=${source_prefix}/${repo}
+
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
-		trepo=${source_prefix}/${repo}
+		tarch=$(echo ${arch_tag} | awk -F"-" '{ print $1 }')
+		if [ ${tarch} != ${current_arch} ]; then
+			continue;
+		fi
 		check_image ${trepo}:${arch_tag}
-		img_list="${img_list} ${trepo}:${arch_tag}"
+		run_tests ${trepo}:${arch_tag}
 	done
-	test_aliases ${trepo}
+}
+
+# Run tests for each of the test image types
+# Currently image types = test_tags and test_aliases.
+function test_image_types() {
+	srepo=$1
+
+	for ti in $(cat ${test_image_types_file} | grep -v "^#")
+	do
+		${ti} ${srepo}
+	done
 }
 
 if [ ! -z "$1" ]; then
@@ -117,7 +150,7 @@ do
 				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
-				test_tags ${srepo}
+				test_image_types ${srepo}
 			done
 		done
 	done

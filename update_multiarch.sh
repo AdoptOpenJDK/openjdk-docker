@@ -317,7 +317,7 @@ generate_java() {
 # architectures and supported Operating Systems.
 for vm in ${available_jvms}
 do
-	oses=$(cat ${vm}.config | grep "^OS:" | sed "s/OS: //")
+	oses=$(parse_os_entry ${vm})
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
@@ -339,7 +339,7 @@ do
 				file=${dir}/Dockerfile.${vm}.${build}.${btype}
 				# Copy the script to generate slim builds.
 				if [ "${btype}" = "slim" ]; then
-					cp slim-java* ${dir}
+					cp slim-java* config/slim-java* ${dir}
 				fi
 				reldir="openjdk${version}";
 				if [ "${vm}" != "hotspot" ]; then

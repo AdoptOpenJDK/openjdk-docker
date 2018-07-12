@@ -61,5 +61,8 @@ do
 	echo "                    Testing Docker Images for Version ${ver}                   "
 	echo "                                                                               "
 	echo "==============================================================================="
+	# Only test the individual docker image tags and not the aliases
+	# as the aliases are not created yet.
+	echo "test_tags" > ${test_image_types_file}
 	./test_multiarch.sh ${ver}
 done

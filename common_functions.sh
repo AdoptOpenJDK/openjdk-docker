@@ -14,9 +14,14 @@
 #
 
 # Config files
-tags_config_file="tags.config"
-openj9_config_file="openj9.config"
-hotspot_config_file="hotspot.config"
+tags_config_file="config/tags.config"
+openj9_config_file="config/openj9.config"
+hotspot_config_file="config/hotspot.config"
+
+# Test lists
+test_image_types_file="config/test_image_types.list"
+test_image_types_all_file="config/test_image_types_all.list"
+test_buckets_file="config/test_buckets.list"
 
 # All supported JVMs
 all_jvms="hotspot openj9"
@@ -56,22 +61,22 @@ function set_arch_os() {
 	machine=`uname -m`
 	case ${machine} in
 	aarch64)
-		arch="aarch64"
+		current_arch="aarch64"
 		oses="ubuntu"
 		package="jdk"
 		;;
 	ppc64el|ppc64le)
-		arch="ppc64le"
+		current_arch="ppc64le"
 		oses="ubuntu"
 		package="jdk"
 		;;
 	s390x)
-		arch="s390x"
+		current_arch="s390x"
 		oses="ubuntu"
 		package="jdk"
 		;;
 	amd64|x86_64)
-		arch="x86_64"
+		current_arch="x86_64"
 		oses="ubuntu alpine"
 		package="jdk"
 		;;
@@ -108,10 +113,10 @@ function get_arches() {
 function vm_supported_onarch() {
 	vm=$1
 	sums=$2
-	currarch=`uname -m`
+	current_arch=`uname -m`
 
 	suparches=$(get_arches ${sums})
-	sup=$(echo ${suparches} | grep ${currarch})
+	sup=$(echo ${suparches} | grep ${current_arch})
 	echo ${sup}
 }
 
@@ -149,7 +154,14 @@ function check_image() {
 # $3 = OS
 # $4 = String to look for.
 function parse_vm_entry() {
-	entry=$(cat ${1}.config | grep -B 4 "$2\/.*\/$3" | grep "$4" | sed "s/$4 //")
+	entry=$(cat config/$1.config | grep -B 4 "$2\/.*\/$3" | grep "$4" | sed "s/$4 //")
+	echo ${entry}
+}
+
+# Parse the openj9.config / hotspot.config file for the supported OSes
+# $1 = VM
+function parse_os_entry() {
+	entry=$(cat config/$1.config | grep "^OS:" | sed "s/OS: //")
 	echo ${entry}
 }
 

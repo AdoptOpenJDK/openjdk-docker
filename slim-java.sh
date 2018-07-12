@@ -39,10 +39,11 @@ scriptdir=`dirname $0`
 target=${basedir}/slim
 
 # Files for Keep and Del list of classes in rt.jar
-keep_list="${scriptdir}/slim-java_rtjar_keep.list"
-del_list="${scriptdir}/slim-java_rtjar_del.list"
+configdir="${scriptdir}/config"
+keep_list="${configdir}/slim-java_rtjar_keep.list"
+del_list="${configdir}/slim-java_rtjar_del.list"
 # jmod files to be deleted
-del_jmod_list="${scriptdir}/slim-java_jmod_del.list"
+del_jmod_list="${configdir}/slim-java_jmod_del.list"
 
 # We only support 64 bit builds now
 proc_type="64bit"
@@ -219,6 +220,9 @@ function srczip_files() {
 
 # Remove unnecessary jmod files
 function jmod_files() {
+	if [ ! -d ${target}/jmods ]; then
+		return;
+	fi
 	pushd ${target}/jmods >/dev/null
 		for jfile in $(cat ${del_jmod_list} | grep -v "^#");
 		do

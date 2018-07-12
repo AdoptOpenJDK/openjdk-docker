@@ -116,7 +116,7 @@ do
 				else
 					trepo=${target_repo}${version}-${vm}
 				fi
-				tag=${arch}-${os}-${rel}
+				tag=${current_arch}-${os}-${rel}
 				if [ "${build}" == "nightly" ]; then
 					tag=${tag}-nightly
 				fi
