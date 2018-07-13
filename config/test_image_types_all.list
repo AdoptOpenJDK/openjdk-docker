@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# List of test categories
+# List of all docker image types.
 #
 test_tags
 test_aliases

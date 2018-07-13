@@ -42,36 +42,36 @@ function test_java_version() {
 function run_tests() {
 	img=$1
 
-	for tc in $(cat ${test_buckets_file} | grep -v "^#")
+	for test_case in $(cat ${test_buckets_file} | grep -v "^#")
 	do
-		${tc} ${img}
+		${test_case} ${img}
 	done
 }
 
-# Space separated list of tags
+# Run tests on all the alias docker tags.
 function test_aliases() {
 	repo=$1
-	trepo=${source_prefix}/${repo}
+	target_repo=${source_prefix}/${repo}
 
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
-		check_image ${trepo}:${arch_tag}
+		check_image ${target_repo}:${arch_tag}
 	done
 
 	# Global variable tag_aliases has the alias list
-	for talias in ${tag_aliases}
+	for tag_alias in ${tag_aliases}
 	do
-		check_image ${trepo}:${talias}
-		run_tests ${trepo}:${talias}
+		check_image ${target_repo}:${tag_alias}
+		run_tests ${target_repo}:${tag_alias}
 	done
 }
 
-# Check each of the images in the global variable arch_tags exist and
-# Create the tag list from the arch_tags list.
+# Check each of the images in the global variable arch_tags exist
+# and run tests on them
 function test_tags() {
 	repo=$1
-	trepo=${source_prefix}/${repo}
+	target_repo=${source_prefix}/${repo}
 
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
@@ -80,8 +80,8 @@ function test_tags() {
 		if [ ${tarch} != ${current_arch} ]; then
 			continue;
 		fi
-		check_image ${trepo}:${arch_tag}
-		run_tests ${trepo}:${arch_tag}
+		check_image ${target_repo}:${arch_tag}
+		run_tests ${target_repo}:${arch_tag}
 	done
 }
 
@@ -90,9 +90,9 @@ function test_tags() {
 function test_image_types() {
 	srepo=$1
 
-	for ti in $(cat ${test_image_types_file} | grep -v "^#")
+	for test_image in $(cat ${test_image_types_file} | grep -v "^#")
 	do
-		${ti} ${srepo}
+		${test_image} ${srepo}
 	done
 }
 
@@ -146,10 +146,12 @@ do
 			for btype in ${btypes}
 			do
 				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
-				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
+				# Get the relevant tags for this vm / os / build / type combo from the tags.config file.
 				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
+				# Build tags will build both the arch specific tags and the tag aliases.
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
+				# Test both the arch specific tags and the tag aliases.
 				test_image_types ${srepo}
 			done
 		done
