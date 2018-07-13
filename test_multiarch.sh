@@ -26,6 +26,8 @@ source ./common_functions.sh
 
 # Run a java -version test for a given docker image.
 function test_java_version() {
+	img=$1
+
 	echo
 	echo "TEST: Running java -version test on image: ${img}..."
 	docker run --rm -it ${img} java -version
@@ -36,31 +38,62 @@ function test_java_version() {
 	echo
 }
 
-# Space separated list of tags
-function test_aliases() {
-	trepo=$1;
+# Run all test buckets for the given image.
+function run_tests() {
+	img=$1
 
-	# Global variable tag_aliases has the alias list
-	for talias in ${tag_aliases}
+	for test_case in $(cat ${test_buckets_file} | grep -v "^#")
 	do
-		check_image ${trepo}:${talias}
-		test_java_version ${trepo}:${talias}
+		${test_case} ${img}
 	done
 }
 
-# Check each of the images in the global variable arch_tags exist and
-# Create the tag list from the arch_tags list.
-function test_tags() {
+# Run tests on all the alias docker tags.
+function test_aliases() {
 	repo=$1
-	img_list=""
+	target_repo=${source_prefix}/${repo}
+
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
-		trepo=${source_prefix}/${repo}
-		check_image ${trepo}:${arch_tag}
-		img_list="${img_list} ${trepo}:${arch_tag}"
+		check_image ${target_repo}:${arch_tag}
 	done
-	test_aliases ${trepo}
+
+	# Global variable tag_aliases has the alias list
+	for tag_alias in ${tag_aliases}
+	do
+		check_image ${target_repo}:${tag_alias}
+		run_tests ${target_repo}:${tag_alias}
+	done
+}
+
+# Check each of the images in the global variable arch_tags exist
+# and run tests on them
+function test_tags() {
+	repo=$1
+	target_repo=${source_prefix}/${repo}
+
+	# Check if all the individual docker images exist for each expected arch
+	for arch_tag in ${arch_tags}
+	do
+		tarch=$(echo ${arch_tag} | awk -F"-" '{ print $1 }')
+		if [ ${tarch} != ${current_arch} ]; then
+			continue;
+		fi
+		check_image ${target_repo}:${arch_tag}
+		run_tests ${target_repo}:${arch_tag}
+	done
+}
+
+# Run tests for each of the test image types
+# Currently image types = test_tags and test_aliases.
+function test_image_types() {
+	srepo=$1
+
+	for test_image in $(cat ${test_image_types_file} | grep -v "^#")
+	do
+		${test_image} ${srepo}
+	done
 }
 
 if [ ! -z "$1" ]; then
@@ -113,11 +146,13 @@ do
 			for btype in ${btypes}
 			do
 				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
-				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
+				# Get the relevant tags for this vm / os / build / type combo from the tags.config file.
 				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
+				# Build tags will build both the arch specific tags and the tag aliases.
 				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
 				echo "done"
-				test_tags ${srepo}
+				# Test both the arch specific tags and the tag aliases.
+				test_image_types ${srepo}
 			done
 		done
 	done

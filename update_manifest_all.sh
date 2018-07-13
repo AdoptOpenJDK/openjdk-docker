@@ -53,4 +53,17 @@ do
 	echo "==============================================================================="
 	cat manifest_commands.sh
 	./manifest_commands.sh
+
+	# Remove any temporary files
+	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+
+	# Now test the images from hub.docker.com
+	echo "==============================================================================="
+	echo "                                                                               "
+	echo "                    Testing Docker Images for Version ${ver}                   "
+	echo "                                                                               "
+	echo "==============================================================================="
+	# We will test all image types
+	cp ${test_image_types_all_file} ${test_image_types_file}
+	./test_multiarch.sh ${ver}
 done

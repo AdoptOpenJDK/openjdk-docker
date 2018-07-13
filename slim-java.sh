@@ -219,6 +219,9 @@ function srczip_files() {
 
 # Remove unnecessary jmod files
 function jmod_files() {
+	if [ ! -d ${target}/jmods ]; then
+		return;
+	fi
 	pushd ${target}/jmods >/dev/null
 		for jfile in $(cat ${del_jmod_list} | grep -v "^#");
 		do
