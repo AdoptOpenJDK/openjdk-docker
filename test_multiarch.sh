@@ -30,7 +30,8 @@ function test_java_version() {
 
 	echo
 	echo "TEST: Running java -version test on image: ${img}..."
-	docker run --rm -it ${img} java -version
+	# Don't use "-it" flags as the jenkins job doesn't have a tty
+	docker run --rm ${img} java -version
 	if [ $? != 0 ]; then
 		echo "ERROR: Docker Image ${img} failed the java -version test\n"
 		exit 1
