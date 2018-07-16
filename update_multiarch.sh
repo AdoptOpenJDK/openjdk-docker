@@ -181,9 +181,10 @@ print_java_install_pre() {
 EOI
 	cat >> $1 <<'EOI'
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    sha256sum /tmp/openjdk.tar.gz; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
