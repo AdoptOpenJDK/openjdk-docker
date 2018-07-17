@@ -9,15 +9,15 @@ Configuration files used by the docker image creation scripts.
   - Contains supported Eclipse OpenJ9 versions, architectures, OSes, builds and build types.
 * tags.config
   - List of expandable tags for each combination of OS, build and build types. 
-* slim-java\_rtjar\_del.list
+* slim-java_rtjar_del.list
   - List of rt.jar classes that will be deleted to create the slim image.
-* slim-java\_rtjar\_keep.list
+* slim-java_rtjar_keep.list
   - List of rt.jar classes that will be retained in the slim image.
-* slim-java\_jmod\_del.list
+* slim-java_jmod_del.list
   - List of jmod files that will be deleted to create the slim images.
-* test\_buckets.list
-  - List of individual test functions. These test functions are currently part of test\_multiarch.sh
-* test\_image\_types\_all.list
+* test_buckets.list
+  - List of individual test functions. These test functions are currently part of test_multiarch.sh
+* test_image_types_all.list
   - List of all docker image types.
-* test\_image\_types.list
+* test_image_types.list
   - List of docker image types that will be tested in the current run.
