@@ -8,10 +8,37 @@ Dockerfiles and build scripts for generating various Docker Images related to Op
 # License
 The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](http://www.apache.org/licenses/LICENSE-2.0.html).
 
+# Supported builds and build types
+1. There are two kinds of build images
+   * Release build images
+     - These are release tested versions of the JDKs.
+     - Associated tags: latest, alpine, ${version}
+   * Nightly build images
+     - These are nightly builds with minimal testing.
+     - Associated tags: nightly, alpine-nightly, ${version}-nightly
+2. There are two build types
+   * Full build images
+     - This consists of the full JDK.
+     - Associated tags: latest, alpine, ${version}
+   * Slim build images
+     - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud.
+     - Associated tags: slim, alpine-slim, ${version}-slim
+
+**Here is a listing of the image sizes for the various build images and types for JDK Version 8**
+
+| VMs  | latest | slim | nightly | nightly-slim | alpine | alpine-slim | alpine-nightly | alpine-nightly-slim |
+|:----:|:------:|:----:|:-------:|:------------:|:------:|:-----------:|:--------------:|:-------------------:|
+|OpenJ9| 339MB  | 251MB|  344MB  |    250MB     | 208MB  |    120MB    |     213MB      |       118MB         |
+|Hotspot| 324MB | 238MB|  324MB  |    238MB     | 193MB  |    106MB    |     193MB      |       106MB         |
+
+**Notes:**
+1. The alpine-slim images are about 60% smaller than the latest images.
+2. The Alpine Linux and the slim images are not yet TCK certified.
+
 # Build and push the Images with multi-arch support
 
 ```
-# Steps 1-3 needs to be run on all supported arches.
+# Steps 1-2 needs to be run on all supported arches.
 # i.e aarch64, ppc64le, s390x and x86_64.
 
 # 1. Clone this github repo
@@ -19,27 +46,17 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 # 2. Build images and tag them appropriately
      $ cd openjdk-docker
-	 # version = 8|9|10
-     $ ./build_latest.sh $version
+     $ ./build_all.sh
 
-# 3. The above script generates a script (push_commands.sh) that has the right commands to push to
-#    hub.docker.com. Make sure to login to hub.docker first
-     $ cat ~/my_password.txt | docker login --username foo --password-stdin
-     $ ./push_commands.sh
+# Steps 3 needs to be run only on x86_64
 
-# Steps 4-5 needs to be run only on x86_64
-
-# 4. build_latest.sh and push_commands.sh should be run on all supported architectures to build and
-#    push images to the docker registry. The images should now be available on hub.docker.com but
-#    without multi-arch support. To add multi-arch support, we need to generate the right manifest
-#    lists and push them to hub.docker.com. The script generate_manifest_script.sh can be used to
+# 3. build_all.sh should be run on all supported architectures to build and push images to the
+#    docker registry. The images should now be available on hub.docker.com but without multi-arch
+#    support. To add multi-arch support, we need to generate the right manifest lists and push them
+#    to hub.docker.com. The script generate_manifest_script.sh can be used to
 #    generate the right manifest commands. This needs to be run only on x86_64 after docker images
 #    for all architecures have been built and made available on hub.docker.com
-     $ ./generate_manifest_script.sh $version
-
-# 5. generate_manifest_script.sh generates a script manifest-commands.sh, that creates the manifest
-#    list and pushes them to hub.docker.com. 
-     $ ./manifest_commands.sh
+     $ ./update_manifest_all.sh
 
 # We should now have the proper manifest lists pushed to hub.docker.com to support multi-arch pulls.
 ```
