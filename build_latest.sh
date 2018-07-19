@@ -20,7 +20,9 @@ target_repo="adoptopenjdk/openjdk"
 version="9"
 
 source ./common_functions.sh
+source ./dockerfile_function.sh
 
+# Build the Docker image with the given repo, build, build type and tags.
 function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
@@ -45,29 +47,45 @@ function build_image() {
 	fi
 }
 
+# Build the docker image for a given VM, OS, BUILD and BUILD_TYPE combination.
+function build_dockerfile {
+	vm=$1; os=$2; build=$3; btype=$4;
+
+	jverinfo=${shasums}[version]
+	eval jrel=\${$jverinfo}
+	# Docker image tags cannot have "+" in them, replace it with "." instead.
+	rel=$(echo ${jrel} | sed 's/+/./')
+
+	# The target repo is different for different VMs
+	if [ "${vm}" == "hotspot" ]; then
+		trepo=${target_repo}${version}
+	else
+		trepo=${target_repo}${version}-${vm}
+	fi
+	# Get the default tag first
+	tag=${current_arch}-${os}-${rel}
+	# Append nightly for nightly builds
+	if [ "${build}" == "nightly" ]; then
+		tag=${tag}-nightly
+	fi
+	# Append slim for slim builds
+	if [ "${btype}" == "slim" ]; then
+		tag=${tag}-slim
+		# Copy the script to generate slim builds.
+		cp slim-java* config/slim-java* ${dir}/
+	fi
+	echo "INFO: Building ${trepo} ${tag} from $file ..."
+	pushd ${dir} >/dev/null
+	build_image ${trepo} ${build} ${btype} ${tag}
+	popd >/dev/null
+}
+
 if [ ! -z "$1" ]; then
 	set_version $1
 fi
 
 # Set the OSes that will be built on based on the current arch
 set_arch_os
-
-# Which JVMs are available for the current version
-./generate_latest_sums.sh ${version}
-
-# Source the hotspot and openj9 shasums scripts
-available_jvms=""
-if [ -f hotspot_shasums_latest.sh ]; then
-	source ./hotspot_shasums_latest.sh
-	available_jvms="hotspot"
-fi
-if [ -f openj9_shasums_latest.sh ]; then
-	source ./openj9_shasums_latest.sh
-	available_jvms="${available_jvms} openj9"
-fi
-
-# Generate the Dockerfiles for the current version
-./update_multiarch.sh ${version}
 
 # Script that has the push commands for the images that we are building.
 echo "#!/bin/bash" > ${push_cmdfile}
@@ -82,7 +100,7 @@ echo >> ${push_cmdfile}
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-slim
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly-slim
-for vm in ${available_jvms}
+for vm in ${all_jvms}
 do
 	for os in ${oses}
 	do
@@ -94,38 +112,30 @@ do
 
 		for build in ${builds}
 		do
+			echo "Getting latest shasum info for [ ${version} ${vm} ${build} ]"
+			get_shasums ${version} ${vm} ${build}
+			# Source the generated shasums file to access the array
+			if [ -f ${vm}_shasums_latest.sh ]; then
+				source ./${vm}_shasums_latest.sh
+			else
+				continue;
+			fi
+			# Check if the VM is supported for the current arch
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 			sup=$(vm_supported_onarch ${vm} ${shasums})
 			if [ -z "${sup}" ]; then
 				continue;
 			fi
-			jverinfo=${shasums}[version]
-			eval jrel=\${$jverinfo}
-			# Docker image tags cannot have "+" in them, replace it with "." instead.
-			rel=$(echo $jrel | sed 's/+/./')
-
+			# Generate all the Dockerfiles for each of the builds and build types
 			for btype in ${btypes}
 			do
 				file="${dir}/Dockerfile.${vm}.${build}.${btype}"
+				generate_dockerfile ${file} ${build} ${btype} ${os}
 				if [ ! -f ${file} ]; then
 					continue;
 				fi
-				pushd ${dir} >/dev/null
-				if [ "${vm}" == "hotspot" ]; then
-					trepo=${target_repo}${version}
-				else
-					trepo=${target_repo}${version}-${vm}
-				fi
-				tag=${current_arch}-${os}-${rel}
-				if [ "${build}" == "nightly" ]; then
-					tag=${tag}-nightly
-				fi
-				if [ "${btype}" == "slim" ]; then
-					tag=${tag}-slim
-				fi
-				echo "INFO: Building ${trepo} ${tag} from $file ..."
-				build_image ${trepo} ${build} ${btype} ${tag}
-				popd >/dev/null
+				# Build the docker images for valid Dockerfiles
+				build_dockerfile ${vm} ${os} ${build} ${btype}
 			done
 		done
 	done
