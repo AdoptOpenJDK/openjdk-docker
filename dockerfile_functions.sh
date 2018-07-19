@@ -40,8 +40,18 @@ print_legal() {
 
 # Print the supported Ubuntu OS
 print_ubuntu_ver() {
+	build=$2
+	build_type=$3
+
+# Use ubuntu:18.04 for the slim and nightly builds.
+if [ "${build}" == "nightly" -o "${build_type}" == "slim" ]; then
+	os_version="18.04"
+else
+	os_version="16.04"
+fi
+
 	cat >> $1 <<-EOI
-	FROM ubuntu:16.04
+	FROM ubuntu:${os_version}
 
 	EOI
 }
