@@ -20,7 +20,7 @@ target_repo="adoptopenjdk/openjdk"
 version="9"
 
 source ./common_functions.sh
-source ./dockerfile_function.sh
+source ./dockerfile_functions.sh
 
 # Build the Docker image with the given repo, build, build type and tags.
 function build_image() {
