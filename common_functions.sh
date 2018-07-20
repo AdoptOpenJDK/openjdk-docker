@@ -92,7 +92,7 @@ function set_arch_os() {
 function get_arches() {
 	# Check if the array has been defined. Array might be undefined if the
 	# corresponding build combination does not exist.
-	# Eg. jdk_openj9_10_release_sums does not exist as we do not have any
+	# Eg. jdk_openj9_10_releases_sums does not exist as we do not have any
 	# release builds for version 10 (Only nightly builds).
 	declare -p $1 >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
@@ -237,31 +237,47 @@ function build_tags() {
 	rm -f ${tmpfile}
 }
 
+# Build the URL using adoptopenjdk.net v2 api based on the given parameters
+function get_v2_url() {
+	request_type=$1
+	release_type=$2
+	url_impl=$3
+	url_arch=$4
+	url_pkg=$5
+	url_rel=$6
+	url_os=linux
+	url_version=openjdk${version}
+	
+	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
+	specifiers="openjdkImpl=${url_impl}&os=${url_os}&arch=${url_arch}&type=${url_pkg}&release=${url_rel}"
+	
+	echo "${baseurl}?${specifiers}"
+}
+
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
-	gsba_local_ver=$1
-	gsba_local_vm=$2
-	gsba_local_build=$3
-	gsba_local_arch=$4
-	reldir=$5
+	gsba_ver=$1
+	gsba_vm=$2
+	gsba_build=$3
+	gsba_arch=$4
 
-	case ${gsba_local_arch} in
+	case ${gsba_arch} in
 		aarch64)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${gsba_local_build}/aarch64_linux/latest";
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} aarch64 jdk latest);
 			;;
 		ppc64le)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${gsba_local_build}/ppc64le_linux/latest";
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ppc64le jdk latest);
 			;;
 		s390x)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${gsba_local_build}/s390x_linux/latest";
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} s390x jdk latest);
 			;;
 		x86_64)
-			LATEST_URL="https://api.adoptopenjdk.net/${reldir}/${gsba_local_build}/x64_linux/latest";
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} x64 jdk latest);
 			;;
 		*)
-			echo "Unsupported arch: ${gsba_local_arch}"
+			echo "Unsupported arch: ${gsba_arch}"
 	esac
-	shasum_file="${gsba_local_arch}_${gsba_local_build}_latest"
+	shasum_file="${gsba_arch}_${gsba_build}_latest"
 	curl -Lso ${shasum_file} ${LATEST_URL};
 	# Bad builds cause the latest url to return an empty file or sometimes curl fails
 	if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
@@ -274,7 +290,7 @@ function get_sums_for_build_arch() {
 		# If there are multiple builds for a single version, then pick the latest one.
 		shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-		printf "\t[%s]=\"%s\"\n" ${gsba_local_arch} ${shasum} >> ${ofile}
+		printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
 	fi
 	rm -f ${shasum_file}
 }
@@ -282,16 +298,12 @@ function get_sums_for_build_arch() {
 # Get shasums for the build and arch combination given
 # If no arch given, generate for all valid arches
 function get_sums_for_build() {
-	gsb_local_ver=$1
-	gsb_local_vm=$2
-	gsb_local_build=$3
-	gsb_local_arch=$4
+	gsb_ver=$1
+	gsb_vm=$2
+	gsb_build=$3
+	gsb_arch=$4
 
-	reldir="openjdk${gsb_local_ver}"
-	if [ "${gsb_local_vm}" != "hotspot" ]; then
-		reldir="${reldir}-${gsb_local_vm}"
-	fi
-	info_url="https://api.adoptopenjdk.net/${reldir}/${gsb_local_build}/x64_linux/latest"
+	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} x64 jdk latest);
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls ${info_url})
@@ -305,21 +317,21 @@ function get_sums_for_build() {
 		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
 	fi
 	# Declare the array with the proper name and write to the vm output file.
-	printf "declare -A jdk_%s_%s_%s_sums=(\n" ${gsb_local_vm} ${gsb_local_ver} ${gsb_local_build} >> ${ofile}
+	printf "declare -A jdk_%s_%s_%s_sums=(\n" ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
 	# Capture the full version according to adoptopenjdk
 	printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
-	if [ ! -z "${gsb_local_arch}" ]; then
-		get_sums_for_build_arch ${gsb_local_ver} ${gsb_local_vm} ${gsb_local_build} ${gsb_local_arch} ${reldir}
+	if [ ! -z "${gsb_arch}" ]; then
+		get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_build} ${gsb_arch}
 	else
-		for gsb_local_arch in ${all_arches}
+		for gsb_arch in ${all_arches}
 		do
-			get_sums_for_build_arch ${gsb_local_ver} ${gsb_local_vm} ${gsb_local_build} ${gsb_local_arch} ${reldir}
+			get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_build} ${gsb_arch}
 		done
 	fi
 	printf ")\n" >> ${ofile}
 
 	echo
-	echo "sha256sums for the version ${full_version} for build type \"${gsb_local_build}\" is now available in ${ofile}"
+	echo "sha256sums for the version ${full_version} for build type \"${gsb_build}\" is now available in ${ofile}"
 	echo
 }
 
