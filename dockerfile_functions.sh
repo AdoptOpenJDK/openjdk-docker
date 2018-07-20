@@ -40,11 +40,11 @@ print_legal() {
 
 # Print the supported Ubuntu OS
 print_ubuntu_ver() {
-	build=$2
-	build_type=$3
+	local_build=$2
+	local_build_type=$3
 
 # Use ubuntu:18.04 for the slim and nightly builds.
-if [ "${build}" == "nightly" -o "${build_type}" == "slim" ]; then
+if [ "${local_build}" == "nightly" -o "${local_build_type}" == "slim" ]; then
 	os_version="18.04"
 else
 	os_version="16.04"
@@ -133,28 +133,28 @@ print_java_install_pre() {
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/aarch64_linux/latest/binary"; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} aarch64 jdk latest)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/ppc64le_linux/latest/binary"; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} ppc64le jdk latest)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/s390x_linux/latest/binary"; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} s390x jdk latest)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL="https://api.adoptopenjdk.net/${reldir}/${bld}/x64_linux/latest/binary"; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} x64 jdk latest)'; \\
          ;; \\
 		EOI
 		fi
