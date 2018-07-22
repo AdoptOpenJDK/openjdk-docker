@@ -284,7 +284,7 @@ function get_sums_for_build_arch() {
 		continue;
 	fi
 	# Even if the file is not empty, it might just say "No matches"
-	availability=$(grep "No matches" ${shasum_file});
+	availability=$(grep -e "No matches" -e "Not found" ${shasum_file});
 	# Print the arch and the corresponding shasums to the vm output file
 	if [ -z "${availability}" ]; then
 		# If there are multiple builds for a single version, then pick the latest one.
@@ -307,7 +307,7 @@ function get_sums_for_build() {
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls ${info_url})
-	err=$(echo ${info} | grep -e "Error" -e "No matches")
+	err=$(echo ${info} | grep -e "Error" -e "No matches" -e "Not found")
 	if [ ! -z "${err}" ]; then
 		continue;
 	fi
