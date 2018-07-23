@@ -238,18 +238,27 @@ function build_tags() {
 }
 
 # Build the URL using adoptopenjdk.net v2 api based on the given parameters
+# request_type = info / binary
+# release_type = releases / nightly
+# url_impl = hotspot / openj9
+# url_arch = aarch64 / ppc64le / s390x / x64 
+# url_pkg  = jdk / jre
+# url_rel  = latest / ${version}
 function get_v2_url() {
 	request_type=$1
 	release_type=$2
 	url_impl=$3
-	url_arch=$4
-	url_pkg=$5
-	url_rel=$6
+	url_pkg=$4
+	url_rel=$5
+	url_arch=$6
 	url_os=linux
 	url_version=openjdk${version}
 	
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
-	specifiers="openjdkImpl=${url_impl}&os=${url_os}&arch=${url_arch}&type=${url_pkg}&release=${url_rel}"
+	specifiers="openjdkImpl=${url_impl}&os=${url_os}&type=${url_pkg}&release=${url_rel}"
+	if [ ! -z "${url_arch}" ]; then
+		specifiers="${specifiers}&arch=${url_arch}"
+	fi
 	
 	echo "${baseurl}?${specifiers}"
 }
@@ -263,16 +272,16 @@ function get_sums_for_build_arch() {
 
 	case ${gsba_arch} in
 		aarch64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} aarch64 jdk latest);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest aarch64);
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ppc64le jdk latest);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest ppc64le);
 			;;
 		s390x)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} s390x jdk latest);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest s390x);
 			;;
 		x86_64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} x64 jdk latest);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest x64);
 			;;
 		*)
 			echo "Unsupported arch: ${gsba_arch}"
@@ -303,7 +312,7 @@ function get_sums_for_build() {
 	gsb_build=$3
 	gsb_arch=$4
 
-	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} x64 jdk latest);
+	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} jdk latest);
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls ${info_url})
