@@ -133,28 +133,28 @@ print_java_install_pre() {
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} aarch64 jdk latest)'; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest aarch64)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} ppc64le jdk latest)'; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest ppc64le)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} s390x jdk latest)'; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest s390x)'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} x64 jdk latest)'; \\
+         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest x64)'; \\
          ;; \\
 		EOI
 		fi
@@ -168,9 +168,10 @@ print_java_install_pre() {
 EOI
 	cat >> $1 <<'EOI'
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
@@ -299,7 +300,7 @@ generate_dockerfile() {
 	echo
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
-	print_${os}_ver ${file};
+	print_${os}_ver ${file} ${bld} ${btype};
 	print_maint ${file};
 	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
