@@ -255,7 +255,7 @@ function get_v2_url() {
 	url_version=openjdk${version}
 	
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
-	specifiers="openjdkImpl=${url_impl}&os=${url_os}&type=${url_pkg}&release=${url_rel}"
+	specifiers="openjdk_impl=${url_impl}&os=${url_os}&type=${url_pkg}&release=${url_rel}"
 	if [ ! -z "${url_arch}" ]; then
 		specifiers="${specifiers}&arch=${url_arch}"
 	fi
