@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# List of individual tests
+# List of individual tests and the images it is applicable for
 #
-test_java_version
+test_java_version       hotspot openj9 maven
+test_maven_version      maven

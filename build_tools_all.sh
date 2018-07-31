@@ -16,24 +16,23 @@ set -o pipefail
 
 source ./common_functions.sh
 
-# Cleanup any old containers, images and manifest entries.
+# Cleanup any old containers and images
 cleanup_images
-cleanup_manifest
 
 for ver in ${supported_versions}
 do
 	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
 
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                 Generating Manifest Entries for Version ${ver}                "
+	echo "                Building Tools Docker Images for Version ${ver}                "
 	echo "                                                                               "
 	echo "==============================================================================="
-	./generate_manifest_script.sh ${ver}
+	./build_tools_latest.sh ${ver}
 
 	err=$?
-	if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
+	if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
 		echo
 		echo "ERROR: Docker Build for version ${ver} failed."
 		echo
@@ -44,27 +43,25 @@ do
 	echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
 	echo
 	sleep 5
-
-	# Now push the manifest entries to hub.docker.com
+	# Now push the images to hub.docker.com
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                 Pushing Manifest Entries for Version ${ver}                   "
+	echo "                Pushing Tools Docker Images for Version ${ver}                 "
 	echo "                                                                               "
 	echo "==============================================================================="
-	cat manifest_commands.sh
-	./manifest_commands.sh
+	cat push_commands.sh
+	./push_commands.sh
 
 	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
 
 	# Now test the images from hub.docker.com
 	echo "==============================================================================="
 	echo "                                                                               "
-	echo "                    Testing Docker Images for Version ${ver}                   "
+	echo "                Testing Tools Docker Images for Version ${ver}                 "
 	echo "                                                                               "
 	echo "==============================================================================="
-	# We will test both the tags and alias image types
-	echo "test_tags" > ${test_image_types_file}
-	echo "test_aliases" >> ${test_image_types_file}
-	./test_multiarch.sh ${ver}
+	# Only test the just created tools docker image tags
+	echo "test_tools" > ${test_image_types_file}
+	./test_tools.sh ${ver}
 done

@@ -22,43 +22,6 @@ version="9"
 source ./common_functions.sh
 source ./dockerfile_functions.sh
 
-# Build the docker image for a given VM, OS, BUILD and BUILD_TYPE combination.
-function build_dockerfile {
-	vm=$1; os=$2; build=$3; btype=$4;
-
-	jverinfo=${shasums}[version]
-	eval jrel=\${$jverinfo}
-	# Docker image tags cannot have "+" in them, replace it with "." instead.
-	rel=$(echo ${jrel} | sed 's/+/./')
-
-	# The target repo is different for different VMs
-	if [ "${vm}" == "hotspot" ]; then
-		trepo=${target_repo}${version}
-	else
-		trepo=${target_repo}${version}-${vm}
-	fi
-	# Get the default tag first
-	tag=${current_arch}-${os}-${rel}
-	# Append nightly for nightly builds
-	if [ "${build}" == "nightly" ]; then
-		tag=${tag}-nightly
-	fi
-	# Append slim for slim builds
-	if [ "${btype}" == "slim" ]; then
-		tag=${tag}-slim
-		# Copy the script to generate slim builds.
-		cp slim-java* config/slim-java* ${dir}/
-	fi
-	echo "INFO: Building ${trepo} ${tag} from ${file}..."
-	pushd ${dir} >/dev/null
-	build_image ${file} ${trepo}:${tag}
-	popd >/dev/null
-
-	# Docker image has been built successfully.
-	# Add the command to push this image to docker hub.
-	echo "docker push ${trepo}:${tag}" >> ${push_cmdfile}
-}
-
 if [ ! -z "$1" ]; then
 	set_version $1
 fi
@@ -66,19 +29,51 @@ fi
 # Set the OSes that will be built on based on the current arch
 set_arch_os
 
+# Create the build tools dockerfiles
+function build_tool_images() {
+	vm=$1;
+	os=$2;
+	build=$3;
+	btype=$4;
+
+	# Get the tag alias to generate the build tools Dockerfiles
+	build_tags ${vm} ${os} ${build} ${btype}
+	# build_tags populates the array tag_aliases, but we just need the first element
+	# The first element corresponds to the tag alias			
+	tags_arr=(${tag_aliases});
+	tag_alias=${tags_arr[0]};
+
+	for tool in ${all_tools}
+	do
+		tool_dir=$(parse_config_file ${tool} ${version} ${os} "Directory:")
+		file=Dockerfile.${vm}.${build}.${btype}
+		if [ ! -f ${tool_dir}/${file} ]; then
+			continue;
+		fi
+		tag=${tool}-${tag_alias}
+		# The target repo is different for different VMs
+		if [ "${vm}" == "hotspot" ]; then
+			trepo=${target_repo}${version}
+		else
+			trepo=${target_repo}${version}-${vm}
+		fi
+		echo "INFO: Building ${trepo} ${tag} from ${file}..."
+		pushd ${tool_dir} >/dev/null
+		build_image ${file} ${trepo}:${tag}
+		popd >/dev/null
+
+		# Docker image has been built successfully.
+		# Add the command to push this image to docker hub.
+		echo "docker push ${trepo}:${tag}" >> ${push_cmdfile}
+	done
+}
+
 # Script that has the push commands for the images that we are building.
 echo "#!/bin/bash" > ${push_cmdfile}
 echo >> ${push_cmdfile}
 
-# Valid image tags
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}-slim
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}-nightly
-#adoptopenjdk/openjdk${version}:${arch}-${os}-${rel}-nightly-slim
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-slim
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
-#adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly-slim
+# Loop through all the valid vm / os / build / build type combinations
+# for each of the build tools.
 for vm in ${all_jvms}
 do
 	for os in ${oses}
@@ -108,13 +103,12 @@ do
 			# Generate all the Dockerfiles for each of the builds and build types
 			for btype in ${btypes}
 			do
-				file="${dir}/Dockerfile.${vm}.${build}.${btype}"
-				generate_dockerfile ${file} ${build} ${btype} ${os}
-				if [ ! -f ${file} ]; then
-					continue;
-				fi
-				# Build the docker images for valid Dockerfiles
-				build_dockerfile ${vm} ${os} ${build} ${btype}
+				# Generate any build tools dockerfiles that uses
+				# the above docker image as the base image.
+				create_build_tool_dockerfiles ${vm} ${os} ${build} ${btype}
+
+				# Now build the corresponding docker images.
+				build_tool_images ${vm} ${os} ${build} ${btype}
 			done
 		done
 	done
