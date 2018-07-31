@@ -108,8 +108,8 @@ for vm in ${available_jvms}
 do
 	for os in ${oses}
 	do
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		builds=$(parse_config_file ${vm} ${version} ${os} "Build:")
+		btypes=$(parse_config_file ${vm} ${version} ${os} "Type:")
 		for build in ${builds}
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
@@ -129,8 +129,7 @@ do
 			do
 				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
 				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
-				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
-				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
+				build_tags ${vm} ${os} ${build} ${btype}
 				echo "done"
 				print_tags ${srepo}
 			done

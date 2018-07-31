@@ -39,13 +39,56 @@ function test_java_version() {
 	echo
 }
 
-# Run all test buckets for the given image.
-function run_tests() {
+# Run a maven -version test for the given docker image.
+function test_maven_version() {
 	img=$1
 
-	for test_case in $(cat ${test_buckets_file} | grep -v "^#")
+	echo
+	echo "TEST: Running mvn -version test on image: ${img}..."
+	# Don't use "-it" flags as the jenkins job doesn't have a tty
+	docker run --rm ${img} mvn -version
+	if [ $? != 0 ]; then
+		echo "ERROR: Docker Image ${img} failed the mvn -version test\n"
+		exit 1
+	fi
+	echo
+}
+
+# Run all test buckets for given image type and image.
+function run_tests() {
+	img_type=$1
+	img=$2
+
+	while read -r test_entry
 	do
+		# Read a line from the test_buckets_file and check for the image type.
+		# Format of the line will be "test_case  image_type1 image_type2..."
+		test_case=$(echo ${test_entry} | grep -v "^#" | grep "${img_type}");
+		if [ -z "${test_case}" ]; then
+			continue;
+		fi
+		# We have a valid testcase, call the testcase with the image.
+		test_case=$(echo ${test_case} | awk '{ print $1 }')
 		${test_case} ${img}
+	done < ${test_buckets_file}
+}
+
+# Run tests in all build tool docker images.
+function test_tools() {
+	repo=$1
+	target_repo=${source_prefix}/${repo}
+
+	for tool in ${all_tools}
+	do
+		# Global variable tag_aliases has the alias list
+		# The first element corresponds to the primary tag alias			
+		tags_arr=(${tag_aliases});
+		tag_alias=${tags_arr[0]};
+		tag=${tool}-${tag_alias}
+
+		# Pull the image locally
+		check_image ${target_repo}:${tag}
+		run_tests ${tool} ${target_repo}:${tag}
 	done
 }
 
@@ -64,7 +107,7 @@ function test_aliases() {
 	for tag_alias in ${tag_aliases}
 	do
 		check_image ${target_repo}:${tag_alias}
-		run_tests ${target_repo}:${tag_alias}
+		run_tests ${vm} ${target_repo}:${tag_alias}
 	done
 }
 
@@ -82,7 +125,7 @@ function test_tags() {
 			continue;
 		fi
 		check_image ${target_repo}:${arch_tag}
-		run_tests ${target_repo}:${arch_tag}
+		run_tests ${vm} ${target_repo}:${arch_tag}
 	done
 }
 
@@ -127,8 +170,8 @@ for vm in ${available_jvms}
 do
 	for os in ${oses}
 	do
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
+		builds=$(parse_config_file ${vm} ${version} ${os} "Build:")
+		btypes=$(parse_config_file ${vm} ${version} ${os} "Type:")
 		for build in ${builds}
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
@@ -148,9 +191,8 @@ do
 			do
 				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
 				# Get the relevant tags for this vm / os / build / type combo from the tags.config file.
-				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
 				# Build tags will build both the arch specific tags and the tag aliases.
-				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
+				build_tags ${vm} ${os} ${build} ${btype}
 				echo "done"
 				# Test both the arch specific tags and the tag aliases.
 				test_image_types ${srepo}

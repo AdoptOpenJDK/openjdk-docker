@@ -29,6 +29,9 @@ all_jvms="hotspot openj9"
 # All supported arches
 all_arches="aarch64 ppc64le s390x x86_64"
 
+# All supported tools
+all_tools="maven"
+
 # Current JVM versions supported
 export supported_versions="8 9 10"
 
@@ -148,19 +151,34 @@ function check_image() {
 	echo "done"
 }
 
-# Parse the openj9.config / hotspot.config file for an entry as specified by $4
-# $1 = VM
+# Build the Docker image with the given dockerfile and the tags.
+function build_image() {
+	file=$1;
+	image_tag=$2;
+
+	echo "#####################################################"
+	echo "INFO: docker build --no-cache -t ${image_tag} -f ${file} ."
+	echo "#####################################################"
+	docker build --no-cache -t ${image_tag} -f ${file} .
+	if [ $? != 0 ]; then
+		echo "ERROR: Docker build of image: ${image_tag} from ${file} failed."
+		exit 1
+	fi
+}
+
+# Parse the openj9.config / hotspot.config / maven.config file for an entry as specified by $4
+# $1 = VM / Tool
 # $2 = Version
 # $3 = OS
 # $4 = String to look for.
-function parse_vm_entry() {
+function parse_config_file() {
 	entry=$(cat config/$1.config | grep -B 4 "$2\/.*\/$3" | grep "$4" | sed "s/$4 //")
 	echo ${entry}
 }
 
-# Parse the openj9.config / hotspot.config file for the supported OSes
-# $1 = VM
-function parse_os_entry() {
+# Parse the openj9.config / hotspot.config / maven.config file for the supported OSes
+# $1 = VM / Tool
+function parse_config_file_os() {
 	entry=$(cat config/$1.config | grep "^OS:" | sed "s/OS: //")
 	echo ${entry}
 }
@@ -169,7 +187,7 @@ function parse_os_entry() {
 # $1 = OS
 # $2 = Build (releases / nightly)
 # $3 = Type (full / slim)
-function parse_tag_entry() {
+function parse_tag_config_file() {
 	tag="$1-$2-$3-tags:"
 	entry=$(cat ${tags_config_file} | grep ${tag} | sed "s/${tag} //")
 	echo ${entry}
@@ -195,16 +213,21 @@ function check_manifest_tool() {
 
 # Build valid image tags using the tags.config file as the base
 function build_tags() {
-	vm=$1; shift
-	ver=$1; shift;
-	rel=$1; shift;
-	os=$1; shift;
-	build=$1; shift;
-	rawtags=$*
+	vm=$1;
+	os=$2;
+	build=$3;
+	build_type=$4;
 	tmpfile=raw_arch_tags.$$.tmp
 
+	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+	jrelinfo=${shasums}[version]
+	eval jrel=\${$jrelinfo}
+	# Docker image tags cannot have "+" in them, replace it with "." instead.
+	rel=$(echo ${jrel} | sed 's/+/./')
+	rawtags=$(parse_tag_config_file ${os} ${build} ${build_type})
+
 	# Get the list of supported arches for this vm / ver /os combo
-	arches=$(parse_vm_entry ${vm} ${ver} ${os} "Architectures:")
+	arches=$(parse_config_file ${vm} ${version} ${os} "Architectures:")
 	# Replace the proper version string in the tags
 	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
 	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |

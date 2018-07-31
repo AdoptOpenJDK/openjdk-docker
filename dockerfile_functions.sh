@@ -122,10 +122,7 @@ EOI
 print_java_install_pre() {
 	bld=$2
 	btype=$3
-	reldir="openjdk${version}";
-	if [ "${vm}" != "hotspot" ]; then
-		reldir="${reldir}-${vm}";
-	fi
+
 	supported_arches=$(get_arches ${shasums})
 	for sarch in ${supported_arches}
 	do
@@ -310,4 +307,81 @@ generate_dockerfile() {
 	print_java_options ${file} ${bld} ${btype};
 	echo "done"
 	echo
+}
+
+# Print the FROM command for a specific java version
+# This will be the base image for the build tool
+print_base_java() {
+	image_tag=$2
+
+	repo="adoptopenjdk/openjdk${version}"
+	if [ "${vm}" != "hotspot" ]; then
+		repo="${repo}-${vm}";
+	fi
+
+	cat >> $1 <<-EOI
+	FROM ${repo}:${image_tag}
+
+	EOI
+}
+
+# Print the maven dockerfile install commands
+print_maven() {
+	cat >> $1 <<'EOI'
+
+ARG MAVEN_VERSION="3.5.4"
+ARG USER_HOME_DIR="/root"
+ARG SHA="ce50b1c91364cb77efe3776f756a6d92b76d9038b0a0782f7d53acf1e997a14d"
+ARG BASE_URL="https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries"
+
+RUN mkdir -p /usr/share/maven \
+    && curl -Lso  /tmp/maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    && echo "${SHA}  /tmp/maven.tar.gz" | sha256sum -c - \
+    && tar -xzC /usr/share/maven --strip-components=1 -f /tmp/maven.tar.gz \
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+ENV MAVEN_CONFIG "${USER_HOME_DIR}/.m2"
+
+CMD ["/usr/bin/mvn"]
+EOI
+}
+
+# Generate a build tool dockerfile for the given file and tag
+generate_build_tool_dockerfile() {
+	file=$1
+	image_tag=$2
+
+	mkdir -p `dirname ${file}` 2>/dev/null
+	echo
+	echo -n "Writing ${file} ... "
+
+	print_legal ${file};
+	print_base_java ${file} ${image_tag}
+	print_maint ${file};
+	print_${tool} ${file};
+	echo "done"
+	echo
+}
+
+# Create the build tools dockerfiles
+function create_build_tool_dockerfiles() {
+	vm=$1;
+	os=$2;
+	build=$3;
+	btype=$4;
+
+	# Get the tag alias to generate the build tools Dockerfiles
+	build_tags ${vm} ${os} ${build} ${btype}
+	# build_tags populates the array tag_aliases, but we just need the first element
+	# The first element corresponds to the tag alias			
+	tags_arr=(${tag_aliases});
+	tag_alias=${tags_arr[0]};
+
+	for tool in ${all_tools}
+	do
+		tool_dir=$(parse_config_file ${tool} ${version} ${os} "Directory:")
+		file=${tool_dir}/Dockerfile.${vm}.${build}.${btype}
+		generate_build_tool_dockerfile ${file} ${tag_alias}
+	done
 }

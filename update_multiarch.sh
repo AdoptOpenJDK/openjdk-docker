@@ -20,6 +20,7 @@ package="jdk"
 osver="ubuntu alpine"
 
 source ./common_functions.sh
+source ./dockerfile_functions.sh
 
 if [ ! -z "$1" ]; then
 	set_version $1
@@ -43,14 +44,14 @@ fi
 # architectures and supported Operating Systems.
 for vm in ${available_jvms}
 do
-	oses=$(parse_os_entry ${vm})
+	oses=$(parse_config_file_os ${vm})
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
+		builds=$(parse_config_file ${vm} ${version} ${os} "Build:")
 		# Build Type = Full or Slim
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
-		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
+		btypes=$(parse_config_file ${vm} ${version} ${os} "Type:")
+		dir=$(parse_config_file ${vm} ${version} ${os} "Directory:")
 
 		for build in ${builds}
 		do
@@ -67,11 +68,11 @@ do
 				if [ "${btype}" = "slim" ]; then
 					cp slim-java* config/slim-java* ${dir}
 				fi
-				reldir="openjdk${version}";
-				if [ "${vm}" != "hotspot" ]; then
-					reldir="${reldir}-${vm}";
-				fi
 				generate_dockerfile ${file} ${build} ${btype} ${os}
+
+				# Generate any build tools dockerfiles that uses
+				# the above docker image as the base image.
+				create_build_tool_dockerfiles ${vm} ${os} ${build} ${btype}
 			done
 		done
 	done
