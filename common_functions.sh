@@ -102,7 +102,12 @@ function get_arches() {
 	eval "declare -A sums="${archsums#*=};
 	for arch in ${!sums[@]};
 	do
-		if [ "${arch}" != "version" ]; then
+		if [ "${arch}" == "version" ]; then
+			continue;
+		fi
+		# Arch is supported only if the shasum is not empty !
+		shasum=$(sarray=$1[${arch}]; eval esum=\${$sarray}; echo ${esum});
+		if [ ! -z "${shasum}" ]; then
 			echo "${arch} "
 		fi
 	done
@@ -299,7 +304,10 @@ function get_sums_for_build_arch() {
 		# If there are multiple builds for a single version, then pick the latest one.
 		shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-		printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
+		# Only print the entry if the shasum is not empty
+		if [ ! -z "${shasum}" ]; then
+			printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
+		fi
 	fi
 	rm -f ${shasum_file}
 }
