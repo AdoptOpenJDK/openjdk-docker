@@ -241,8 +241,8 @@ function build_tags() {
 		for arch in ${arches}
 		do
 			# Check if all the supported arches are available for this build.
-			sup=$(vm_supported_onarch ${vm} ${shasums} ${arch})
-			if [ -z "${sup}" ]; then
+			supported=$(vm_supported_onarch ${vm} ${shasums} ${arch})
+			if [ -z "${supported}" ]; then
 				continue;
 			fi
 			atag=$(echo ${tag} | sed "s/{{ARCH}}/${arch}"/g)
