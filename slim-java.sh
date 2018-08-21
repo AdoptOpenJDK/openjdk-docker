@@ -43,6 +43,8 @@ keep_list="${scriptdir}/slim-java_rtjar_keep.list"
 del_list="${scriptdir}/slim-java_rtjar_del.list"
 # jmod files to be deleted
 del_jmod_list="${scriptdir}/slim-java_jmod_del.list"
+# bin files to be deleted
+del_bin_list="${scriptdir}/slim-java_bin_del.list"
 
 # We only support 64 bit builds now
 proc_type="64bit"
@@ -69,6 +71,16 @@ function parse_platform_specific() {
 			exit 1;
 			;;
 	esac
+}
+
+# Which vm implementation are we running on at the moment.
+function get_vm_impl() {
+	impl="$(java -version | grep "OpenJ9")";
+	if [ ! -z "${impl}" ]; then
+		echo "OpenJ9";
+	else
+		echo "Hotspot";
+	fi
 }
 
 # Strip debug symbols from the given jar file.
@@ -119,6 +131,13 @@ function jre_files() {
 
 # Exclude the zOS specific charsets
 function charset_files() {
+
+	# This optimization is only for Eclipse OpenJ9 at this time.
+	vm_impl=$(get_vm_impl);
+	if [ "${vm_impl}" != "OpenJ9" ]; then
+		return;
+	fi
+	
 	# 2.3 Special treat for removing ZOS specific charsets
 	echo -n "INFO: Trimming charsets..."
 	mkdir -p ${root}/charsets_class
@@ -126,8 +145,8 @@ function charset_files() {
 		jar -xf ${root}/jre/lib/charsets.jar
 		ibmEbcdic="290 300 833 834 838 918 930 933 935 937 939 1025 1026 1046 1047 1097 1112 1122 1123 1364"
 
-		# Generate slim-excludes-charsets list as well
-		[ ! -e ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets ] || rm -rf ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets
+		# Generate sfj-excludes-charsets list as well. (OpenJ9 expects the file to be named sfj-excludes-charsets).
+		[ ! -e ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets ] || rm -rf ${root}/jre/lib/sfj/sun/nio/cs/ext/sfj-excludes-charsets
 		exclude_charsets=""
 
 		for charset in ${ibmEbcdic};
@@ -138,8 +157,8 @@ function charset_files() {
 			exclude_charsets="${exclude_charsets} IBM${charset}"
 		done
 		mkdir -p $root/jre/lib/slim/sun/nio/cs/ext
-		echo ${exclude_charsets} > ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets
-		cp ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets sun/nio/cs/ext/
+		echo ${exclude_charsets} > ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets
+		cp ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets sun/nio/cs/ext/
 
 		jar -cfm ${root}/jre/lib/charsets.jar META-INF/MANIFEST.MF *
 	popd >/dev/null
@@ -230,6 +249,27 @@ function jmod_files() {
 	popd >/dev/null
 }
 
+# Remove unnecessary tools
+function bin_files() {
+	echo -n "INFO: Trimming bin dir..."
+	pushd ${target}/bin >/dev/null
+		for binfile in $(cat ${del_bin_list} | grep -v "^#");
+		do
+			rm -rf ${binfile}
+		done
+	popd >/dev/null
+}
+
+# Remove unnecessary tools and jars from lib dir
+function lib_files() {
+	echo -n "INFO: Trimming bin dir..."
+	pushd ${target}/lib >/dev/null
+		rm -f ct.sym
+		rm -f jexec
+		rm -f tools.jar
+	popd >/dev/null
+}
+
 # Create a new target directory and copy over the source contents.
 cd ${basedir}
 mkdir -p ${target}
@@ -272,6 +312,12 @@ pushd ${target} >/dev/null
 
 	# Remove unnecessary jmod files
 	jmod_files
+
+	# Remove unnecessary tools and jars from lib dir
+	lib_files
+
+	# Remove unnecessary tools
+	bin_files
 
 	# Remove temp folders
 	rm -rf ${root}/jre/lib/slim ${src}
