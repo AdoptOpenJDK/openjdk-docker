@@ -194,7 +194,7 @@ function rt_jar_classes() {
 	echo "done"
 }
 
-# Strip the debug info from all jar files as well as ct.sym
+# Strip the debug info from all jar files
 function strip_jar() {
 	# Using pack200 to strip debug info in jars
 	echo "INFO: Strip debug info from jar files"
@@ -203,14 +203,6 @@ function strip_jar() {
 	do
 		strip_debug_from_jar ${jar}
 	done
-
-	# Strip debug info from ct.sym
-	echo "INFO: Strip debug info from ct.sym"
-	pushd lib >/dev/null
-		mv ct.sym ct.jar
-		strip_debug_from_jar ct.jar
-		mv ct.jar ct.sym
-	popd >/dev/null
 }
 
 # Strip debug information from share libraries
