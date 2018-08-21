@@ -118,10 +118,15 @@ function get_arches() {
 function vm_supported_onarch() {
 	vm=$1
 	sums=$2
-	current_arch=`uname -m`
+
+	if [ ! -z "$3" ]; then
+		test_arch=$3;
+	else
+		test_arch=`uname -m`
+	fi
 
 	suparches=$(get_arches ${sums})
-	sup=$(echo ${suparches} | grep ${current_arch})
+	sup=$(echo ${suparches} | grep ${test_arch})
 	echo ${sup}
 }
 
@@ -235,6 +240,11 @@ function build_tags() {
 	do
 		for arch in ${arches}
 		do
+			# Check if all the supported arches are available for this build.
+			supported=$(vm_supported_onarch ${vm} ${shasums} ${arch})
+			if [ -z "${supported}" ]; then
+				continue;
+			fi
 			atag=$(echo ${tag} | sed "s/{{ARCH}}/${arch}"/g)
 			arch_tags="${arch_tags} ${atag}"
 		done
