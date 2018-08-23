@@ -132,12 +132,6 @@ function jre_files() {
 # Exclude the zOS specific charsets
 function charset_files() {
 
-	# This optimization is only for Eclipse OpenJ9 at this time.
-	vm_impl=$(get_vm_impl);
-	if [ "${vm_impl}" != "OpenJ9" ]; then
-		return;
-	fi
-	
 	# 2.3 Special treat for removing ZOS specific charsets
 	echo -n "INFO: Trimming charsets..."
 	mkdir -p ${root}/charsets_class
@@ -284,7 +278,10 @@ pushd ${target} >/dev/null
 		jre_lib_files
 
 		# Remove IBM zOS charset files.
-		charset_files
+		# This needs extra code in sun/nio/cs/ext/ExtendedCharsets.class to
+		# ignore the charset files that are removed. Disabling for now until
+		# this gets added in the upstream openjdk project.
+		# charset_files
 
 		# Trim unneeded rt.jar classes.
 		rt_jar_classes
