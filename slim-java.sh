@@ -75,7 +75,7 @@ function parse_platform_specific() {
 
 # Which vm implementation are we running on at the moment.
 function get_vm_impl() {
-	impl="$(java -version | grep "OpenJ9")";
+	impl="$(java -version 2>&1 | grep "OpenJ9")";
 	if [ ! -z "${impl}" ]; then
 		echo "OpenJ9";
 	else
