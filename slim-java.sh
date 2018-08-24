@@ -45,6 +45,8 @@ del_list="${scriptdir}/slim-java_rtjar_del.list"
 del_jmod_list="${scriptdir}/slim-java_jmod_del.list"
 # bin files to be deleted
 del_bin_list="${scriptdir}/slim-java_bin_del.list"
+# lib files to be deleted
+del_lib_list="${scriptdir}/slim-java_lib_del.list"
 
 # We only support 64 bit builds now
 proc_type="64bit"
@@ -250,9 +252,10 @@ function bin_files() {
 function lib_files() {
 	echo -n "INFO: Trimming bin dir..."
 	pushd ${target}/lib >/dev/null
-		rm -f ct.sym
-		rm -f jexec
-		rm -f tools.jar
+		for binfile in $(cat ${del_lib_list} | grep -v "^#");
+		do
+			rm -rf ${binfile}
+		done
 	popd >/dev/null
 }
 
