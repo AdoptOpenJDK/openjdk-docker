@@ -43,6 +43,10 @@ keep_list="${scriptdir}/slim-java_rtjar_keep.list"
 del_list="${scriptdir}/slim-java_rtjar_del.list"
 # jmod files to be deleted
 del_jmod_list="${scriptdir}/slim-java_jmod_del.list"
+# bin files to be deleted
+del_bin_list="${scriptdir}/slim-java_bin_del.list"
+# lib files to be deleted
+del_lib_list="${scriptdir}/slim-java_lib_del.list"
 
 # We only support 64 bit builds now
 proc_type="64bit"
@@ -69,6 +73,16 @@ function parse_platform_specific() {
 			exit 1;
 			;;
 	esac
+}
+
+# Which vm implementation are we running on at the moment.
+function get_vm_impl() {
+	impl="$(java -version 2>&1 | grep "OpenJ9")";
+	if [ ! -z "${impl}" ]; then
+		echo "OpenJ9";
+	else
+		echo "Hotspot";
+	fi
 }
 
 # Strip debug symbols from the given jar file.
@@ -119,6 +133,7 @@ function jre_files() {
 
 # Exclude the zOS specific charsets
 function charset_files() {
+
 	# 2.3 Special treat for removing ZOS specific charsets
 	echo -n "INFO: Trimming charsets..."
 	mkdir -p ${root}/charsets_class
@@ -126,8 +141,8 @@ function charset_files() {
 		jar -xf ${root}/jre/lib/charsets.jar
 		ibmEbcdic="290 300 833 834 838 918 930 933 935 937 939 1025 1026 1046 1047 1097 1112 1122 1123 1364"
 
-		# Generate slim-excludes-charsets list as well
-		[ ! -e ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets ] || rm -rf ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets
+		# Generate sfj-excludes-charsets list as well. (OpenJ9 expects the file to be named sfj-excludes-charsets).
+		[ ! -e ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets ] || rm -rf ${root}/jre/lib/sfj/sun/nio/cs/ext/sfj-excludes-charsets
 		exclude_charsets=""
 
 		for charset in ${ibmEbcdic};
@@ -138,8 +153,8 @@ function charset_files() {
 			exclude_charsets="${exclude_charsets} IBM${charset}"
 		done
 		mkdir -p $root/jre/lib/slim/sun/nio/cs/ext
-		echo ${exclude_charsets} > ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets
-		cp ${root}/jre/lib/slim/sun/nio/cs/ext/slim-excludes-charsets sun/nio/cs/ext/
+		echo ${exclude_charsets} > ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets
+		cp ${root}/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets sun/nio/cs/ext/
 
 		jar -cfm ${root}/jre/lib/charsets.jar META-INF/MANIFEST.MF *
 	popd >/dev/null
@@ -175,7 +190,7 @@ function rt_jar_classes() {
 	echo "done"
 }
 
-# Strip the debug info from all jar files as well as ct.sym
+# Strip the debug info from all jar files
 function strip_jar() {
 	# Using pack200 to strip debug info in jars
 	echo "INFO: Strip debug info from jar files"
@@ -184,14 +199,6 @@ function strip_jar() {
 	do
 		strip_debug_from_jar ${jar}
 	done
-
-	# Strip debug info from ct.sym
-	echo "INFO: Strip debug info from ct.sym"
-	pushd lib >/dev/null
-		mv ct.sym ct.jar
-		strip_debug_from_jar ct.jar
-		mv ct.jar ct.sym
-	popd >/dev/null
 }
 
 # Strip debug information from share libraries
@@ -230,6 +237,28 @@ function jmod_files() {
 	popd >/dev/null
 }
 
+# Remove unnecessary tools
+function bin_files() {
+	echo -n "INFO: Trimming bin dir..."
+	pushd ${target}/bin >/dev/null
+		for binfile in $(cat ${del_bin_list} | grep -v "^#");
+		do
+			rm -rf ${binfile}
+		done
+	popd >/dev/null
+}
+
+# Remove unnecessary tools and jars from lib dir
+function lib_files() {
+	echo -n "INFO: Trimming bin dir..."
+	pushd ${target}/lib >/dev/null
+		for binfile in $(cat ${del_lib_list} | grep -v "^#");
+		do
+			rm -rf ${binfile}
+		done
+	popd >/dev/null
+}
+
 # Create a new target directory and copy over the source contents.
 cd ${basedir}
 mkdir -p ${target}
@@ -252,7 +281,10 @@ pushd ${target} >/dev/null
 		jre_lib_files
 
 		# Remove IBM zOS charset files.
-		charset_files
+		# This needs extra code in sun/nio/cs/ext/ExtendedCharsets.class to
+		# ignore the charset files that are removed. Disabling for now until
+		# this gets added in the upstream openjdk project.
+		# charset_files
 
 		# Trim unneeded rt.jar classes.
 		rt_jar_classes
@@ -272,6 +304,12 @@ pushd ${target} >/dev/null
 
 	# Remove unnecessary jmod files
 	jmod_files
+
+	# Remove unnecessary tools and jars from lib dir
+	lib_files
+
+	# Remove unnecessary tools
+	bin_files
 
 	# Remove temp folders
 	rm -rf ${root}/jre/lib/slim ${src}

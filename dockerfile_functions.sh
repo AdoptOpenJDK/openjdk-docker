@@ -245,8 +245,6 @@ EOI
 # Print the JAVA_HOME and PATH.
 # Currently Java is installed at a fixed path "/opt/java/openjdk"
 print_java_env() {
-	jhome="/opt/java/openjdk"
-
 	cat >> $1 <<-EOI
 
 ENV JAVA_HOME=${jhome} \\
@@ -296,6 +294,9 @@ generate_dockerfile() {
 	bld=$2
 	btype=$3
 	os=$4
+
+	jhome="/opt/java/openjdk"
+
 	mkdir -p `dirname ${file}` 2>/dev/null
 	echo
 	echo -n "Writing ${file} ... "
