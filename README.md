@@ -6,7 +6,7 @@ Dockerfiles and build scripts for generating various Docker Images related to Op
 * Eclipse OpenJ9 is supported on ```ppc64le```, ```s390x``` and ```x86_64```.
 
 # License
-The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](http://www.apache.org/licenses/LICENSE-2.0.html).
+The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Supported builds and build types
 1. There are two kinds of build images
