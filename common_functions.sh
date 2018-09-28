@@ -30,7 +30,7 @@ all_jvms="hotspot openj9"
 all_arches="aarch64 ppc64le s390x x86_64"
 
 # Current JVM versions supported
-export supported_versions="8 9 10"
+export supported_versions="8 9 10 11"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -38,7 +38,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10)
+	8|9|10|11)
 		;;
 	*)
 		echo "ERROR: Invalid version"
@@ -342,7 +342,11 @@ function get_sums_for_build() {
 	full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
 	if [ "${build}" == "nightly" ]; then
 		# Remove date and time at the end of full_version for nightly builds.
+		# Handle both the old and new date-time formats used by the Adopt build system.
+		# Older date-time format - 201809270034
 		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
+		# New date-time format   - 2018-09-27-00-34
+		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
 	fi
 	# Declare the array with the proper name and write to the vm output file.
 	printf "declare -A jdk_%s_%s_%s_sums=(\n" ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
