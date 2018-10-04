@@ -135,7 +135,7 @@ function cleanup_images() {
 	docker rm $(docker ps -a | grep "Exited" | awk '{ print $1 }') 2>/dev/null
 
 	# Delete any old images for our target_repo on localhost.
-	docker rmi -f $(docker images | grep -e "${target_repo}" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
+	docker rmi -f $(docker images | grep -e "adoptopenjdk" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
 }
 
 function cleanup_manifest() {
