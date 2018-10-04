@@ -16,12 +16,12 @@ set -o pipefail
 
 source ./common_functions.sh
 
-# Cleanup any old containers, images and manifest entries.
-cleanup_images
-cleanup_manifest
-
 for ver in ${supported_versions}
 do
+	# Cleanup any old containers, images and manifest entries.
+	cleanup_images
+	cleanup_manifest
+
 	# Remove any temporary files
 	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
 
@@ -67,3 +67,7 @@ do
 	cp ${test_image_types_all_file} ${test_image_types_file}
 	./test_multiarch.sh ${ver}
 done
+
+# Cleanup any old containers, images and manifest entries.
+cleanup_images
+cleanup_manifest

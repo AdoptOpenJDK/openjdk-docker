@@ -16,11 +16,12 @@ set -o pipefail
 
 source ./common_functions.sh
 
-# Cleanup any old containers and images
-cleanup_images
-
 for ver in ${supported_versions}
 do
+	# Cleanup any old containers and images
+	cleanup_images
+	cleanup_manifest
+
 	# Remove any temporary files
 	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
 
@@ -66,3 +67,7 @@ do
 	echo "test_tags" > ${test_image_types_file}
 	./test_multiarch.sh ${ver}
 done
+
+# Cleanup any old containers and images
+cleanup_images
+cleanup_manifest
