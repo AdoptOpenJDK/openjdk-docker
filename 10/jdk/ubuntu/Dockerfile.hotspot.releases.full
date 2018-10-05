@@ -25,22 +25,26 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION 201807101745
+ENV JAVA_VERSION jdk-10.0.2+13
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='20dc2b09234d85ceb76e8f94a6a2e1a8253db5787785975a2dc3666bd80271b7'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/releases/ppc64le_linux/latest/binary"; \
+         ESUM='222145a7440a8d5082d5e2d9a35a261819c45986c34b0cc7a8a4c748a55b0ea4'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ;; \
+       s390x) \
+         ESUM='b54516ef6c26e67c971f4522beffa8576638720a80208d7162c3448dfcad4a5c'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
-         ESUM='c7194078919d20a1f6382cebbbcfd2c838d05d40221a13d83cd70705f6a644bf'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/releases/x64_linux/latest/binary"; \
+         ESUM='f8caa2e8c28370e3b8e455686e1ddeb74656f068848f8c355d9d8d1c225528f4'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
-         ESUM='abea231472bfab85f07f59ed24e9bb48a9fb831c6053af3084d7e4f9c8538c52'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/releases/aarch64_linux/latest/binary"; \
+         ESUM='ff012efbe7f1fe4cc83e3c7dfcd2dd6e4d21627e128cae1528920076c0115cbd'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -48,9 +52,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \

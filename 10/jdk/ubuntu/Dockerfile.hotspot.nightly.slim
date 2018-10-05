@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
@@ -25,7 +25,7 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-10+23
+ENV JAVA_VERSION jdk10u
 
 COPY slim-java* /usr/local/bin/
 
@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='d997fa256592d4b3f3b5096246f5b329ccf2f1108b2f909ce0d6e0630e68d766'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/ppc64le_linux/latest/binary"; \
+         ESUM='5c7b6e48a0de005b1b5cacf538ff445888fff646a76ece42b6997615ac18f0a9'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        s390x) \
-         ESUM='c643ebe2eff8ea43c38cbda04f468ce35efbea0e82cdf323fdc50adda9dd6675'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/s390x_linux/latest/binary"; \
+         ESUM='54091b3d15086b4064aa2493fa578300751fc1b5b7e2028a8f8b889719f2a258'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
-         ESUM='f1545ac7fb0386abc7ca6de4786d8fd38f69ae31a3c4eded65b275831e6d7a4a'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/x64_linux/latest/binary"; \
+         ESUM='205fdf1d8c39cd9cfc5fe396f4c60c1d965407eadb6d13d8e860965c72c17f8d'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
-         ESUM='377a0d29e8dda35ec10bb20b526e072b9a221cb9efc30b0bc93368230800d994'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk10/nightly/aarch64_linux/latest/binary"; \
+         ESUM='eb6676b60ba5fc103aaf3e0e5d78777d373bc2c200f2f16086a39a51a96db0a4'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -54,9 +54,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
