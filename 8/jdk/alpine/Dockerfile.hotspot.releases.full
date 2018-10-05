@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM alpine:3.7
+FROM alpine:3.8
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
@@ -45,19 +45,19 @@ RUN set -eux; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
          ESUM='889d22e94fb0e1d79748d67745a0a1d23087c721053be3e5ad16d8e388cee626'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/releases/ppc64le_linux/latest/binary"; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        s390x) \
          ESUM='a9ef51ca43e335a02b0d36aa735c0e85fdcaa01647c377fd17c3b815fbfde4fa'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/releases/s390x_linux/latest/binary"; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
          ESUM='228d85bef36f5893885b52cb571101418c4f8b87c689996ace55d85b720b2a12'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/releases/x64_linux/latest/binary"; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
          ESUM='6b35092d97779a970c48b27e70d88e5f459444a6845191cf57677df4bc99e37e'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8/releases/aarch64_linux/latest/binary"; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -65,9 +65,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \

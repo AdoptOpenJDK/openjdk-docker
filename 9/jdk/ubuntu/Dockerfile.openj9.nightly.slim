@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
@@ -25,7 +25,7 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-9.0.4+12
+ENV JAVA_VERSION jdk9u
 
 COPY slim-java* /usr/local/bin/
 
@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='c4e5a1c33cf0040c5b06ab8690d2e5513857e4224cfcec3691bc5aad4e4bc4fd'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/nightly/ppc64le_linux/latest/binary"; \
+         ESUM='a3541345178eb5a3bfae4ce38eb6e5ffab071c0c73bdaf7665dad4c805130c9e'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        s390x) \
-         ESUM='dae52be9d19ae1a843d257a97bcfbd356be990817ad3ecd000a1d7016e374ec7'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/nightly/s390x_linux/latest/binary"; \
+         ESUM='91653765327e90c64361972f000cd4345ec3e739afdf7564f2ea688251b97fc3'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
-         ESUM='dd1a5bb33a0e2c543255856544d561e1b32a31e71655ac47e9948e97d667e102'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9-openj9/nightly/x64_linux/latest/binary"; \
+         ESUM='e59c5832f45a454bfc1964039e4e18dc0834f67c0628aceff0373c0d6c526fbe'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -50,9 +50,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \

@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM alpine:3.7
+FROM alpine:3.8
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
@@ -38,7 +38,7 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && apk del binutils \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-9+181
+ENV JAVA_VERSION jdk9u
 
 COPY slim-java* /usr/local/bin/
 
@@ -46,20 +46,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='284bf60dc1f12b082a51f651b001202c19713a7e71eef3e68a6938270a0340c1'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/ppc64le_linux/latest/binary"; \
+         ESUM='b1d517a7ee0fbd919d75a097dfac862ace9dc61b4ff04ca955fd9afb58602cad'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        s390x) \
-         ESUM='e6f1b70be1e264ca8b8a02f186e6616b65a7df2e04e1f7f4a46e58799961d599'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/s390x_linux/latest/binary"; \
+         ESUM='0343b8cc3e77def041c2d0cd024b55d763503586463365f7f1d6139648fa96b1'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
-         ESUM='8aa1a07694a26b113f763a0503596aedf6930ce5f4daadbd1c1cb0962943bdcd'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/x64_linux/latest/binary"; \
+         ESUM='92a220a2e77a210e93126b3c867ecfe22fdabea326c151cb175db0176c854b4a'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
-         ESUM='080322b6d26ed6379bcd6ae7e094d93977bb65ee34fb2d0c53a3a6c456df315f'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk9/nightly/aarch64_linux/latest/binary"; \
+         ESUM='15d4b558189af975d0fdbcb0919e7637e42d79f0b1352f14975fed8f3d47dc39'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -67,9 +67,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \

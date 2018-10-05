@@ -25,22 +25,22 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk8u162-b12_openj9-0.8.0
+ENV JAVA_VERSION jdk8u181-b13_openj9-0.9.0
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='c985d22a58d43165561fa5c0c483acefb2afd407a6a0539da66d06d13c2af00c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/ppc64le_linux/latest/binary"; \
+         ESUM='be6b15582c779bc3b4f3a1c7499b7d246a6783358feb4f9251dfd1a6913aa9df'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        s390x) \
-         ESUM='b1eb77b49ae94c77df1762d372897ff52d918c8a25ce8b6dcb9c18e9ad7a58db'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/s390x_linux/latest/binary"; \
+         ESUM='ef27ad3a454e711fc18313f0b962076ecf693030483a3c90cfaced0be81cdf90'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
        amd64|x86_64) \
-         ESUM='4a90944fbe96cb6452391e952cc7c9b5136fb042a445eb205e31a029fd72fd7c'; \
-         JAVA_URL="https://api.adoptopenjdk.net/openjdk8-openj9/releases/x64_linux/latest/binary"; \
+         ESUM='c90fa5826c2d4898d70a24239cd958f0a4e1afb07ef578da2fb5969637bfa22f'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -48,9 +48,10 @@ RUN set -eux; \
          ;; \
     esac; \
     curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
