@@ -30,13 +30,13 @@ ENV JAVA_VERSION jdk-11+28
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='05f8ca5074439cf693dda501eb755972d2e7f0ccf0043ce16313fbcc5644c96c'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        s390x) \
          ESUM='e39aacc270731dadcdc000aaaf709adae7a08113ccf5b4a045bc87fc13458d71'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='05f8ca5074439cf693dda501eb755972d2e7f0ccf0043ce16313fbcc5644c96c'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        amd64|x86_64) \
          ESUM='e1e18fc9ce2917473da3e0acb5a771bc651f600c0195a3cb40ef6f22f21660af'; \

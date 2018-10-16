@@ -22,16 +22,23 @@ FROM alpine:3.8
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
 RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
-    && GLIBC_VER="2.25-r0" \
+    && GLIBC_VER="2.28-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
+    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
+    && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
+    && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.9-1-x86_64.pkg.tar.xz" \
+    && ZLIB_SHA256=bb0959c08c1735de27abf01440a6f8a17c5c51e61c3b4c707e988c906d3b7f67 \
+    && curl -Ls https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
-    && apk add --allow-untrusted /tmp/${GLIBC_VER}.apk \
-    && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
+    && apk add /tmp/${GLIBC_VER}.apk \
+    && curl -Ls ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
+    && echo "${GCC_LIBS_SHA256}  /tmp/gcc-libs.tar.xz" | sha256sum -c - \
     && mkdir /tmp/gcc \
     && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
     && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
     && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
-    && curl -Ls https://www.archlinux.org/packages/core/x86_64/zlib/download > /tmp/libz.tar.xz \
+    && curl -Ls ${ZLIB_URL} -o /tmp/libz.tar.xz \
+    && echo "${ZLIB_SHA256}  /tmp/libz.tar.xz" | sha256sum -c - \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
@@ -43,20 +50,20 @@ ENV JAVA_VERSION jdk11
 RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='489e5b08904730e050bef2d1e6a6037f79d484977e9380d2ab8d732669238cc6'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        s390x) \
-         ESUM='f2902d62316e09aa6aecaf7744496cfac498ba794b8a4f96dca65cb9637c539d'; \
+         ESUM='1152fc4b36c563743f6bf8321b6a1a8bf76b5bec9b1f8460410b6eee6a415e12'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
+       ppc64el|ppc64le) \
+         ESUM='87bb269533e70e2f66a462762c5316a888b687ea3456eabd8100c6d370ea2b7d'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ;; \
        amd64|x86_64) \
-         ESUM='49abee24c2d52a22cbe209025ac51ffaba5a8bfb33f337e3480cc340540cfc55'; \
+         ESUM='beca9d54beb6c22938cb8833431cfcbc7b2b7ee64fd85a7e990fbabd578a3a11'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
-         ESUM='4c15ed83e2f030d082be4f16d7a6554e3a7688d573c02a6f1d590ea1a0be5d0d'; \
+         ESUM='1cc46e658a6cbf70d656985971e5fefb42909aa9c8e96361015a9482aab172ae'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \
