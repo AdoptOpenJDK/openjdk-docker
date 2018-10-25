@@ -30,16 +30,16 @@ ENV JAVA_VERSION jdk11
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='68499ac0079d1a868533de636bb1268fdb01f94429929ddbecb3698999a56445'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        s390x) \
-         ESUM='5dbda4b93a0e702ce9c274dd12339461efaa40576ab0849e28633ae9b04f5a02'; \
+         ESUM='e4279ffb179856f606b6ca102ab9e9c6a4e34c0e6229321ece0c45d84d73bd04'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
+       ppc64el|ppc64le) \
+         ESUM='58dbec74f7163e7e56f8bbfd6f66936cf42285801e689a3aab95d689c82f77ca'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ;; \
        amd64|x86_64) \
-         ESUM='47274388c9397a91f2ba112115d6e42d5b6c6f649430d6c002cd1e1ff03d594b'; \
+         ESUM='b000294ffa6355b50f29a184efce9fdb0c3fa4cceb7f1813f3d068d52d59b8f4'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        *) \

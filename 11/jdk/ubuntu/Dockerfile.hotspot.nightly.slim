@@ -32,20 +32,20 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='489e5b08904730e050bef2d1e6a6037f79d484977e9380d2ab8d732669238cc6'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        s390x) \
-         ESUM='f2902d62316e09aa6aecaf7744496cfac498ba794b8a4f96dca65cb9637c539d'; \
+         ESUM='1152fc4b36c563743f6bf8321b6a1a8bf76b5bec9b1f8460410b6eee6a415e12'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
          ;; \
+       ppc64el|ppc64le) \
+         ESUM='87bb269533e70e2f66a462762c5316a888b687ea3456eabd8100c6d370ea2b7d'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ;; \
        amd64|x86_64) \
-         ESUM='49abee24c2d52a22cbe209025ac51ffaba5a8bfb33f337e3480cc340540cfc55'; \
+         ESUM='beca9d54beb6c22938cb8833431cfcbc7b2b7ee64fd85a7e990fbabd578a3a11'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
          ;; \
        aarch64|arm64) \
-         ESUM='4c15ed83e2f030d082be4f16d7a6554e3a7688d573c02a6f1d590ea1a0be5d0d'; \
+         ESUM='1cc46e658a6cbf70d656985971e5fefb42909aa9c8e96361015a9482aab172ae'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
          ;; \
        *) \

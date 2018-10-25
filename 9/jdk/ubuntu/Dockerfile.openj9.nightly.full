@@ -30,13 +30,13 @@ ENV JAVA_VERSION jdk9u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='a3541345178eb5a3bfae4ce38eb6e5ffab071c0c73bdaf7665dad4c805130c9e'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        s390x) \
          ESUM='91653765327e90c64361972f000cd4345ec3e739afdf7564f2ea688251b97fc3'; \
          JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='a3541345178eb5a3bfae4ce38eb6e5ffab071c0c73bdaf7665dad4c805130c9e'; \
+         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
          ;; \
        amd64|x86_64) \
          ESUM='e59c5832f45a454bfc1964039e4e18dc0834f67c0628aceff0373c0d6c526fbe'; \
