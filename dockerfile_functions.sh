@@ -43,12 +43,7 @@ print_ubuntu_ver() {
 	local_build=$2
 	local_build_type=$3
 
-# Use ubuntu:18.04 for the slim and nightly builds.
-if [ "${local_build}" == "nightly" -o "${local_build_type}" == "slim" ]; then
 	os_version="18.04"
-else
-	os_version="16.04"
-fi
 
 	cat >> $1 <<-EOI
 	FROM ubuntu:${os_version}
