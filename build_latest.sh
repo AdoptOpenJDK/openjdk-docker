@@ -16,7 +16,8 @@ set -o pipefail
 
 export root_dir="$PWD"
 push_cmdfile=${root_dir}/push_commands.sh
-target_repo="adoptopenjdk/openjdk"
+target_registry=${ADOPTOPENJDK_TARGET_REGISTRY:-adoptopenjdk}
+target_repo=${ADOPTOPENJDK_TARGET_REPO:-$target_registry/openjdk}
 version="9"
 
 # shellcheck source=common_functions.sh
