@@ -106,7 +106,9 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
 
 # 2. Build images and tag them appropriately
      $ cd openjdk-docker
+
      $ ./build_all.sh
+     $ ADOPTOPENJDK_TARGET_REGISTRY=myregistry.net/adoptopenjdk ./build_all.sh
 
 # Steps 3 needs to be run only on x86_64
 
