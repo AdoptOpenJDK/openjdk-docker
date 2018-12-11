@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ fi
 set_arch_os
 
 # Script that has the push commands for the images that we are building.
-echo "#!/bin/bash" > ${push_cmdfile}
+echo "#!/usr/bin/env bash" > ${push_cmdfile}
 echo >> ${push_cmdfile}
 
 # Valid image tags

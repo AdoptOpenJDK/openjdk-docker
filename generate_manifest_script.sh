@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ fi
 
 
 # Populate the script to create the manifest list
-echo "#!/bin/bash" > ${man_file}
+echo "#!/usr/bin/env bash" > ${man_file}
 echo  >> ${man_file}
 
 # Go through each vm / os / build / type combination and build the manifest commands
