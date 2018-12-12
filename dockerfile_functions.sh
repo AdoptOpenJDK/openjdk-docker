@@ -205,7 +205,7 @@ EOI
 print_alpine_slim_package() {
 	cat >> $1 <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
-    apk add --virtual .build-deps bash binutils; \\
+    apk add --virtual .build-deps binutils; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
     apk del --purge .build-deps; \\
 EOI
