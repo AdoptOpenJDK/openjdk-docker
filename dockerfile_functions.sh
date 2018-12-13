@@ -81,7 +81,7 @@ EOI
 print_alpine_pkg() {
 	cat >> $1 <<'EOI'
 
-RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -102,7 +102,7 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
-    && apk del binutils \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 EOI
 }
@@ -205,10 +205,9 @@ EOI
 print_alpine_slim_package() {
 	cat >> $1 <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
-    apk --update add --no-cache bash binutils; \\
+    apk add --virtual .build-deps bash binutils; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
-    apk del bash binutils; \\
-    rm -rf /var/cache/apk/*; \\
+    apk del --purge .build-deps; \\
 EOI
 }
 
@@ -234,6 +233,7 @@ print_alpine_java_install() {
 	btype=$3
 	cat >> $1 <<-EOI
 RUN set -eux; \\
+    apk add --virtual .fetch-deps curl; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
@@ -241,6 +241,10 @@ EOI
 	if [ "${btype}" == "slim" ]; then
 		print_alpine_slim_package $1
 	fi
+	cat >> $1 <<-EOI
+    apk del --purge .fetch-deps; \\
+    rm -rf /var/cache/apk/*; \\
+EOI
 	print_java_install_post $1
 }
 
