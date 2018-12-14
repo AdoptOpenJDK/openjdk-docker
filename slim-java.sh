@@ -177,7 +177,7 @@ rt_jar_classes() {
 		done
 
 		grep -v "^#" "$del_list" | xargs rm -rf
-		cp -rf "$root/rt_keep_class/*" ./
+		cp -rf "$root"/rt_keep_class/* ./
 		rm -rf "$root/rt_keep_class"
 
 		# 2.5. Restruct rt.jar
@@ -224,6 +224,8 @@ srczip_files() {
 
 # Remove unnecessary jmod files
 jmod_files() {
+	[ -d "$target/jmods" ] || return
+	echo -n "INFO: Trimming jmods..."
 	( cd "$target/jmods" && grep -v "^#" "$del_jmod_list" | xargs rm -rf )
 }
 
@@ -231,11 +233,13 @@ jmod_files() {
 bin_files() {
 	echo -n "INFO: Trimming bin dir..."
 	( cd "$target/bin" && grep -v "^#" "$del_bin_list" | xargs rm -rf )
+	echo "done"
 }
 # Remove unnecessary tools and jars from lib dir
 lib_files() {
-	echo -n "INFO: Trimming bin dir..."
+	echo -n "INFO: Trimming lib dir..."
 	( cd "$target/lib" && grep -v "^#" "$del_lib_list" | xargs rm -rf )
+	echo "done"
 }
 
 # Create a new target directory and copy over the source contents.
