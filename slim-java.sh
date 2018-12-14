@@ -122,11 +122,11 @@ jre_lib_files() {
 # Trim the files in the jre dir
 jre_files() {
 	echo -n "INFO: Trimming jre dir..."
-	pushd "$target/jre" >/dev/null
+	( cd "$target/jre" || exit 1
 		rm -f ASSEMBLY_EXCEPTION LICENSE THIRD_PARTY_README
 		rm -rf bin
 		ln -s ../bin bin
-	popd >/dev/null
+	)
 	echo "done"
 }
 
@@ -167,7 +167,7 @@ rt_jar_classes() {
 	# 2.4 Remove classes in rt.jar
 	echo -n "INFO: Trimming classes in rt.jar..."
 	mkdir -p "$root/rt_class"
-	(cd "$root/rt_class" || exit 1
+	( cd "$root/rt_class" || exit 1
 		jar -xf "$root/jre/lib/rt.jar"
 		mkdir -p "$root/rt_keep_class"
 		# shellcheck disable=SC2086
@@ -224,18 +224,18 @@ srczip_files() {
 
 # Remove unnecessary jmod files
 jmod_files() {
-	(cd "$target/jmods" && grep -v "^#" "$del_jmod_list" | xargs rm -rf )
+	( cd "$target/jmods" && grep -v "^#" "$del_jmod_list" | xargs rm -rf )
 }
 
 # Remove unnecessary tools
 bin_files() {
 	echo -n "INFO: Trimming bin dir..."
-	(cd "$target/bin" && grep -v "^#" "$del_bin_list" | xargs rm -rf )
+	( cd "$target/bin" && grep -v "^#" "$del_bin_list" | xargs rm -rf )
 }
 # Remove unnecessary tools and jars from lib dir
 lib_files() {
 	echo -n "INFO: Trimming bin dir..."
-	(cd "$target/lib" && grep -v "^#" "$del_lib_list" | xargs rm -rf )
+	( cd "$target/lib" && grep -v "^#" "$del_lib_list" | xargs rm -rf )
 }
 
 # Create a new target directory and copy over the source contents.
@@ -244,7 +244,7 @@ mkdir -p "$target"
 echo "Copying ${src} to ${target}..."
 cp -rf "$src"/* "$target/"
 
-(cd "$target" || exit 1
+( cd "$target" || exit 1
 	root=$(pwd)
 	echo "Trimming files..."
 
