@@ -226,6 +226,9 @@ function parse_tag_entry() {
 # $ git clone -b manifest-cmd https://github.com/clnperez/cli.git
 # $ cd cli
 # $ make -f docker.Makefile cross
+
+#TODO: More recent versions of docker include the manifest tool in 'experimental' CLI settings
+
 manifest_tool_dir="/opt/manifest_tool"
 manifest_tool=${manifest_tool_dir}/cli/build/docker
 

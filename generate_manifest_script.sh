@@ -15,7 +15,7 @@
 set -o pipefail
 
 root_dir="$PWD"
-source_prefix="adoptopenjdk"
+source_prefix=${ADOPTOPENJDK_TARGET_REGISTRY:-adoptopenjdk}
 source_repo="openjdk"
 version="9"
 tag_aliases=""
