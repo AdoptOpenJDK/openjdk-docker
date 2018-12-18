@@ -1,30 +1,29 @@
-#!/usr/bin/env groovy
+/*
+ * This file makes two assumptions about your Jenkins build environment:
+ *
+ * 1.  You have nodes set up with labels of the form "docker-${ARCH}" to
+ *     support the various build architectures (currently 'x86_64',
+ *     's390x', 'aarch64' (ARM), and 'ppc64le').
+ * 2.  If you do not want to target the 'docker.io/adoptopenjdk' registry
+ *     (and unless you're the official maintainer, you shouldn't), then
+ *     you've set up an ADOPTOPENJDK_TARGET_REGISTRY variable with the target
+ *     registry you'll use (for example 'localhost:5050/adoptopenjdk').
+ *
+ * TODO:  Add option for an insecure registry flag to the scripts.
+ *
+ * TODO:  Set up the build architectures as a parameter that will drive
+ *        a scripted loop to build stages.
+ */
 
 def build_shell='''
-rm -rf openjdk-docker \
-&& git clone https://github.com/jonpspri/openjdk-docker.git \
-&& cd openjdk-docker \
-&& git checkout multi-arch \
-&& ./build_all.sh
+./build_all.sh
 '''
 
 def manifest_shell='''
-cd openjdk-docker \
-&& ./update_manifest_all.sh
+./update_manifest_all.sh
 '''
 
 pipeline {
-  parameters {
-    string(
-      name: 'ADOPTOPENJDK_TARGET_REGISTRY',
-      defaultValue: 'adoptopenjdk',
-      description: """
-      The docker registry into which the docker images should be placed.
-      Defaults to 'adoptopenjdk' (on docker.io).  One potential alternative
-      could be 'registry.ng.bluemix.net/adoptopenjdk'.
-      """
-      )
-  }
   agent none
   stages {
     stage('Build') {
