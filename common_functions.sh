@@ -279,6 +279,20 @@ function get_v2_url() {
 	echo "${baseurl}?${specifiers}"
 }
 
+# Get the binary github link for a release given a V2 API URL
+function get_binary_url() {
+	v2_url=$1
+	info_file=/tmp/info_$$.json
+
+	curl -Lso ${info_file} ${v2_url};
+	if [ $? -ne 0 -o ! -s ${info_file} ]; then
+		rm -f ${info_file}
+		return;
+	fi
+	echo $(cat ${info_file} | grep "binary_link" | awk -F '"' '{ print $4 }')
+	rm -f ${info_file}
+}
+
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
 	gsba_ver=$1
