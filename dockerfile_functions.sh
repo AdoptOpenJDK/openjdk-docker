@@ -132,31 +132,35 @@ print_java_install_pre() {
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest aarch64);
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest aarch64)'; \\
+         BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest ppc64le);
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest ppc64le)'; \\
+         BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest s390x);
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest s390x)'; \\
+         BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest x64);
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
-         JAVA_URL='$(get_v2_url binary ${bld} ${vm} jdk latest x64)'; \\
+         BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
          ;; \\
 		EOI
 		fi
@@ -169,7 +173,7 @@ print_java_install_pre() {
     esac; \\
 EOI
 	cat >> $1 <<'EOI'
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
