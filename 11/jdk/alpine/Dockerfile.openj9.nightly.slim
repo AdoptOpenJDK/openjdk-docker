@@ -21,7 +21,7 @@ FROM alpine:3.8
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
-RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -42,34 +42,35 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
-    && apk del binutils \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk11
+ENV JAVA_VERSION jdk11u
 
 COPY slim-java* /usr/local/bin/
 
 RUN set -eux; \
+    apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       s390x) \
-         ESUM='e4279ffb179856f606b6ca102ab9e9c6a4e34c0e6229321ece0c45d84d73bd04'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='58dbec74f7163e7e56f8bbfd6f66936cf42285801e689a3aab95d689c82f77ca'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ESUM='8e159db6ed0a20867d72c0eb808f0fa46ccf143b45d97337d533bf87b542ae29'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-01-22-15-59.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='8924480d95fcf193f049e2625e69e799fe6c9d7b6eb99376812fa0b11373d5a7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_s390x_linux_openj9_2019-01-22-15-59.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b000294ffa6355b50f29a184efce9fdb0c3fa4cceb7f1813f3d068d52d59b8f4'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
+         ESUM='dd91c846774940f6d6a08a5ebc1e4b269da04ebc74a9d5ef9ec255f31c38cb4e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_x64_linux_openj9_2019-01-22-15-59.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
@@ -78,9 +79,10 @@ RUN set -eux; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
     export PATH="/opt/java/openjdk/bin:$PATH"; \
-    apk --update add --no-cache bash binutils; \
+    apk add --virtual .build-deps bash binutils; \
     /usr/local/bin/slim-java.sh /opt/java/openjdk; \
-    apk del bash binutils; \
+    apk del --purge .build-deps; \
+    apk del --purge .fetch-deps; \
     rm -rf /var/cache/apk/*; \
     rm -rf ${jdir} /tmp/openjdk.tar.gz;
 

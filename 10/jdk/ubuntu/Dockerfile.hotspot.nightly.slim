@@ -25,35 +25,35 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk10u
+ENV JAVA_VERSION jdk-10.0.2+13
 
 COPY slim-java* /usr/local/bin/
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
+       ppc64el|ppc64le) \
+         ESUM='f5c1b1476d588459d1edc03279025cce3aeaa464a4f28234cd18e8134e946954'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk10-binaries/releases/download/jdk-10.0.2%2B13/OpenJDK10U-jdk_ppc64le_linux_hotspot_10.0.2_13.tar.gz'; \
+         ;; \
        s390x) \
          ESUM='54091b3d15086b4064aa2493fa578300751fc1b5b7e2028a8f8b889719f2a258'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='5c7b6e48a0de005b1b5cacf538ff445888fff646a76ece42b6997615ac18f0a9'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk10-binaries/releases/download/jdk10u-2018-09-29-10-32/OpenJDK10U_s390x_linux_hotspot_2018-09-29-10-32.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='205fdf1d8c39cd9cfc5fe396f4c60c1d965407eadb6d13d8e860965c72c17f8d'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
+         ESUM='3998c36c7feb4bb7a565b3d33609ec67acd40f1ae5addf103378f2ef32ab377f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk10-binaries/releases/download/jdk-10.0.2%2B13/OpenJDK10U-jdk_x64_linux_hotspot_10.0.2_13.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='eb6676b60ba5fc103aaf3e0e5d78777d373bc2c200f2f16086a39a51a96db0a4'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
+         ESUM='a4fc4e7a9204d6f450c71f0e82f3bf77571a6c52ae612227f99733848e893612'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk10-binaries/releases/download/jdk-10.0.2%2B13/OpenJDK10U-jdk_aarch64_linux_hotspot_10.0.2_13.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \

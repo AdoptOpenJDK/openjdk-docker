@@ -21,7 +21,7 @@ FROM alpine:3.8
 
 MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
 
-RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -42,36 +42,25 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
-    && apk del binutils \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
 ENV JAVA_VERSION jdk-10.0.2+13
 
 RUN set -eux; \
+    apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       s390x) \
-         ESUM='b54516ef6c26e67c971f4522beffa8576638720a80208d7162c3448dfcad4a5c'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='222145a7440a8d5082d5e2d9a35a261819c45986c34b0cc7a8a4c748a55b0ea4'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
-         ;; \
        amd64|x86_64) \
          ESUM='f8caa2e8c28370e3b8e455686e1ddeb74656f068848f8c355d9d8d1c225528f4'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='ff012efbe7f1fe4cc83e3c7dfcd2dd6e4d21627e128cae1528920076c0115cbd'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/releases/openjdk10?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk10-releases/releases/download/jdk-10.0.2%2B13/OpenJDK10_x64_Linux_jdk-10.0.2%2B13.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
@@ -79,6 +68,8 @@ RUN set -eux; \
     tar -xf /tmp/openjdk.tar.gz; \
     jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
     mv ${jdir}/* /opt/java/openjdk; \
+    apk del --purge .fetch-deps; \
+    rm -rf /var/cache/apk/*; \
     rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \

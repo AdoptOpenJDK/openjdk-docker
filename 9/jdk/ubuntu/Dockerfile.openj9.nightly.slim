@@ -32,24 +32,24 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       s390x) \
-         ESUM='91653765327e90c64361972f000cd4345ec3e739afdf7564f2ea688251b97fc3'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='a3541345178eb5a3bfae4ce38eb6e5ffab071c0c73bdaf7665dad4c805130c9e'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk9u-2018-09-30-13-10/OpenJDK9U_ppc64le_linux_openj9_2018-09-30-13-10.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='91653765327e90c64361972f000cd4345ec3e739afdf7564f2ea688251b97fc3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk9u-2018-09-30-13-10/OpenJDK9U_s390x_linux_openj9_2018-09-30-13-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='e59c5832f45a454bfc1964039e4e18dc0834f67c0628aceff0373c0d6c526fbe'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk9?openjdk_impl=openj9&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk9u-2018-09-30-13-10/OpenJDK9U_x64_linux_openj9_2018-09-30-13-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
