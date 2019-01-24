@@ -25,33 +25,29 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk11
+ENV JAVA_VERSION jdk11u
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       s390x) \
-         ESUM='1152fc4b36c563743f6bf8321b6a1a8bf76b5bec9b1f8460410b6eee6a415e12'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=s390x'; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='87bb269533e70e2f66a462762c5316a888b687ea3456eabd8100c6d370ea2b7d'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=ppc64le'; \
+         ESUM='64eb9a8387a4b82277db59c97f8b273a198442ad8b4a5210a49fdbca05c7ad21'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-01-22-15-59.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='97253910de626e449b3e07a99a6bdcc956426f04884269ead61fe5ba6ebc9bb9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_s390x_linux_hotspot_2019-01-22-15-59.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='beca9d54beb6c22938cb8833431cfcbc7b2b7ee64fd85a7e990fbabd578a3a11'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=x64'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='1cc46e658a6cbf70d656985971e5fefb42909aa9c8e96361015a9482aab172ae'; \
-         JAVA_URL='https://api.adoptopenjdk.net/v2/binary/nightly/openjdk11?openjdk_impl=hotspot&os=linux&type=jdk&release=latest&heap_size=normal&arch=aarch64'; \
+         ESUM='e820a0b15a17af064b8f7e147a3286e90a8f18fc6ed7c92538a65fe0fbe6173c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_x64_linux_hotspot_2019-01-22-15-59.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${JAVA_URL}; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
     sha256sum /tmp/openjdk.tar.gz; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
