@@ -19,7 +19,7 @@
 
 FROM alpine:3.8
 
-MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
@@ -45,7 +45,7 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-11.0.1+13
+ENV JAVA_VERSION jdk-11.0.2+9_openj9-0.12.1
 
 COPY slim-java* /usr/local/bin/
 
@@ -54,16 +54,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='fcc9a2b183a9238e1927d6088d7c99031f517d62026e8b33d02dfd883b1ca95e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.1%2B13/OpenJDK11U-jdk_ppc64le_linux_openj9_jdk-11.0.1_13_openj9-0.11.0_11.0.1_13.tar.gz'; \
+         ESUM='83fdd9e2a3f5f839269956e678b6478181b1a26e2c16c34508ed34642673760b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jdk_ppc64le_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='fb3f4ddaf3e2a9490e34b385e00d76cf6142806d47bd619ef7c193c12acfbb01'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.1%2B13/OpenJDK11U-jdk_s390x_linux_openj9_jdk-11.0.1_13_openj9-0.11.0_11.0.1_13.tar.gz'; \
+         ESUM='3b2892e3f3302785ee1a00334b281b245a565e8a5147fdd441335c6f44ee6e69'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jdk_s390x_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='ef9bf07cba79082285a9d426ea4eb3e8df57561ce2afe07cc5f299a8fa203279'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.1%2B13/OpenJDK11U-jdk_x64_linux_openj9_jdk-11.0.1_13_openj9-0.11.0_11.0.1_13.tar.gz'; \
+         ESUM='a9b298391dc0baf49e935683fb13b1b18ef5fd5b1d0e1a1318c8e425ffdbcbcd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jdk_x64_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

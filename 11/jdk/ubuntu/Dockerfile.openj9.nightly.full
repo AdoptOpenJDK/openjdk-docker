@@ -19,7 +19,7 @@
 
 FROM ubuntu:18.04
 
-MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl ca-certificates \
@@ -31,16 +31,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='8e159db6ed0a20867d72c0eb808f0fa46ccf143b45d97337d533bf87b542ae29'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-01-22-15-59.tar.gz'; \
+         ESUM='7c607dc97db0e3d1d9763288216364e0abeeaf123ce2af18832ac8054a3f8df5'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-02-03-10-04.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='8924480d95fcf193f049e2625e69e799fe6c9d7b6eb99376812fa0b11373d5a7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_s390x_linux_openj9_2019-01-22-15-59.tar.gz'; \
+         ESUM='3a42a241e121b05707280bfd6cd6ba3e806409952682a7500ae79bdb2d08efba'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_s390x_linux_openj9_2019-02-03-10-04.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='dd91c846774940f6d6a08a5ebc1e4b269da04ebc74a9d5ef9ec255f31c38cb4e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-01-22-15-59/OpenJDK11U-jdk_x64_linux_openj9_2019-01-22-15-59.tar.gz'; \
+         ESUM='5a5442f1973309680fa3642cf01f29a4da7899317e351882192230e6a74d235c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_x64_linux_openj9_2019-02-03-10-04.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

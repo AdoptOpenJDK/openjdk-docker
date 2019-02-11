@@ -19,7 +19,7 @@
 
 FROM ubuntu:18.04
 
-MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl ca-certificates \
