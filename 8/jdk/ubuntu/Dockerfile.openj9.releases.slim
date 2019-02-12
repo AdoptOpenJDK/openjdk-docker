@@ -19,13 +19,13 @@
 
 FROM ubuntu:18.04
 
-MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk8u202-b08
+ENV JAVA_VERSION jdk8u202-b08_openj9-0.12.1
 
 COPY slim-java* /usr/local/bin/
 
@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='af2532a428fbeb6e6896279a874a3d4b574b74a6ebeae16e4771d7ad517f653a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12_openj9-0.11.0/OpenJDK8U-jdk_ppc64le_linux_openj9_8u192b12_openj9-0.11.0.tar.gz'; \
+         ESUM='33d3114a6cbba486e32ddf59d9e9d358d68fab3c221a8f24ae6d5919d8dcb43c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08_openj9-0.12.1/OpenJDK8U-jdk_ppc64le_linux_openj9_8u202b08_openj9-0.12.1.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b092f4e6553a7c50872b0963f4de2b3a2bce78ce11d1bf1905a2ad5a6576924b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12_openj9-0.11.0/OpenJDK8U-jdk_s390x_linux_openj9_8u192b12_openj9-0.11.0.tar.gz'; \
+         ESUM='177c1db0e515a972f77d41c388ede57538aeb8817bf4c730553160535d3b5e93'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08_openj9-0.12.1/OpenJDK8U-jdk_s390x_linux_openj9_8u202b08_openj9-0.12.1.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='86adb6f5cb85950687ca2e568e2e284eedd25a633f68c8780a19017c16712ac9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_x64_linux_openj9_8u202b08.tar.gz'; \
+         ESUM='cdfa82fc46a70f054f2821d7cb2b7c30be2a6c0e0b7c4bbbee357fca1fbee740'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08_openj9-0.12.1/OpenJDK8U-jdk_x64_linux_openj9_8u202b08_openj9-0.12.1.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

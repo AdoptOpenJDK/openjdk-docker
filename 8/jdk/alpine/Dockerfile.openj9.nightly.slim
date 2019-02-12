@@ -19,7 +19,7 @@
 
 FROM alpine:3.8
 
-MAINTAINER Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)
+LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
@@ -54,16 +54,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='735e4a893a6ef93a50aa2a6472630d8e54f915c93821308eccdffbea553c0b1d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-01-22-11-12/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-01-22-11-12.tar.gz'; \
+         ESUM='46b583968dbca9d9ae9e97a510c18135f3602d94f49d088ccc48b399eb960e27'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-10-14-01/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-02-10-14-01.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='4b1a914f283312def1d60af819761cb9d011a3e8b532295b013fde0364340021'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-01-22-11-12/OpenJDK8U-jdk_s390x_linux_openj9_2019-01-22-11-12.tar.gz'; \
+         ESUM='0d5ebdced8a96cc1e7fcf7f5eeeabf6f90f566ba15f971478a3b6e3fb40e291f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-09-05-25/OpenJDK8U-jdk_s390x_linux_openj9_2019-02-09-05-25.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='1309008440045dbf9fec45576c25f5b2f12b4e1911ea6cf8d4044284684edbf6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-01-22-11-12/OpenJDK8U-jdk_x64_linux_openj9_2019-01-22-11-12.tar.gz'; \
+         ESUM='bf3d754b60510f5b552d0c18fb49dc483a99f436ed9022111dccde81ceb83f4d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-10-14-01/OpenJDK8U-jdk_x64_linux_openj9_2019-02-10-14-01.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
