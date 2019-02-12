@@ -45,7 +45,7 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-11.0.2+9
+ENV JAVA_VERSION jdk-11.0.2+7
 
 RUN set -eux; \
     apk add --virtual .fetch-deps curl; \
@@ -60,8 +60,8 @@ RUN set -eux; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B7/OpenJDK11U-jdk_s390x_linux_hotspot_11.0.2_7.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='d02089d834f7702ac1a9776d8d0d13ee174d0656cf036c6b68b9ffb71a6f610e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.2_9.tar.gz'; \
+         ESUM='d89304a971e5186e80b6a48a9415e49583b7a5a9315ba5552d373be7782fc528'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.2_7.tar.gz'; \
          ;; \
        aarch64|arm64) \
          ESUM='95b14e954f96185d02afda1a3ab146011076a4d97b457c9333556bd5d9263c41'; \
