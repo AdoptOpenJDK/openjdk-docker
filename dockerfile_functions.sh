@@ -54,7 +54,7 @@ print_ubuntu_ver() {
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> $1 <<-EOI
-	FROM alpine:3.8
+	FROM alpine:3.9
 
 	EOI
 }
@@ -82,7 +82,7 @@ print_alpine_pkg() {
 	cat >> $1 <<'EOI'
 
 RUN apk --update add --no-cache --virtual .build-deps curl binutils \
-    && GLIBC_VER="2.28-r0" \
+    && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
