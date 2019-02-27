@@ -30,7 +30,7 @@ all_jvms="hotspot openj9"
 all_arches="aarch64 ppc64le s390x x86_64"
 
 # Current JVM versions supported
-export supported_versions="8 9 10 11"
+export supported_versions="8 11"
 
 # Current builds supported
 export supported_builds="releases nightly"
