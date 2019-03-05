@@ -40,9 +40,6 @@ print_legal() {
 
 # Print the supported Ubuntu OS
 print_ubuntu_ver() {
-	local_build=$2
-	local_build_type=$3
-
 	os_version="18.04"
 
 	cat >> $1 <<-EOI
@@ -122,8 +119,9 @@ EOI
 
 # OS independent portion (Works for both Alpine and Ubuntu)
 print_java_install_pre() {
-	bld=$2
-	btype=$3
+	pkg=$2
+	bld=$3
+	btype=$4
 	reldir="openjdk${version}";
 	if [ "${vm}" != "hotspot" ]; then
 		reldir="${reldir}-${vm}";
@@ -132,7 +130,7 @@ print_java_install_pre() {
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
-			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest aarch64);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest aarch64);
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -140,7 +138,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
-			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest ppc64le);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest ppc64le);
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -148,7 +146,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
-			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest s390x);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest s390x);
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -156,7 +154,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
-			JAVA_URL=$(get_v2_url info ${bld} ${vm} jdk latest x64);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest x64);
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -179,7 +177,7 @@ EOI
     cd /opt/java/openjdk; \
     echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java))); \
     mv ${jdir}/* /opt/java/openjdk; \
 EOI
 }
@@ -212,19 +210,21 @@ print_alpine_slim_package() {
     apk add --virtual .build-deps bash binutils; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
     apk del --purge .build-deps; \\
+    rm -rf /var/cache/apk/*; \\
 EOI
 }
 
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
-	bld=$2
-	btype=$3
+	pkg=$2
+	bld=$3
+	btype=$4
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     ARCH="\$(dpkg --print-architecture)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre ${file} ${bld} ${btype}
+	print_java_install_pre ${file} ${pkg} ${bld} ${btype}
 	if [ "${btype}" == "slim" ]; then
 		print_ubuntu_slim_package $1
 	fi
@@ -233,15 +233,16 @@ EOI
 
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
-	bld=$2
-	btype=$3
+	pkg=$2
+	bld=$3
+	btype=$4
 	cat >> $1 <<-EOI
 RUN set -eux; \\
     apk add --virtual .fetch-deps curl; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre ${file} ${bld} ${btype}
+	print_java_install_pre ${file} ${pkg} ${bld} ${btype}
 	if [ "${btype}" == "slim" ]; then
 		print_alpine_slim_package $1
 	fi
@@ -301,9 +302,10 @@ EOI
 # Generate the dockerfile for a given build, build_type and OS
 generate_dockerfile() {
 	file=$1
-	bld=$2
-	btype=$3
-	os=$4
+	pkg=$2
+	bld=$3
+	btype=$4
+	os=$5
 
 	jhome="/opt/java/openjdk"
 
@@ -316,7 +318,7 @@ generate_dockerfile() {
 	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
-	print_${os}_java_install ${file} ${bld} ${btype};
+	print_${os}_java_install ${file} ${pkg} ${bld} ${btype};
 	print_java_env ${file} ${bld} ${btype};
 	print_java_options ${file} ${bld} ${btype};
 	echo "done"

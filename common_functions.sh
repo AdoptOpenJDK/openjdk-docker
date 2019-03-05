@@ -29,6 +29,9 @@ all_jvms="hotspot openj9"
 # All supported arches
 all_arches="aarch64 ppc64le s390x x86_64"
 
+# All supported packges
+all_packages="jdk jre"
+
 # Current JVM versions supported
 export supported_versions="8 11 12"
 
@@ -63,22 +66,18 @@ function set_arch_os() {
 	aarch64)
 		current_arch="aarch64"
 		oses="ubuntu"
-		package="jdk"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
 		oses="ubuntu"
-		package="jdk"
 		;;
 	s390x)
 		current_arch="s390x"
 		oses="ubuntu"
-		package="jdk"
 		;;
 	amd64|x86_64)
 		current_arch="x86_64"
 		oses="ubuntu alpine"
-		package="jdk"
 		;;
 	*)
 		echo "ERROR: Unsupported arch:${machine}, Exiting"
@@ -161,10 +160,11 @@ function check_image() {
 # Parse the openj9.config / hotspot.config file for an entry as specified by $4
 # $1 = VM
 # $2 = Version
-# $3 = OS
-# $4 = String to look for.
+# $3 = Package
+# $4 = OS
+# $5 = String to look for.
 function parse_vm_entry() {
-	entry=$(cat config/$1.config | grep -B 4 "$2\/.*\/$3" | grep "$4" | sed "s/$4 //")
+	entry=$(cat config/$1.config | grep -B 4 "$2\/$3\/$4" | grep "$5" | sed "s/$5 //")
 	echo ${entry}
 }
 
@@ -177,10 +177,11 @@ function parse_os_entry() {
 
 # Read the tags file and parse the specific tag.
 # $1 = OS
-# $2 = Build (releases / nightly)
-# $3 = Type (full / slim)
+# $2 = Package
+# $3 = Build (releases / nightly)
+# $4 = Type (full / slim)
 function parse_tag_entry() {
-	tag="$1-$2-$3-tags:"
+	tag="$1-$2-$3-$4-tags:"
 	entry=$(cat ${tags_config_file} | grep ${tag} | sed "s/${tag} //")
 	echo ${entry}
 }
@@ -297,21 +298,22 @@ function get_binary_url() {
 function get_sums_for_build_arch() {
 	gsba_ver=$1
 	gsba_vm=$2
-	gsba_build=$3
-	gsba_arch=$4
+	gsba_pkg=$3
+	gsba_build=$4
+	gsba_arch=$5
 
 	case ${gsba_arch} in
 		aarch64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest aarch64);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest ppc64le);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest ppc64le);
 			;;
 		s390x)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest s390x);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest s390x);
 			;;
 		x86_64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} jdk latest x64);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
 			;;
 		*)
 			echo "Unsupported arch: ${gsba_arch}"
@@ -342,10 +344,11 @@ function get_sums_for_build_arch() {
 function get_sums_for_build() {
 	gsb_ver=$1
 	gsb_vm=$2
-	gsb_build=$3
-	gsb_arch=$4
+	gsb_pkg=$3
+	gsb_build=$4
+	gsb_arch=$5
 
-	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} jdk latest);
+	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} ${gsb_pkg} latest);
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls ${info_url})
@@ -363,15 +366,15 @@ function get_sums_for_build() {
 		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
 	fi
 	# Declare the array with the proper name and write to the vm output file.
-	printf "declare -A jdk_%s_%s_%s_sums=(\n" ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
+	printf "declare -A %s_%s_%s_%s_sums=(\n" ${gsb_pkg} ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
 	# Capture the full version according to adoptopenjdk
 	printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
 	if [ ! -z "${gsb_arch}" ]; then
-		get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_build} ${gsb_arch}
+		get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_pkg} ${gsb_build} ${gsb_arch}
 	else
 		for gsb_arch in ${all_arches}
 		do
-			get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_build} ${gsb_arch}
+			get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_pkg} ${gsb_build} ${gsb_arch}
 		done
 	fi
 	printf ")\n" >> ${ofile}
@@ -386,16 +389,17 @@ function get_sums_for_build() {
 function get_shasums() {
 	ver=$1
 	vm=$2
-	build=$3
-	arch=$4
+	pkg=$3
+	build=$4
+	arch=$5
 	ofile="${root_dir}/${vm}_shasums_latest.sh"
 
 	if [ ! -z "${build}" ]; then
-		get_sums_for_build ${ver} ${vm} ${build} ${arch}
+		get_sums_for_build ${ver} ${vm} ${pkg} ${build} ${arch}
 	else
 		for build in ${supported_builds}
 		do
-			get_sums_for_build ${ver} ${vm} ${build} ${arch}
+			get_sums_for_build ${ver} ${vm} ${pkg} ${build} ${arch}
 		done
 	fi
 	chmod +x ${ofile}
