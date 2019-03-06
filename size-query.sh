@@ -1,9 +1,9 @@
 #!/bin/bash
-versions=( 8 11 12)
+versions=( 8 11)
 packages=( jdk)
 jvms=( hotspot openj9)
 oss=( ubuntu alpine)
-types=( normal slim)
+types=( full slim)
 builds=( releases nightly)
 
 
@@ -26,6 +26,7 @@ do
 					do 
 
 					descr=$version.$package.$jvm.$os.$type.$build
+					link=$version/$package/$os/Dockerfile.$jvm.$build.$type
 
 					image="adoptopenjdk/openjdk"$version"-"$jvm
 					image=${image//-hotspot/}
@@ -33,8 +34,8 @@ do
 					tag=$os"-"$build"-"$type
 					tag=${tag//ubuntu-/}
 					tag=${tag//releases-/}
-					tag=${tag//-normal/}
-					tag=${tag//normal/latest}
+					tag=${tag//-full/}
+					tag=${tag//full/latest}
 
 
 
@@ -46,7 +47,7 @@ do
 					echo $size
 					sizemb=$((size / 1024 /1024))
 					
-					body=$body"|$image:$tag|$descr|$sizemb"$'\n'
+					body=$body"|[$image:$tag]($link)|$descr|$sizemb"$'\n'
 
 					done
 				done
