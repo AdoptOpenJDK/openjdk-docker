@@ -24,58 +24,42 @@ The Dockerfiles and associated scripts found in this project are licensed under 
      - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud.
      - Associated tags: slim, alpine-slim, ${version}-slim
 
-**Here is a listing of the image sizes for the various build images and types for JDK Version 8**
+**Here is a listing of the image sizes for the various build images and types for JDK**
 
 |Image|Description|Size
-| --- | --- | ---
-|adoptopenjdk/openjdk8:latest|8.jdk.hotspot.ubuntu.normal.releases|105
-|adoptopenjdk/openjdk8:nightly|8.jdk.hotspot.ubuntu.normal.nightly|105
-|adoptopenjdk/openjdk8:slim|8.jdk.hotspot.ubuntu.slim.releases|72
-|adoptopenjdk/openjdk8:nightly-slim|8.jdk.hotspot.ubuntu.slim.nightly|72
-|adoptopenjdk/openjdk8:alpine|8.jdk.hotspot.alpine.normal.releases|105
-|adoptopenjdk/openjdk8:alpine-nightly|8.jdk.hotspot.alpine.normal.nightly|105
-|adoptopenjdk/openjdk8:alpine-slim|8.jdk.hotspot.alpine.slim.releases|42
-|adoptopenjdk/openjdk8:alpine-nightly-slim|8.jdk.hotspot.alpine.slim.nightly|42
-|adoptopenjdk/openjdk8-openj9:latest|8.jdk.openj9.ubuntu.normal.releases|162
-|adoptopenjdk/openjdk8-openj9:nightly|8.jdk.openj9.ubuntu.normal.nightly|162
-|adoptopenjdk/openjdk8-openj9:slim|8.jdk.openj9.ubuntu.slim.releases|96
-|adoptopenjdk/openjdk8-openj9:nightly-slim|8.jdk.openj9.ubuntu.slim.nightly|96
-|adoptopenjdk/openjdk8-openj9:alpine|8.jdk.openj9.alpine.normal.releases|117
-|adoptopenjdk/openjdk8-openj9:alpine-nightly|8.jdk.openj9.alpine.normal.nightly|117
-|adoptopenjdk/openjdk8-openj9:alpine-slim|8.jdk.openj9.alpine.slim.releases|47
-|adoptopenjdk/openjdk8-openj9:alpine-nightly-slim|8.jdk.openj9.alpine.slim.nightly|47
-|adoptopenjdk/openjdk11:latest|11.jdk.hotspot.ubuntu.normal.releases|218
-|adoptopenjdk/openjdk11:nightly|11.jdk.hotspot.ubuntu.normal.nightly|218
-|adoptopenjdk/openjdk11:slim|11.jdk.hotspot.ubuntu.slim.releases|147
-|adoptopenjdk/openjdk11:nightly-slim|11.jdk.hotspot.ubuntu.slim.nightly|147
-|adoptopenjdk/openjdk11:alpine|11.jdk.hotspot.alpine.normal.releases|192
-|adoptopenjdk/openjdk11:alpine-nightly|11.jdk.hotspot.alpine.normal.nightly|192
-|adoptopenjdk/openjdk11:alpine-slim|11.jdk.hotspot.alpine.slim.releases|116
-|adoptopenjdk/openjdk11:alpine-nightly-slim|11.jdk.hotspot.alpine.slim.nightly|117
-|adoptopenjdk/openjdk11-openj9:latest|11.jdk.openj9.ubuntu.normal.releases|241
-|adoptopenjdk/openjdk11-openj9:nightly|11.jdk.openj9.ubuntu.normal.nightly|242
-|adoptopenjdk/openjdk11-openj9:slim|11.jdk.openj9.ubuntu.slim.releases|174
-|adoptopenjdk/openjdk11-openj9:nightly-slim|11.jdk.openj9.ubuntu.slim.nightly|174
-|adoptopenjdk/openjdk11-openj9:alpine|11.jdk.openj9.alpine.normal.releases|195
-|adoptopenjdk/openjdk11-openj9:alpine-nightly|11.jdk.openj9.alpine.normal.nightly|195
-|adoptopenjdk/openjdk11-openj9:alpine-slim|11.jdk.openj9.alpine.slim.releases|123
-|adoptopenjdk/openjdk11-openj9:alpine-nightly-slim|11.jdk.openj9.alpine.slim.nightly|123
-|adoptopenjdk/openjdk12:latest|12.jdk.hotspot.ubuntu.normal.releases|0
-|adoptopenjdk/openjdk12:nightly|12.jdk.hotspot.ubuntu.normal.nightly|0
-|adoptopenjdk/openjdk12:slim|12.jdk.hotspot.ubuntu.slim.releases|0
-|adoptopenjdk/openjdk12:nightly-slim|12.jdk.hotspot.ubuntu.slim.nightly|0
-|adoptopenjdk/openjdk12:alpine|12.jdk.hotspot.alpine.normal.releases|0
-|adoptopenjdk/openjdk12:alpine-nightly|12.jdk.hotspot.alpine.normal.nightly|0
-|adoptopenjdk/openjdk12:alpine-slim|12.jdk.hotspot.alpine.slim.releases|0
-|adoptopenjdk/openjdk12:alpine-nightly-slim|12.jdk.hotspot.alpine.slim.nightly|0
-|adoptopenjdk/openjdk12-openj9:latest|12.jdk.openj9.ubuntu.normal.releases|0
-|adoptopenjdk/openjdk12-openj9:nightly|12.jdk.openj9.ubuntu.normal.nightly|0
-|adoptopenjdk/openjdk12-openj9:slim|12.jdk.openj9.ubuntu.slim.releases|0
-|adoptopenjdk/openjdk12-openj9:nightly-slim|12.jdk.openj9.ubuntu.slim.nightly|0
-|adoptopenjdk/openjdk12-openj9:alpine|12.jdk.openj9.alpine.normal.releases|0
-|adoptopenjdk/openjdk12-openj9:alpine-nightly|12.jdk.openj9.alpine.normal.nightly|0
-|adoptopenjdk/openjdk12-openj9:alpine-slim|12.jdk.openj9.alpine.slim.releases|0
-|adoptopenjdk/openjdk12-openj9:alpine-nightly-slim|12.jdk.openj9.alpine.slim.nightly|0
+| --- | --- | --- 
+|[adoptopenjdk/openjdk8:latest](8/jdk/ubuntu/Dockerfile.hotspot.releases.full)|8.jdk.hotspot.ubuntu.full.releases|105
+|[adoptopenjdk/openjdk8:nightly](8/jdk/ubuntu/Dockerfile.hotspot.nightly.full)|8.jdk.hotspot.ubuntu.full.nightly|105
+|[adoptopenjdk/openjdk8:slim](8/jdk/ubuntu/Dockerfile.hotspot.releases.slim)|8.jdk.hotspot.ubuntu.slim.releases|72
+|[adoptopenjdk/openjdk8:nightly-slim](8/jdk/ubuntu/Dockerfile.hotspot.nightly.slim)|8.jdk.hotspot.ubuntu.slim.nightly|72
+|[adoptopenjdk/openjdk8:alpine](8/jdk/alpine/Dockerfile.hotspot.releases.full)|8.jdk.hotspot.alpine.full.releases|105
+|[adoptopenjdk/openjdk8:alpine-nightly](8/jdk/alpine/Dockerfile.hotspot.nightly.full)|8.jdk.hotspot.alpine.full.nightly|105
+|[adoptopenjdk/openjdk8:alpine-slim](8/jdk/alpine/Dockerfile.hotspot.releases.slim)|8.jdk.hotspot.alpine.slim.releases|42
+|[adoptopenjdk/openjdk8:alpine-nightly-slim](8/jdk/alpine/Dockerfile.hotspot.nightly.slim)|8.jdk.hotspot.alpine.slim.nightly|42
+|[adoptopenjdk/openjdk8-openj9:latest](8/jdk/ubuntu/Dockerfile.openj9.releases.full)|8.jdk.openj9.ubuntu.full.releases|162
+|[adoptopenjdk/openjdk8-openj9:nightly](8/jdk/ubuntu/Dockerfile.openj9.nightly.full)|8.jdk.openj9.ubuntu.full.nightly|162
+|[adoptopenjdk/openjdk8-openj9:slim](8/jdk/ubuntu/Dockerfile.openj9.releases.slim)|8.jdk.openj9.ubuntu.slim.releases|96
+|[adoptopenjdk/openjdk8-openj9:nightly-slim](8/jdk/ubuntu/Dockerfile.openj9.nightly.slim)|8.jdk.openj9.ubuntu.slim.nightly|96
+|[adoptopenjdk/openjdk8-openj9:alpine](8/jdk/alpine/Dockerfile.openj9.releases.full)|8.jdk.openj9.alpine.full.releases|117
+|[adoptopenjdk/openjdk8-openj9:alpine-nightly](8/jdk/alpine/Dockerfile.openj9.nightly.full)|8.jdk.openj9.alpine.full.nightly|117
+|[adoptopenjdk/openjdk8-openj9:alpine-slim](8/jdk/alpine/Dockerfile.openj9.releases.slim)|8.jdk.openj9.alpine.slim.releases|47
+|[adoptopenjdk/openjdk8-openj9:alpine-nightly-slim](8/jdk/alpine/Dockerfile.openj9.nightly.slim)|8.jdk.openj9.alpine.slim.nightly|47
+|[adoptopenjdk/openjdk11:latest](11/jdk/ubuntu/Dockerfile.hotspot.releases.full)|11.jdk.hotspot.ubuntu.full.releases|218
+|[adoptopenjdk/openjdk11:nightly](11/jdk/ubuntu/Dockerfile.hotspot.nightly.full)|11.jdk.hotspot.ubuntu.full.nightly|218
+|[adoptopenjdk/openjdk11:slim](11/jdk/ubuntu/Dockerfile.hotspot.releases.slim)|11.jdk.hotspot.ubuntu.slim.releases|147
+|[adoptopenjdk/openjdk11:nightly-slim](11/jdk/ubuntu/Dockerfile.hotspot.nightly.slim)|11.jdk.hotspot.ubuntu.slim.nightly|147
+|[adoptopenjdk/openjdk11:alpine](11/jdk/alpine/Dockerfile.hotspot.releases.full)|11.jdk.hotspot.alpine.full.releases|192
+|[adoptopenjdk/openjdk11:alpine-nightly](11/jdk/alpine/Dockerfile.hotspot.nightly.full)|11.jdk.hotspot.alpine.full.nightly|192
+|[adoptopenjdk/openjdk11:alpine-slim](11/jdk/alpine/Dockerfile.hotspot.releases.slim)|11.jdk.hotspot.alpine.slim.releases|116
+|[adoptopenjdk/openjdk11:alpine-nightly-slim](11/jdk/alpine/Dockerfile.hotspot.nightly.slim)|11.jdk.hotspot.alpine.slim.nightly|117
+|[adoptopenjdk/openjdk11-openj9:latest](11/jdk/ubuntu/Dockerfile.openj9.releases.full)|11.jdk.openj9.ubuntu.full.releases|241
+|[adoptopenjdk/openjdk11-openj9:nightly](11/jdk/ubuntu/Dockerfile.openj9.nightly.full)|11.jdk.openj9.ubuntu.full.nightly|242
+|[adoptopenjdk/openjdk11-openj9:slim](11/jdk/ubuntu/Dockerfile.openj9.releases.slim)|11.jdk.openj9.ubuntu.slim.releases|174
+|[adoptopenjdk/openjdk11-openj9:nightly-slim](11/jdk/ubuntu/Dockerfile.openj9.nightly.slim)|11.jdk.openj9.ubuntu.slim.nightly|174
+|[adoptopenjdk/openjdk11-openj9:alpine](11/jdk/alpine/Dockerfile.openj9.releases.full)|11.jdk.openj9.alpine.full.releases|195
+|[adoptopenjdk/openjdk11-openj9:alpine-nightly](11/jdk/alpine/Dockerfile.openj9.nightly.full)|11.jdk.openj9.alpine.full.nightly|195
+|[adoptopenjdk/openjdk11-openj9:alpine-slim](11/jdk/alpine/Dockerfile.openj9.releases.slim)|11.jdk.openj9.alpine.slim.releases|123
+|[adoptopenjdk/openjdk11-openj9:alpine-nightly-slim](11/jdk/alpine/Dockerfile.openj9.nightly.slim)|11.jdk.openj9.alpine.slim.nightly|123
 
 
 **Notes:**
