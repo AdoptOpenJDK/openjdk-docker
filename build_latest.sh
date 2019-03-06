@@ -107,7 +107,6 @@ for vm in ${all_jvms}
 do
 	for package in ${all_packages}
 	do
-		oses=$(parse_os_entry ${vm})
 		for os in ${oses}
 		do
 			# Build = Release or Nightly
