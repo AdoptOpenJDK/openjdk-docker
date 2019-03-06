@@ -177,7 +177,7 @@ EOI
     cd /opt/java/openjdk; \
     echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java))); \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
     mv ${jdir}/* /opt/java/openjdk; \
 EOI
 }
