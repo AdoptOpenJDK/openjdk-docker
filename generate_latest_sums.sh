@@ -26,5 +26,8 @@ fi
 echo "Getting latest shasum info for major version: ${version}"
 for vm in ${all_jvms}
 do
-	get_shasums ${version} ${vm}
+	for package in ${all_packages}
+	do
+		get_shasums ${version} ${vm} ${package}
+	done
 done

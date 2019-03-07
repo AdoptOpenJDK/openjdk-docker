@@ -106,33 +106,38 @@ echo  >> ${man_file}
 # type  = full / slim
 for vm in ${available_jvms}
 do
-	for os in ${oses}
+	for package in ${all_packages}
 	do
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
-		for build in ${builds}
+		for os in ${oses}
 		do
-			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-			jverinfo=${shasums}[version]
-			eval jrel=\${$jverinfo}
-			if [[ -z ${jrel} ]]; then
-				continue;
-			fi
-			# Docker image tags cannot have "+" in them, replace it with "." instead.
-			rel=$(echo ${jrel} | sed 's/+/./g')
-
-			srepo=${source_repo}${version}
-			if [ "${vm}" != "hotspot" ]; then
-				srepo=${srepo}-${vm}
-			fi
-			for btype in ${btypes}
+			# Build = Release or Nightly
+			builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
+			# Type = Full or Slim
+			btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+			for build in ${builds}
 			do
-				echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
-				# Get the relevant tags for this vm / os / build / type combo from the tags.config file
-				raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
-				build_tags ${vm} ${version} ${rel} ${os} ${build} ${raw_tags}
-				echo "done"
-				print_tags ${srepo}
+				shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+				jverinfo=${shasums}[version]
+				eval jrel=\${$jverinfo}
+				if [[ -z ${jrel} ]]; then
+					continue;
+				fi
+				# Docker image tags cannot have "+" in them, replace it with "." instead.
+				rel=$(echo ${jrel} | sed 's/+/./g')
+
+				srepo=${source_repo}${version}
+				if [ "${vm}" != "hotspot" ]; then
+					srepo=${srepo}-${vm}
+				fi
+				for btype in ${btypes}
+				do
+					echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."
+					# Get the relevant tags for this vm / os / build / type combo from the tags.config file
+					raw_tags=$(parse_tag_entry ${os} ${package} ${build} ${btype})
+					build_tags ${vm} ${version} ${package} ${rel} ${os} ${build} ${raw_tags}
+					echo "done"
+					print_tags ${srepo}
+				done
 			done
 		done
 	done
