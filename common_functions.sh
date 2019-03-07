@@ -208,14 +208,19 @@ function check_manifest_tool() {
 function build_tags() {
 	vm=$1; shift
 	ver=$1; shift;
+	pkg=$1; shift;
 	rel=$1; shift;
 	os=$1; shift;
 	build=$1; shift;
 	rawtags=$*
 	tmpfile=raw_arch_tags.$$.tmp
 
+	# For jre builds, replace the version tag to distinguish it from the jdk
+	if [ "${pkg}" == "jre" ]; then
+		rel=$(echo ${rel} | sed 's/jdk/jre/')
+	fi
 	# Get the list of supported arches for this vm / ver /os combo
-	arches=$(parse_vm_entry ${vm} ${ver} ${os} "Architectures:")
+	arches=$(parse_vm_entry ${vm} ${ver} ${pkg} ${os} "Architectures:")
 	# Replace the proper version string in the tags
 	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
 	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
