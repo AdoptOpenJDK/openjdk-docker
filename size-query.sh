@@ -1,6 +1,6 @@
 #!/bin/bash
-versions=( 8 11)
-packages=( jdk)
+versions=( 8 11 12)
+packages=( jdk jre)
 jvms=( hotspot openj9)
 oss=( ubuntu alpine)
 types=( full slim)
@@ -31,8 +31,9 @@ do
 					image="adoptopenjdk/openjdk"$version"-"$jvm
 					image=${image//-hotspot/}
 
-					tag=$os"-"$build"-"$type
+					tag=$os"-"$package"-"$build"-"$type
 					tag=${tag//ubuntu-/}
+					tag=${tag//jdk-/}
 					tag=${tag//releases-/}
 					tag=${tag//-full/}
 					tag=${tag//full/latest}
