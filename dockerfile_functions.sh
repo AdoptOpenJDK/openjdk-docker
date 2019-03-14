@@ -271,11 +271,11 @@ print_java_options() {
 	case ${vm} in
 	hotspot)
 		case ${version} in
-		8|9)
+		9)
 			JOPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap";
 			;;
 		*)
-			JOPTS="-XX:+UseContainerSupport";
+			JOPTS="";
 			;;
 		esac
 		;;
