@@ -1,0 +1,62 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM ubuntu:18.04
+
+LABEL maintainer="dinakar.g@in.ibm.com"
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk-12+33
+
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "${ARCH}" in \
+       ppc64el|ppc64le) \
+         ESUM='36c5445d7fefcb6bdf9ff2895f08061fda02ce97b35cde6690d4315d14b2b944'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jre_ppc64le_linux_hotspot_12_33.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='ffea19222b5fa0b9b07c72070a6a82fbea6171608d9c5f5d70259964cf7f30d2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jre_s390x_linux_hotspot_12_33.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='50030ddbbf522aa4717b5b5d47e17117f3502db53246158dc3044e89fd4aef98'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jre_x64_linux_hotspot_12_33.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    sha256sum /tmp/openjdk.tar.gz; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    tar -xf /tmp/openjdk.tar.gz; \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+    mv ${jdir}/* /opt/java/openjdk; \
+    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS=""

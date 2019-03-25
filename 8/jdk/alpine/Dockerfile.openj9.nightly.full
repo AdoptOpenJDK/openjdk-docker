@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN apk --update add --no-cache --virtual .build-deps curl binutils \
-    && GLIBC_VER="2.28-r0" \
+    && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
@@ -52,16 +52,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='46b583968dbca9d9ae9e97a510c18135f3602d94f49d088ccc48b399eb960e27'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-10-14-01/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-02-10-14-01.tar.gz'; \
+         ESUM='953776e0091b0170e299eba7dc92ad915a59f73f9676f373ee67062467afdc92'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-03-24-22-59.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='0d5ebdced8a96cc1e7fcf7f5eeeabf6f90f566ba15f971478a3b6e3fb40e291f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-09-05-25/OpenJDK8U-jdk_s390x_linux_openj9_2019-02-09-05-25.tar.gz'; \
+         ESUM='17ccdaa1b2f504fc5bec307ed5c5b072a7bbdc2a677b8a6f2fdf74943472789c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_s390x_linux_openj9_2019-03-24-22-59.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='bf3d754b60510f5b552d0c18fb49dc483a99f436ed9022111dccde81ceb83f4d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-02-10-14-01/OpenJDK8U-jdk_x64_linux_openj9_2019-02-10-14-01.tar.gz'; \
+         ESUM='e067606aa33e57fddb92f02dba464a180abd90de8360546fd9053ddaa2c51b07'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_x64_linux_openj9_2019-03-24-22-59.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -74,7 +74,7 @@ RUN set -eux; \
     cd /opt/java/openjdk; \
     echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
     mv ${jdir}/* /opt/java/openjdk; \
     apk del --purge .fetch-deps; \
     rm -rf /var/cache/apk/*; \
