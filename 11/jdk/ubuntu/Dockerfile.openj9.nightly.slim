@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='7c607dc97db0e3d1d9763288216364e0abeeaf123ce2af18832ac8054a3f8df5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-02-03-10-04.tar.gz'; \
+         ESUM='2cb077c6a669ebccf8743fb0372d75b91a888148e673944da187aa8f75c30faa'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-03-25-06-42.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='3a42a241e121b05707280bfd6cd6ba3e806409952682a7500ae79bdb2d08efba'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_s390x_linux_openj9_2019-02-03-10-04.tar.gz'; \
+         ESUM='d321920f8041b02ea82963b857c1a1daafffe8417492ca2eb4bbba2b4ae0a3ca'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_s390x_linux_openj9_2019-03-25-06-42.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='5a5442f1973309680fa3642cf01f29a4da7899317e351882192230e6a74d235c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_x64_linux_openj9_2019-02-03-10-04.tar.gz'; \
+         ESUM='7ffc6af40cb09333c588156d91d73feeb210807e2291f149b7a1225dc14947e3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_x64_linux_openj9_2019-03-25-06-42.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -55,7 +55,7 @@ RUN set -eux; \
     cd /opt/java/openjdk; \
     echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
     mv ${jdir}/* /opt/java/openjdk; \
     export PATH="/opt/java/openjdk/bin:$PATH"; \
     apt-get update; apt-get install -y --no-install-recommends binutils; \

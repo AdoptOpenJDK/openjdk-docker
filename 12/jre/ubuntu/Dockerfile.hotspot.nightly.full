@@ -1,0 +1,66 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM ubuntu:18.04
+
+LABEL maintainer="dinakar.g@in.ibm.com"
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk12u
+
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "${ARCH}" in \
+       ppc64el|ppc64le) \
+         ESUM='28d73f06c29bf51be7609396ed144f02e2691b9fc6f9d0c92d053f17cb11b6f2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-03-21-10-43/OpenJDK12U-jre_ppc64le_linux_hotspot_2019-03-21-10-43.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='c4beef071d7831e6bc7c1206f57ff60e32ecbbcb743df07458a2a5f1b9aa0f6d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-03-21-10-43/OpenJDK12U-jre_s390x_linux_hotspot_2019-03-21-10-43.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='215cfd4e9f3530c31f5ae620516aa0d32fa0998eb85229c033ea9e7ccabbbd2d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-03-21-10-43/OpenJDK12U-jre_x64_linux_hotspot_2019-03-21-10-43.tar.gz'; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='721e195e54ff014eef5c74095dc0bc6321634c1e34a000e6380833108b862e05'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-03-21-10-43/OpenJDK12U-jre_aarch64_linux_hotspot_2019-03-21-10-43.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    sha256sum /tmp/openjdk.tar.gz; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    tar -xf /tmp/openjdk.tar.gz; \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+    mv ${jdir}/* /opt/java/openjdk; \
+    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS=""

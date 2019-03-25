@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN apk --update add --no-cache --virtual .build-deps curl binutils \
-    && GLIBC_VER="2.28-r0" \
+    && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
@@ -54,20 +54,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='baf103a27b6a431f70dd2ba9e6020255a7d7b0e0834c264409ecff4dc593d1eb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-02-03-10-04.tar.gz'; \
+         ESUM='8282aaee35a6723d414b37d35609e2309eccb28e94d36e655848f83305164af7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-03-25-06-42.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='75d5f0961afb29487fb26b78536dd695e0a6952d5b9a8f98f7687b946d6cab50'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_s390x_linux_hotspot_2019-02-03-10-04.tar.gz'; \
+         ESUM='f5f4935f7ae15bbeda57ee31ae3dd8c37a121d8357663cfeff7e4b7580450d8e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_s390x_linux_hotspot_2019-03-25-06-42.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b4509c93177c33a7e7168d64f6971310622e8c6756189b82d4d680d50ba68b4f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_x64_linux_hotspot_2019-02-03-10-04.tar.gz'; \
+         ESUM='f9fd09da8d0751ad8aed8957e8527698969814cd122400177ac0c3a52816612d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_x64_linux_hotspot_2019-03-25-06-42.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='ae71a7027f846e63c89f2379e8acb327438de3ae3625c5c54f9b20f68a7063c0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-02-03-10-04/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-02-03-10-04.tar.gz'; \
+         ESUM='844db791f4f4bac292675c9d4339ed8d67a4daaedc04b2c19e527fe6b8d5d933'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-03-25-06-42.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -80,15 +80,17 @@ RUN set -eux; \
     cd /opt/java/openjdk; \
     echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
     tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name javac))); \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
     mv ${jdir}/* /opt/java/openjdk; \
     export PATH="/opt/java/openjdk/bin:$PATH"; \
     apk add --virtual .build-deps bash binutils; \
     /usr/local/bin/slim-java.sh /opt/java/openjdk; \
     apk del --purge .build-deps; \
+    rm -rf /var/cache/apk/*; \
     apk del --purge .fetch-deps; \
     rm -rf /var/cache/apk/*; \
     rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS=""

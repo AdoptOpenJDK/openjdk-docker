@@ -1,0 +1,91 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+java.activation.jmod
+java.corba.jmod
+java.transaction.jmod
+java.xml.ws.jmod
+java.xml.ws.annotation.jmod
+java.desktop.jmod
+java.datatransfer.jmod
+jdk.scripting.nashorn.jmod
+jdk.scripting.nashorn.shell.jmod
+jdk.jconsole.jmod
+java.scripting.jmod
+java.se.ee.jmod
+java.se.jmod
+
+java.sql.jmod
+java.sql.rowset.jmod
+
+#
+#java.base.jmod
+#java.compiler.jmod
+#java.instrument.jmod
+#java.logging.jmod
+#java.management.jmod
+#java.management.rmi.jmod
+#java.naming.jmod
+#java.prefs.jmod
+#java.rmi.jmod
+#java.security.jgss.jmod
+#java.security.sasl.jmod
+#java.smartcardio.jmod
+#java.xml.bind.jmod
+#java.xml.crypto.jmod
+#java.xml.jmod
+#jdk.accessibility.jmod
+#jdk.aot.jmod
+#jdk.attach.jmod
+#jdk.charsets.jmod
+#jdk.compiler.jmod
+#jdk.crypto.cryptoki.jmod
+#jdk.crypto.ec.jmod
+#jdk.dynalink.jmod
+#jdk.editpad.jmod
+#jdk.hotspot.agent.jmod
+#jdk.httpserver.jmod
+#jdk.incubator.httpclient.jmod
+#jdk.internal.ed.jmod
+#jdk.internal.jvmstat.jmod
+#jdk.internal.le.jmod
+#jdk.internal.opt.jmod
+#jdk.internal.vm.ci.jmod
+#jdk.internal.vm.compiler.jmod
+#jdk.internal.vm.compiler.management.jmod
+#jdk.jartool.jmod
+#jdk.javadoc.jmod
+#jdk.jcmd.jmod
+#jdk.jdeps.jmod
+#jdk.jdi.jmod
+#jdk.jdwp.agent.jmod
+#jdk.jlink.jmod
+#jdk.jshell.jmod
+#jdk.jsobject.jmod
+#jdk.jstatd.jmod
+#jdk.localedata.jmod
+#jdk.management.agent.jmod
+#jdk.management.jmod
+#jdk.naming.dns.jmod
+#jdk.naming.rmi.jmod
+#jdk.net.jmod
+#jdk.pack.jmod
+#jdk.rmic.jmod
+#jdk.sctp.jmod
+#jdk.security.auth.jmod
+#jdk.security.jgss.jmod
+#jdk.unsupported.jmod
+#jdk.xml.bind.jmod
+#jdk.xml.dom.jmod
+#jdk.xml.ws.jmod
+#jdk.zipfs.jmod
