@@ -60,6 +60,23 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 |[adoptopenjdk/openjdk11-openj9:alpine-nightly](11/jdk/alpine/Dockerfile.openj9.nightly.full)|11.jdk.openj9.alpine.full.nightly|195
 |[adoptopenjdk/openjdk11-openj9:alpine-slim](11/jdk/alpine/Dockerfile.openj9.releases.slim)|11.jdk.openj9.alpine.slim.releases|123
 |[adoptopenjdk/openjdk11-openj9:alpine-nightly-slim](11/jdk/alpine/Dockerfile.openj9.nightly.slim)|11.jdk.openj9.alpine.slim.nightly|123
+|[adoptopenjdk/openjdk12:latest](12/jdk/ubuntu/Dockerfile.hotspot.releases.full)|12.jdk.hotspot.ubuntu.full.releases|232
+|[adoptopenjdk/openjdk12:nightly](12/jdk/ubuntu/Dockerfile.hotspot.nightly.full)|12.jdk.hotspot.ubuntu.full.nightly|231
+|[adoptopenjdk/openjdk12:slim](12/jdk/ubuntu/Dockerfile.hotspot.releases.slim)|12.jdk.hotspot.ubuntu.slim.releases|158
+|[adoptopenjdk/openjdk12:nightly-slim](12/jdk/ubuntu/Dockerfile.hotspot.nightly.slim)|12.jdk.hotspot.ubuntu.slim.nightly|158
+|[adoptopenjdk/openjdk12:alpine](12/jdk/alpine/Dockerfile.hotspot.releases.full)|12.jdk.hotspot.alpine.full.releases|203
+|[adoptopenjdk/openjdk12:alpine-nightly](12/jdk/alpine/Dockerfile.hotspot.nightly.full)|12.jdk.hotspot.alpine.full.nightly|203
+|[adoptopenjdk/openjdk12:alpine-slim](12/jdk/alpine/Dockerfile.hotspot.releases.slim)|12.jdk.hotspot.alpine.slim.releases|126
+|[adoptopenjdk/openjdk12:alpine-nightly-slim](12/jdk/alpine/Dockerfile.hotspot.nightly.slim)|12.jdk.hotspot.alpine.slim.nightly|126
+|[adoptopenjdk/openjdk12-openj9:latest](12/jdk/ubuntu/Dockerfile.openj9.releases.full)|12.jdk.openj9.ubuntu.full.releases|243
+|[adoptopenjdk/openjdk12-openj9:nightly](12/jdk/ubuntu/Dockerfile.openj9.nightly.full)|12.jdk.openj9.ubuntu.full.nightly|243
+|[adoptopenjdk/openjdk12-openj9:slim](12/jdk/ubuntu/Dockerfile.openj9.releases.slim)|12.jdk.openj9.ubuntu.slim.releases|174
+|[adoptopenjdk/openjdk12-openj9:nightly-slim](12/jdk/ubuntu/Dockerfile.openj9.nightly.slim)|12.jdk.openj9.ubuntu.slim.nightly|174
+|[adoptopenjdk/openjdk12-openj9:alpine](12/jdk/alpine/Dockerfile.openj9.releases.full)|12.jdk.openj9.alpine.full.releases|196
+|[adoptopenjdk/openjdk12-openj9:alpine-nightly](12/jdk/alpine/Dockerfile.openj9.nightly.full)|12.jdk.openj9.alpine.full.nightly|196
+|[adoptopenjdk/openjdk12-openj9:alpine-slim](12/jdk/alpine/Dockerfile.openj9.releases.slim)|12.jdk.openj9.alpine.slim.releases|123
+|[adoptopenjdk/openjdk12-openj9:alpine-nightly-slim](12/jdk/alpine/Dockerfile.openj9.nightly.slim)|12.jdk.openj9.alpine.slim.nightly|123
+
 
 
 
