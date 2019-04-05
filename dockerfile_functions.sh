@@ -384,7 +384,6 @@ print_alpine_slim_package() {
     apk add --no-cache --virtual .build-deps bash binutils; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
     apk del --purge .build-deps; \\
-    rm -rf /var/cache/apk/*; \\
 EOI
 }
 
