@@ -29,6 +29,8 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.9-1-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=bb0959c08c1735de27abf01440a6f8a17c5c51e61c3b4c707e988c906d3b7f67 \
     && curl -Ls https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
+    && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
+    && echo "${SGERRAND_RSA_SHA256}  /etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
     && apk add /tmp/${GLIBC_VER}.apk \
     && curl -Ls ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
@@ -52,16 +54,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='953776e0091b0170e299eba7dc92ad915a59f73f9676f373ee67062467afdc92'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-03-24-22-59.tar.gz'; \
+         ESUM='be2a8fba580fb4d4acbfcb5cf54a55c384342fa83b2b94984aedc37440d7ae56'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-23-33/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-04-12-23-33.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='17ccdaa1b2f504fc5bec307ed5c5b072a7bbdc2a677b8a6f2fdf74943472789c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_s390x_linux_openj9_2019-03-24-22-59.tar.gz'; \
+         ESUM='58f0f1b4e6094d1ea5faf1ee2fa886c1785c763342361af5499980a72ece81fd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-23-33/OpenJDK8U-jdk_s390x_linux_openj9_2019-04-12-23-33.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='e067606aa33e57fddb92f02dba464a180abd90de8360546fd9053ddaa2c51b07'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-03-24-22-59/OpenJDK8U-jdk_x64_linux_openj9_2019-03-24-22-59.tar.gz'; \
+         ESUM='fac0a781c84d3aafb851b187d245d006650222b40f394c3a5f63e4c4348d7019'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jdk_x64_linux_openj9_2019-04-12-05-08.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

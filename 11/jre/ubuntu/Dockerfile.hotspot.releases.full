@@ -31,16 +31,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='b6b2e0bf5c8c39288c4b231157cbdfbc6c02c5a18984d403698cee85a137cbe5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B7/OpenJDK11U-jre_ppc64le_linux_hotspot_11.0.2_7.tar.gz'; \
+         ESUM='a8ebb395f8ab5231fccfb670d5d6f9d40013c3cbeadaa83e7d32d5f121544377'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jre_ppc64le_linux_hotspot_11.0.2_9.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='15c3a70660d280d25b7f36df0c4c5a7cd86912b503c4136a5101b6d268b181dd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jre_s390x_linux_hotspot_11.0.2_9.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='e762e4cd50cebd1c63dee2cf0d5737016e9e057520b67761df5ad2dc7bbc7d54'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jre_x64_linux_hotspot_11.0.2_9.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='b101c86948742a5a580f94596654ef7d200f629cfc1ffdded10fb6a0cbe34c34'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B7/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.2_7.tar.gz'; \
+         ESUM='92ccd482b6960df0eaf02eda6743339c89bd5a6a4f6cb48239a8778e711fa524'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.2_9.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
