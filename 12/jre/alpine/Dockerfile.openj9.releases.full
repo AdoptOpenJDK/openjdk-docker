@@ -29,6 +29,8 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.9-1-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=bb0959c08c1735de27abf01440a6f8a17c5c51e61c3b4c707e988c906d3b7f67 \
     && curl -Ls https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
+    && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
+    && echo "${SGERRAND_RSA_SHA256}  /etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
     && apk add /tmp/${GLIBC_VER}.apk \
     && curl -Ls ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
@@ -54,6 +56,10 @@ RUN set -eux; \
        ppc64el|ppc64le) \
          ESUM='864bb0cf5ad1e0d14d2c367e721f151b724b53406cfeff0dd211444e97fedeed'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33_openj9-0.13.0/OpenJDK12U-jre_ppc64le_linux_openj9_12_33_openj9-0.13.0.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='caf712290283bbfdf4925fa5c5f2e62a0e42d7829d61a4e56ec0c48938b83c9e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33_openj9-0.13.0/OpenJDK12U-jre_s390x_linux_openj9_12_33_openj9-0.13.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='ac4220e1ce0069d71efdb029fe70d64926d87f2f285ccd21f8b28425c20d4bc1'; \

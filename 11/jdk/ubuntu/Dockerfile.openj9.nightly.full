@@ -31,16 +31,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='2cb077c6a669ebccf8743fb0372d75b91a888148e673944da187aa8f75c30faa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-03-25-06-42.tar.gz'; \
+         ESUM='6e0f8a6e14b5931cb4369b592af62adbb8e103637b6df725d1001b98dd133881'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-04-13-18-49.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='d321920f8041b02ea82963b857c1a1daafffe8417492ca2eb4bbba2b4ae0a3ca'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_s390x_linux_openj9_2019-03-25-06-42.tar.gz'; \
+         ESUM='716b3e73b5f756c1087fac3284dd408340318885419717ec62623f327cbc8311'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_s390x_linux_openj9_2019-04-13-18-49.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='7ffc6af40cb09333c588156d91d73feeb210807e2291f149b7a1225dc14947e3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-03-25-06-42/OpenJDK11U-jdk_x64_linux_openj9_2019-03-25-06-42.tar.gz'; \
+         ESUM='4692f5ab376f0acd9755fd0a98403dc9b38c8e7a1b6ab88d388ef7ba2b9e89f8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_x64_linux_openj9_2019-04-13-18-49.tar.gz'; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='948ae201ca55543b0a812605cf1e0248d1ec309c176ac4e732f976c2f75668fb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_aarch64_linux_openj9_2019-04-13-18-49.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

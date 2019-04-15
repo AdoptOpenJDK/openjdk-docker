@@ -44,6 +44,10 @@ RUN set -eux; \
          ESUM='4739064dc439a05487744cce0ba951cb544ed5e796f6c699646e16c09da5dd6a'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz'; \
          ;; \
+       aarch64|arm64) \
+         ESUM='53067804b3ce20064244616b80593cbbcbe1dbf13bdd76d1f54ce4c8e6d69b70'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_aarch64_linux_hotspot_12_33.tar.gz'; \
+         ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \

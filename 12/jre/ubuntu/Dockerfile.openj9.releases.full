@@ -34,6 +34,10 @@ RUN set -eux; \
          ESUM='864bb0cf5ad1e0d14d2c367e721f151b724b53406cfeff0dd211444e97fedeed'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33_openj9-0.13.0/OpenJDK12U-jre_ppc64le_linux_openj9_12_33_openj9-0.13.0.tar.gz'; \
          ;; \
+       s390x) \
+         ESUM='caf712290283bbfdf4925fa5c5f2e62a0e42d7829d61a4e56ec0c48938b83c9e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33_openj9-0.13.0/OpenJDK12U-jre_s390x_linux_openj9_12_33_openj9-0.13.0.tar.gz'; \
+         ;; \
        amd64|x86_64) \
          ESUM='ac4220e1ce0069d71efdb029fe70d64926d87f2f285ccd21f8b28425c20d4bc1'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33_openj9-0.13.0/OpenJDK12U-jre_x64_linux_openj9_12_33_openj9-0.13.0.tar.gz'; \
