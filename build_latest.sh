@@ -40,7 +40,7 @@ function build_image() {
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	#docker build --pull --no-cache ${tags} -f ${dockerfile} .
+	docker build --pull --no-cache ${tags} -f ${dockerfile} .
 	if [ $? != 0 ]; then
 		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 		exit 1
