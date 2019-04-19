@@ -60,6 +60,8 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 # We should now have the proper manifest lists pushed to hub.docker.com to support multi-arch pulls.
 ```
+## Linting dockerfiles (via [hadolint](https://github.com/hadolint/hadolint))
+To lint generated dockerfiles run [./linter.sh](./linter.sh) - script will download hadolint binary and check all dockerfiles.
 
 # Info on other scripts
 ```
