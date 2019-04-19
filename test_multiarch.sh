@@ -57,13 +57,23 @@ function test_aliases() {
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
-		check_image ${target_repo}:${arch_tag}
+		echo -n "INFO: Pulling image: ${target_repo}:${arch_tag}..."
+		ret=$(check_image ${target_repo}:${arch_tag})
+		if [ ${ret} != 0 ]; then
+			echo "Error: Docker Image ${img} not found on hub.docker\n"
+			exit 1
+		fi
 	done
 
 	# Global variable tag_aliases has the alias list
 	for tag_alias in ${tag_aliases}
 	do
-		check_image ${target_repo}:${tag_alias}
+		echo -n "INFO: Pulling image: ${target_repo}:${tag_alias}..."
+		ret=$(check_image ${target_repo}:${tag_alias})
+		if [ ${ret} != 0 ]; then
+			echo "Error: Docker Image ${img} not found on hub.docker\n"
+			exit 1
+		fi
 		run_tests ${target_repo}:${tag_alias}
 	done
 }
@@ -81,7 +91,12 @@ function test_tags() {
 		if [ ${tarch} != ${current_arch} ]; then
 			continue;
 		fi
-		check_image ${target_repo}:${arch_tag}
+		echo -n "INFO: Pulling image: ${target_repo}:${arch_tag}..."
+		ret=$(check_image ${target_repo}:${arch_tag})
+		if [ ${ret} != 0 ]; then
+			echo "Error: Docker Image ${img} not found on hub.docker\n"
+			exit 1
+		fi
 		run_tests ${target_repo}:${arch_tag}
 	done
 }
@@ -139,8 +154,8 @@ do
 				if [[ -z ${jrel} ]]; then
 					continue;
 				fi
-				# Docker image tags cannot have "+" in them, replace it with "." instead.
-				rel=$(echo ${jrel} | sed 's/+/./g')
+				# Docker image tags cannot have "+" in them, replace it with "_" instead.
+				rel=$(echo ${jrel} | sed 's/+/_/g')
 
 				srepo=${source_repo}${version}
 				if [ "${vm}" != "hotspot" ]; then
@@ -150,7 +165,7 @@ do
 				do
 					echo -n "INFO: Building tag list for [${vm}]-[${os}]-[${build}]-[${btype}]..."
 					# Get the relevant tags for this vm / os / build / type combo from the tags.config file.
-					raw_tags=$(parse_tag_entry ${os} ${build} ${btype})
+					raw_tags=$(parse_tag_entry ${os} ${package} ${build} ${btype})
 					# Build tags will build both the arch specific tags and the tag aliases.
 					build_tags ${vm} ${version} ${package} ${rel} ${os} ${build} ${raw_tags}
 					echo "done"

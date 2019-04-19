@@ -78,7 +78,7 @@ EOI
 print_alpine_pkg() {
 	cat >> $1 <<'EOI'
 
-RUN apk --update add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -276,9 +276,6 @@ print_java_options() {
 		9)
 			JOPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap";
 			;;
-		*)
-			JOPTS="";
-			;;
 		esac
 		;;
 	openj9)
@@ -286,9 +283,11 @@ print_java_options() {
 		;;
 	esac
 
+	if [ ! -z "${JOPTS}" ]; then
 	cat >> $1 <<-EOI
 ENV JAVA_TOOL_OPTIONS="${JOPTS}"
 EOI
+	fi
 }
 
 # For slim builds copy the slim script and related config files.

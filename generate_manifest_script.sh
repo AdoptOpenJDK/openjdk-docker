@@ -64,7 +64,12 @@ function print_tags() {
 	for arch_tag in ${arch_tags}
 	do
 		trepo=${source_prefix}/${repo}
-		check_image ${trepo}:${arch_tag}
+		echo -n "INFO: Pulling image: ${trepo}:${arch_tag}..."
+		ret=$(check_image ${trepo}:${arch_tag})
+		if [ ${ret} != 0 ]; then
+			echo "Warning: Docker Image ${trepo}:${arch_tag} not found. Skipping... \n"
+			continue;
+		fi
 		img_list="${img_list} ${trepo}:${arch_tag}"
 	done
 	print_manifest_cmd ${trepo} ${img_list}
@@ -122,8 +127,8 @@ do
 				if [[ -z ${jrel} ]]; then
 					continue;
 				fi
-				# Docker image tags cannot have "+" in them, replace it with "." instead.
-				rel=$(echo ${jrel} | sed 's/+/./g')
+				# Docker image tags cannot have "+" in them, replace it with "_" instead.
+				rel=$(echo ${jrel} | sed 's/+/_/g')
 
 				srepo=${source_repo}${version}
 				if [ "${vm}" != "hotspot" ]; then

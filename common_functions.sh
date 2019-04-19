@@ -148,13 +148,9 @@ function cleanup_manifest() {
 function check_image() {
 	img=$1
 
-	echo -n "INFO: Pulling image: ${img}..."
 	docker pull ${img} >/dev/null
-	if [ $? != 0 ]; then
-		echo "ERROR: Docker Image ${img} not found on hub.docker\n"
-		exit 1
-	fi
-	echo "done"
+	ret=$?
+	echo ${ret}
 }
 
 # Parse the openj9.config / hotspot.config file for an entry as specified by $4
@@ -299,6 +295,24 @@ function get_binary_url() {
 	rm -f ${info_file}
 }
 
+# Get the short build version from the full version for this specific arch
+# $1 = full version
+function get_nightly_short_version() {
+	arch_build=$1
+	arch_full_version=$2
+	if [ "${arch_build}" = "nightly" ]; then
+		# Remove date and time at the end of full_version for nightly builds.
+		# Handle both the old and new date-time formats used by the Adopt build system.
+		# Older date-time format - 201809270034
+		arch_version=$(echo ${arch_full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
+		# New date-time format   - 2018-09-27-00-34
+		arch_version=$(echo ${arch_version} | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
+	else
+		arch_version=${arch_full_version}
+	fi
+	echo ${arch_version}
+}
+
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
 	gsba_ver=$1
@@ -336,6 +350,12 @@ function get_sums_for_build_arch() {
 		# If there are multiple builds for a single version, then pick the latest one.
 		shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+		arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
+		arch_build_version=$(get_nightly_short_version ${gsba_build} ${arch_build_version})
+		# Only print the arch related info if the arch version matches with the parent
+		if [ "${arch_build_version}" != "${full_version}" ]; then
+			continue;
+		fi
 		# Only print the entry if the shasum is not empty
 		if [ ! -z "${shasum}" ]; then
 			printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
@@ -362,14 +382,7 @@ function get_sums_for_build() {
 		continue;
 	fi
 	full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
-	if [ "${build}" == "nightly" ]; then
-		# Remove date and time at the end of full_version for nightly builds.
-		# Handle both the old and new date-time formats used by the Adopt build system.
-		# Older date-time format - 201809270034
-		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
-		# New date-time format   - 2018-09-27-00-34
-		full_version=$(echo ${full_version} | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
-	fi
+	full_version=$(get_nightly_short_version ${gsb_build} ${full_version})
 	# Declare the array with the proper name and write to the vm output file.
 	printf "declare -A %s_%s_%s_%s_sums=(\n" ${gsb_pkg} ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
 	# Capture the full version according to adoptopenjdk
