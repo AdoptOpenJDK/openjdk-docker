@@ -43,8 +43,8 @@ RUN set -eux; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jre_x64_linux_openj9_2019-04-13-18-49.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='acbc099d8903d20d6b4f4f35c5c4677f2e441249e1c9c647acf33cffa295c82f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jre_aarch64_linux_openj9_2019-04-13-18-49.tar.gz'; \
+         ESUM='dddcfb138d847b282d03a956586b10d783a5f56ca3b57dc40068ff894cd8e889'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-15-17-57/OpenJDK11U-jre_aarch64_linux_openj9_2019-04-15-17-57.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
