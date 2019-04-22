@@ -40,7 +40,7 @@ function build_image() {
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	docker build --no-cache ${tags} -f ${dockerfile} .
+	docker build --pull --no-cache ${tags} -f ${dockerfile} .
 	if [ $? != 0 ]; then
 		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 		exit 1
@@ -53,8 +53,8 @@ function build_dockerfile {
 
 	jverinfo=${shasums}[version]
 	eval jrel=\${$jverinfo}
-	# Docker image tags cannot have "+" in them, replace it with "." instead.
-	rel=$(echo ${jrel} | sed 's/+/./')
+	# Docker image tags cannot have "+" in them, replace it with "_" instead.
+	rel=$(echo ${jrel} | sed 's/+/_/')
 	if [ "${pkg}" == "jre" ]; then
 		rel=$(echo ${rel} | sed 's/jdk/jre/')
 	fi
