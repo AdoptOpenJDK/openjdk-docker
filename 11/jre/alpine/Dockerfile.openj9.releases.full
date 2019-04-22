@@ -21,7 +21,7 @@ FROM alpine:3.9
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
-RUN apk --update add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -47,23 +47,23 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-11.0.2+9_openj9-0.12.1
+ENV JAVA_VERSION jdk-11.0.3+7_openj9-0.14.0
 
 RUN set -eux; \
     apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='c08aad4e24a9cfc234ae3fc92e1eeb46087d07c3f124bf36ee67ed022cea6344'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jre_ppc64le_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
+         ESUM='ef147338f12fdff7fd070a3a7d4241ac7c85a5bacf0e0642dc2efc9dab9dd94b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7_openj9-0.14.0/OpenJDK11U-jre_ppc64le_linux_openj9_11.0.3_7_openj9-0.14.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='4cf78da78517eabb2a5d14a48cfd9ba258224a4c610b1f5e7fa08d0266dbdd9b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jre_s390x_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
+         ESUM='101886e88c091d5671db8760016c3c46c7dc16671960eb1c4c86a9f8bbe8e5be'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7_openj9-0.14.0/OpenJDK11U-jre_s390x_linux_openj9_11.0.3_7_openj9-0.14.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='a7fbd197698a3e73086d9b490358015c9cf9c7038392853ae35c5d7a9cc20e8a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.2%2B9_openj9-0.12.1/OpenJDK11U-jre_x64_linux_openj9_11.0.2_9_openj9-0.12.1_openj9-0.12.1.tar.gz'; \
+         ESUM='14c660294832c7b2deb2845d96dce83df677e204b4f0f1fee0052764c4a56720'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7_openj9-0.14.0/OpenJDK11U-jre_x64_linux_openj9_11.0.3_7_openj9-0.14.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

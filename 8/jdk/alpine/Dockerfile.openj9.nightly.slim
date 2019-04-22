@@ -21,7 +21,7 @@ FROM alpine:3.9
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
-RUN apk --update add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -56,16 +56,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='be2a8fba580fb4d4acbfcb5cf54a55c384342fa83b2b94984aedc37440d7ae56'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-23-33/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-04-12-23-33.tar.gz'; \
+         ESUM='bc5c6c76cddd59f37ee603379e9f05870c9ee1f7a607e1788d475508f0f844b9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-15-12-26/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-04-15-12-26.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='58f0f1b4e6094d1ea5faf1ee2fa886c1785c763342361af5499980a72ece81fd'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-23-33/OpenJDK8U-jdk_s390x_linux_openj9_2019-04-12-23-33.tar.gz'; \
+         ESUM='3a190ec8f7da41de26d41f1eb3461394cc9299f774ff10a6b807914728a7b5a3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-15-12-26/OpenJDK8U-jdk_s390x_linux_openj9_2019-04-15-12-26.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='fac0a781c84d3aafb851b187d245d006650222b40f394c3a5f63e4c4348d7019'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jdk_x64_linux_openj9_2019-04-12-05-08.tar.gz'; \
+         ESUM='fe621448c57c71282391985a2bb1ae96413ef7fd87a2ca1d33c6506a122f7bb6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-15-12-26/OpenJDK8U-jdk_x64_linux_openj9_2019-04-15-12-26.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -25,26 +25,22 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk8u202-b08
+ENV JAVA_VERSION jdk8u212-b03
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='35d4bd542c3169642c7108fdd9deddd1b165d9bcbe58c081e33c75dfb44bcf12'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_ppc64le_linux_hotspot_8u202b08.tar.gz'; \
+         ESUM='2de019954c0898c1798ed30ed55314534423b853bfb373806b6a6224dc98fa6d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_ppc64le_linux_hotspot_8u212b03.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='2649b1b643cc704b41127ac8b2c489aff78a99cf15d174af6c24d18a6360f6aa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_s390x_linux_hotspot_8u202b08.tar.gz'; \
+         ESUM='269a6a3735d12438866754a28d89180d39819aea70e0023b90ca31e15a69e1b0'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_s390x_linux_hotspot_8u212b03.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b3f9934c6fc83fb2e76a4ded31367e5312013e27d36eac82a6fe1423aae394ce'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_x64_linux_hotspot_8u202b08.tar.gz'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='b0b3923a48243fa98b71c7fd8ff96def453e07b33156e90cb6851b7b7cacd4b1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u191-b12/OpenJDK8U-jre_aarch64_linux_hotspot_8u191b12.tar.gz'; \
+         ESUM='74daf0b77a7fd679cbb3a6228e0efa8c4a90b7664aa057f211e34bbfb38640fb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x64_linux_hotspot_8u212b03.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -63,4 +59,3 @@ RUN set -eux; \
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
-ENV JAVA_TOOL_OPTIONS=""
