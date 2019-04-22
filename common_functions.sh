@@ -350,9 +350,14 @@ function get_sums_for_build_arch() {
 		# If there are multiple builds for a single version, then pick the latest one.
 		shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+		# Get the release version for this arch from the info file
 		arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
+		# For nightly builds get the short version without the date/time stamp
 		arch_build_version=$(get_nightly_short_version ${gsba_build} ${arch_build_version})
-		# Only print the arch related info if the arch version matches with the parent
+		# If the latest for the current arch does not match with the latest for the parent arch,
+		# then skip this arch.
+		# Parent version in this case would be the "full_version" from function get_sums_for_build
+		# The parent version will automatically be the latest for all arches as returned by the v2 API
 		if [ "${arch_build_version}" != "${full_version}" ]; then
 			continue;
 		fi
