@@ -65,19 +65,19 @@ function set_arch_os() {
 	case ${machine} in
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu"
+		oses="ubuntu debian"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu"
+		oses="ubuntu debian"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu"
+		oses="ubuntu debian"
 		;;
 	amd64|x86_64)
 		current_arch="x86_64"
-		oses="ubuntu alpine"
+		oses="ubuntu alpine debian"
 		;;
 	*)
 		echo "ERROR: Unsupported arch:${machine}, Exiting"

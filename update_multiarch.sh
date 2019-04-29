@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ set -eo pipefail
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-osver="ubuntu alpine"
+osver="ubuntu alpine debian"
 
 source ./common_functions.sh
 
@@ -52,6 +52,7 @@ do
 		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
 		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
 
+    echo "$builds"
 		for build in ${builds}
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
@@ -71,6 +72,8 @@ do
 				if [ "${vm}" != "hotspot" ]; then
 					reldir="${reldir}-${vm}";
 				fi
+
+				echo "${file} ${build} ${btype} ${os}"
 				generate_dockerfile ${file} ${build} ${btype} ${os}
 			done
 		done
