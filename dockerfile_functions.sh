@@ -254,6 +254,7 @@ EOI
 print_debian_java_install() {
   print_ubuntu_java_install $1 $2 $3 $4
 }
+
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
 	pkg=$2
