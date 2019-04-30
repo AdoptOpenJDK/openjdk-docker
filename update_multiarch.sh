@@ -72,7 +72,6 @@ do
 					reldir="${reldir}-${vm}";
 				fi
 
-				echo "${file} ${build} ${btype} ${os}"
 				generate_dockerfile ${file} ${build} ${btype} ${os}
 			done
 		done
