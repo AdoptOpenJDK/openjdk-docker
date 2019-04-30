@@ -48,7 +48,7 @@ print_ubuntu_ver() {
 	EOI
 }
 
-# Print the supported Ubuntu OS
+# Print the supported Debian OS
 print_debian_ver() {
 	os_version="stretch"
 
