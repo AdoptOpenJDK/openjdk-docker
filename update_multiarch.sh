@@ -17,7 +17,7 @@ set -eo pipefail
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-osver="ubuntu alpine"
+osver="ubuntu alpine debian"
 
 source ./common_functions.sh
 
@@ -71,6 +71,7 @@ do
 				if [ "${vm}" != "hotspot" ]; then
 					reldir="${reldir}-${vm}";
 				fi
+
 				generate_dockerfile ${file} ${build} ${btype} ${os}
 			done
 		done

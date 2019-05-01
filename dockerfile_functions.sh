@@ -48,6 +48,16 @@ print_ubuntu_ver() {
 	EOI
 }
 
+# Print the supported Debian OS
+print_debian_ver() {
+	os_version="stretch"
+
+	cat >> $1 <<-EOI
+	FROM debian:${os_version}
+
+	EOI
+}
+
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> $1 <<-EOI
@@ -71,6 +81,10 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get up
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 EOI
+}
+
+print_debian_pkg() {
+  print_ubuntu_pkg $1
 }
 
 # Select the alpine OS packages.
@@ -203,6 +217,10 @@ print_ubuntu_slim_package() {
 EOI
 }
 
+print_debian_slim_package() {
+  print_ubuntu_slim_package $1
+}
+
 # Call the script to create the slim package for Alpine
 # Install binutils for this phase as we need the "strip" command
 # Uninstall once done
@@ -231,6 +249,10 @@ EOI
 		print_ubuntu_slim_package $1
 	fi
 	print_java_install_post $1
+}
+
+print_debian_java_install() {
+  print_ubuntu_java_install $1 $2 $3 $4
 }
 
 # Print the main RUN command that installs Java on alpine.
