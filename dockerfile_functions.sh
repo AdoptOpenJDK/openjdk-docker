@@ -58,6 +58,16 @@ print_debian_ver() {
 	EOI
 }
 
+# Print the supported Windows OS
+print_windows_ver() {
+	os_version="ltsc2016"
+
+	cat >> $1 <<-EOI
+	FROM mcr.microsoft.com/windows/servercore:${os_version}
+
+	EOI
+}
+
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> $1 <<-EOI
@@ -85,6 +95,14 @@ EOI
 
 print_debian_pkg() {
   print_ubuntu_pkg $1
+}
+
+print_windows_pkg() {
+	cat >> $1 <<'EOI'
+
+# $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+EOI
 }
 
 # Select the alpine OS packages.
@@ -255,6 +273,45 @@ print_debian_java_install() {
   print_ubuntu_java_install $1 $2 $3 $4
 }
 
+# Print the main RUN command that installs Java on ubuntu.
+print_windows_java_install() {
+	pkg=$2
+	bld=$3
+	btype=$4
+
+	JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-amd);
+
+	ESUM=$(sarray=${shasums}[windows-amd]; eval esum=\${$sarray}; echo ${esum});
+	BINARY_URL=$(get_instaler_url ${JAVA_URL});
+
+	cat >> $1 <<-EOI
+ENV JAVA_URL ${BINARY_URL}
+ENV JAVA_SHA256 ${ESUM}
+
+RUN Write-Host ('Downloading {0} ...' -f \$env:JAVA_URL); \\
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+        Invoke-WebRequest -Uri \$env:JAVA_URL -OutFile 'openjdk.msi'; \\
+        Write-Host ('Verifying sha256 ({0}) ...' -f \$env:JAVA_SHA256); \\
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne \$env:JAVA_SHA256) { \\
+                Write-Host 'FAILED!'; \\
+                exit 1; \\
+        }; \\
+        \\
+        New-Item -ItemType Directory -Path C:\temp | Out-Null;
+
+RUN Write-Host 'Installing using MSI ...'; \\
+        Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
+        '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
+        Write-Host 'Removing ...'; \\
+        Remove-Item openjdk.msi -Force;
+
+RUN Write-Host 'Verifying install ...'; \\
+        Write-Host '  java -version'; java -version; \\
+        Write-Host '  javac -version'; javac -version; \\
+        Write-Host '  JAVA_HOME'; Test-Path \$env:JAVA_HOME;
+EOI
+}
+
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
 	pkg=$2
@@ -280,11 +337,23 @@ EOI
 # Print the JAVA_HOME and PATH.
 # Currently Java is installed at a fixed path "/opt/java/openjdk"
 print_java_env() {
-	cat >> $1 <<-EOI
+	# e.g 11 or 8
+	version=$(echo $file | cut -f1 -d"/")
+	os=$4
+	if [ "$os" == "windows" ] && [ "$version" -gt 10 ]; then
+		cat >> $1 <<-EOI
+
+# https://docs.oracle.com/javase/10/tools/jshell.htm
+# https://en.wikipedia.org/wiki/JShell
+CMD ["jshell"]
+EOI
+	elif [ "$os" != "windows" ]; then
+		cat >> $1 <<-EOI
 
 ENV JAVA_HOME=${jhome} \\
     PATH="${jhome}/bin:\$PATH"
 EOI
+	fi
 }
 
 # Turn on JVM specific optimization flags.
@@ -342,7 +411,7 @@ generate_dockerfile() {
 	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
 	print_${os}_java_install ${file} ${pkg} ${bld} ${btype};
-	print_java_env ${file} ${bld} ${btype};
+	print_java_env ${file} ${bld} ${btype} ${os};
 	print_java_options ${file} ${bld} ${btype};
 	echo "done"
 	echo

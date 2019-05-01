@@ -1,4 +1,21 @@
-language: sh
+os: linux
 
-script:
-- ./linter.sh
+language: bash
+services: docker
+
+env:
+  matrix:
+    - VERSION=12
+    - VERSION=11
+    - VERSION=8
+
+script: bash build_latest.sh $VERSION
+
+stages:
+  - linter
+  - test
+
+jobs:
+  include:
+    - stage: linter
+      script: ./linter.sh
