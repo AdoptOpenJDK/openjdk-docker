@@ -27,7 +27,7 @@ test_buckets_file="config/test_buckets.list"
 all_jvms="hotspot openj9"
 
 # All supported arches
-all_arches="aarch64 armv7l ppc64le s390x x86_64"
+all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd"
 
 # All supported packges
 all_packages="jdk jre"
@@ -80,8 +80,16 @@ function set_arch_os() {
 		oses="ubuntu debian"
 		;;
 	amd64|x86_64)
-		current_arch="x86_64"
-		oses="ubuntu alpine debian"
+		case $(uname) in
+			MINGW64*|MSYS_NT*)
+				current_arch="x86_64"
+				oses="windows"
+				;;
+			*)
+			current_arch="x86_64"
+			oses="ubuntu alpine debian"
+			;;
+		esac
 		;;
 	*)
 		echo "ERROR: Unsupported arch:${machine}, Exiting"
@@ -272,14 +280,17 @@ function get_v2_url() {
 	url_pkg=$4
 	url_rel=$5
 	url_arch=$6
-	url_os=linux
 	url_heapsize=normal
 	url_version=openjdk${version}
 
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
-	specifiers="openjdk_impl=${url_impl}&os=${url_os}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
+	specifiers="openjdk_impl=${url_impl}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
 	if [ ! -z "${url_arch}" ]; then
-		specifiers="${specifiers}&arch=${url_arch}"
+		if [ "${url_arch}" == "windows-amd" ]; then
+			specifiers="${specifiers}&arch=x64&os=windows"
+		else
+			specifiers="${specifiers}&os=linux&arch=${url_arch}"
+		fi
 	fi
 
 	echo "${baseurl}?${specifiers}"
@@ -296,6 +307,20 @@ function get_binary_url() {
 		return;
 	fi
 	echo $(cat ${info_file} | grep "binary_link" | awk -F '"' '{ print $4 }')
+	rm -f ${info_file}
+}
+
+# Get the installer github link for a release given a V2 API URL
+function get_instaler_url() {
+	v2_url=$1
+	info_file=/tmp/info_$$.json
+
+	curl -Lso ${info_file} ${v2_url};
+	if [ $? -ne 0 -o ! -s ${info_file} ]; then
+		rm -f ${info_file}
+		return;
+	fi
+	echo $(cat ${info_file} | grep "installer_link" | awk -F '"' '{ print $4 }')
 	rm -f ${info_file}
 }
 
@@ -341,9 +366,13 @@ function get_sums_for_build_arch() {
 		x86_64)
 			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
 			;;
+		windows-amd)
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest windows-amd);
+			;;
 		*)
 			echo "Unsupported arch: ${gsba_arch}"
 	esac
+
 	shasum_file="${gsba_arch}_${gsba_build}_latest"
 	curl -Lso ${shasum_file} ${LATEST_URL};
 	# Bad builds cause the latest url to return an empty file or sometimes curl fails
@@ -355,7 +384,14 @@ function get_sums_for_build_arch() {
 	# Print the arch and the corresponding shasums to the vm output file
 	if [ -z "${availability}" ]; then
 		# If there are multiple builds for a single version, then pick the latest one.
-		shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+		if [ "$gsba_arch" == "windows-amd" ]; then
+			shasums_url=$(cat ${shasum_file} | grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+			if [ -z "$shasums_url" ]; then
+				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+			fi
+		else
+			shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+		fi
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
 		# Get the release version for this arch from the info file
 		arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');

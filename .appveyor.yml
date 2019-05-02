@@ -1,0 +1,16 @@
+version: build-{build}.{branch}
+image: Visual Studio 2017
+
+skip_branch_with_pr: true
+
+environment:
+  matrix:
+    - version: 12
+      variant: windowsservercore-ltsc2016
+    - version: 11
+      variant: windowsservercore-ltsc2016
+    - version: 8
+      variant: windowsservercore-ltsc2016
+
+build_script:
+  - cmd: bash build_latest.sh %version%

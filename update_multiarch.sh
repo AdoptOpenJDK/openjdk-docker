@@ -17,7 +17,7 @@ set -eo pipefail
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-osver="ubuntu alpine debian"
+osver="ubuntu alpine debian windows"
 
 source ./common_functions.sh
 source ./dockerfile_functions.sh
@@ -57,6 +57,7 @@ do
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 			jverinfo=${shasums}[version]
+
 			eval jver=\${$jverinfo}
 			if [[ -z ${jver} ]]; then
 				continue;
