@@ -17,14 +17,15 @@ set -eo pipefail
 # Dockerfiles to be generated
 version="9"
 package="jdk"
-osver="ubuntu alpine debian"
+osver="ubuntu alpine debian windows"
 
 source ./common_functions.sh
+source ./dockerfile_functions.sh
 
 if [ ! -z "$1" ]; then
 	set_version $1
 fi
-	
+
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh ${version}
 
@@ -47,15 +48,16 @@ do
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
+		builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
 		# Build Type = Full or Slim
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
-		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
+		btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+		dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
 
 		for build in ${builds}
 		do
 			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 			jverinfo=${shasums}[version]
+
 			eval jver=\${$jverinfo}
 			if [[ -z ${jver} ]]; then
 				continue;
@@ -72,7 +74,7 @@ do
 					reldir="${reldir}-${vm}";
 				fi
 
-				generate_dockerfile ${file} ${build} ${btype} ${os}
+				generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
 			done
 		done
 	done
