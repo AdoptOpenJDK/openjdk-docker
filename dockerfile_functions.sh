@@ -171,6 +171,14 @@ print_java_install_pre() {
          BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
          ;; \\
 		EOI
+	elif [ "${sarch}" == "armv7l" ]; then
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest arm);
+			cat >> $1 <<-EOI
+       armhf) \\
+         ESUM='$(sarray=${shasums}[armv7l]; eval esum=\${$sarray}; echo ${esum})'; \\
+         BINARY_URL='$(get_binary_url ${JAVA_URL})'; \\
+         ;; \\
+		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
 			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest ppc64le);
 			cat >> $1 <<-EOI

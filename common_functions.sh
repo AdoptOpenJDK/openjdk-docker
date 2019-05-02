@@ -27,7 +27,7 @@ test_buckets_file="config/test_buckets.list"
 all_jvms="hotspot openj9"
 
 # All supported arches
-all_arches="aarch64 ppc64le s390x x86_64 windows-amd"
+all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd"
 
 # All supported packges
 all_packages="jdk jre"
@@ -63,6 +63,10 @@ function set_version() {
 function set_arch_os() {
 	machine=`uname -m`
 	case ${machine} in
+	armv7l)
+		current_arch="armv7l"
+		oses="ubuntu debian"
+		;;
 	aarch64)
 		current_arch="aarch64"
 		oses="ubuntu debian"
@@ -347,6 +351,9 @@ function get_sums_for_build_arch() {
 	gsba_arch=$5
 
 	case ${gsba_arch} in
+		armv7l)
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest arm);
+			;;
 		aarch64)
 			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
 			;;
