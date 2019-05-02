@@ -340,14 +340,7 @@ print_java_env() {
 	# e.g 11 or 8
 	version=$(echo $file | cut -f1 -d"/")
 	os=$4
-	if [ "$os" == "windows" ] && [ "$version" -gt 10 ]; then
-		cat >> $1 <<-EOI
-
-# https://docs.oracle.com/javase/10/tools/jshell.htm
-# https://en.wikipedia.org/wiki/JShell
-CMD ["jshell"]
-EOI
-	elif [ "$os" != "windows" ]; then
+	if [ "$os" != "windows" ]; then
 		cat >> $1 <<-EOI
 
 ENV JAVA_HOME=${jhome} \\
