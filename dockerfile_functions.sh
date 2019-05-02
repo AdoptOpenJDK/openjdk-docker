@@ -78,7 +78,8 @@ print_ubuntu_pkg() {
 	cat >> $1 <<'EOI'
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && apt-get install -y --no-install-recommends curl ca-certificates locales \
+    && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 EOI
 }
@@ -129,7 +130,7 @@ print_env() {
 	cat >> $1 <<-EOI
 
 ENV JAVA_VERSION ${jver}
-
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 EOI
 }
 
@@ -338,8 +339,8 @@ generate_dockerfile() {
 	print_legal ${file};
 	print_${os}_ver ${file} ${bld} ${btype};
 	print_maint ${file};
-	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
+	print_${os}_pkg ${file};
 	copy_slim_script ${file};
 	print_${os}_java_install ${file} ${pkg} ${bld} ${btype};
 	print_java_env ${file} ${bld} ${btype};
