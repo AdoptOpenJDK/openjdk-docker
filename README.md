@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/AdoptOpenJDK/openjdk-docker.svg?branch=master)](https://travis-ci.org/AdoptOpenJDK/openjdk-docker)
+[![Build Status](https://travis-ci.com/AdoptOpenJDK/openjdk-docker.svg?branch=master)](https://travis-ci.com/AdoptOpenJDK/openjdk-docker) [![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
 
 # OpenJDK and Docker
 Dockerfiles and build scripts for generating various Docker Images related to OpenJDK. Currently this builds OpenJDK images with hotspot and Eclipse OpenJ9 on Ubuntu and Alpine Linux.
