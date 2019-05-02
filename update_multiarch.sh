@@ -20,11 +20,12 @@ package="jdk"
 osver="ubuntu alpine debian"
 
 source ./common_functions.sh
+source ./dockerfile_functions.sh
 
 if [ ! -z "$1" ]; then
 	set_version $1
 fi
-	
+
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh ${version}
 
@@ -47,10 +48,10 @@ do
 	for os in ${oses}
 	do
 		# Build = Release or Nightly
-		builds=$(parse_vm_entry ${vm} ${version} ${os} "Build:")
+		builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
 		# Build Type = Full or Slim
-		btypes=$(parse_vm_entry ${vm} ${version} ${os} "Type:")
-		dir=$(parse_vm_entry ${vm} ${version} ${os} "Directory:")
+		btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+		dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
 
 		for build in ${builds}
 		do
@@ -72,7 +73,7 @@ do
 					reldir="${reldir}-${vm}";
 				fi
 
-				generate_dockerfile ${file} ${build} ${btype} ${os}
+				generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
 			done
 		done
 	done

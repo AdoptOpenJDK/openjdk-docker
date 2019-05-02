@@ -27,7 +27,7 @@ test_buckets_file="config/test_buckets.list"
 all_jvms="hotspot openj9"
 
 # All supported arches
-all_arches="aarch64 ppc64le s390x x86_64"
+all_arches="aarch64 armv7l ppc64le s390x x86_64"
 
 # All supported packges
 all_packages="jdk jre"
@@ -63,6 +63,10 @@ function set_version() {
 function set_arch_os() {
 	machine=`uname -m`
 	case ${machine} in
+	armv7l)
+		current_arch="armv7l"
+		oses="ubuntu debian"
+		;;
 	aarch64)
 		current_arch="aarch64"
 		oses="ubuntu debian"
@@ -258,7 +262,7 @@ function build_tags() {
 # request_type = info / binary
 # release_type = releases / nightly
 # url_impl = hotspot / openj9
-# url_arch = aarch64 / ppc64le / s390x / x64 
+# url_arch = aarch64 / ppc64le / s390x / x64
 # url_pkg  = jdk / jre
 # url_rel  = latest / ${version}
 function get_v2_url() {
@@ -271,13 +275,13 @@ function get_v2_url() {
 	url_os=linux
 	url_heapsize=normal
 	url_version=openjdk${version}
-	
+
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
 	specifiers="openjdk_impl=${url_impl}&os=${url_os}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
 	if [ ! -z "${url_arch}" ]; then
 		specifiers="${specifiers}&arch=${url_arch}"
 	fi
-	
+
 	echo "${baseurl}?${specifiers}"
 }
 
@@ -322,6 +326,9 @@ function get_sums_for_build_arch() {
 	gsba_arch=$5
 
 	case ${gsba_arch} in
+		armv7l)
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest arm);
+			;;
 		aarch64)
 			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
 			;;
