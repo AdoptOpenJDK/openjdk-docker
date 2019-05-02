@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AdoptOpenJDK/openjdk-docker.svg?branch=master)](https://travis-ci.org/AdoptOpenJDK/openjdk-docker)
+
 # OpenJDK and Docker
 Dockerfiles and build scripts for generating various Docker Images related to OpenJDK. Currently this builds OpenJDK images with hotspot and Eclipse OpenJ9 on Ubuntu and Alpine Linux.
 
