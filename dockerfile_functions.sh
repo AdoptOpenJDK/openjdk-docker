@@ -86,6 +86,7 @@ print_maint() {
 # Select the ubuntu OS packages
 print_ubuntu_pkg() {
 	cat >> $1 <<'EOI'
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
@@ -110,6 +111,7 @@ EOI
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
 	cat >> $1 <<'EOI'
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
@@ -148,7 +150,6 @@ print_env() {
 	cat >> $1 <<-EOI
 
 ENV JAVA_VERSION ${jver}
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 EOI
 }
 
@@ -299,7 +300,7 @@ ENV JAVA_SHA256 ${ESUM}
 
 RUN Write-Host ('Downloading {0} ...' -f \$env:JAVA_URL); \\
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        Invoke-WebRequest -Uri \$env:JAVA_URL -OutFile 'openjdk.msi'; \\
+        wget \$env:JAVA_URL -O 'openjdk.msi'; \\
         Write-Host ('Verifying sha256 ({0}) ...' -f \$env:JAVA_SHA256); \\
         if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne \$env:JAVA_SHA256) { \\
                 Write-Host 'FAILED!'; \\
