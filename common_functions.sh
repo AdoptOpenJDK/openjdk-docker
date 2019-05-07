@@ -393,7 +393,7 @@ function get_sums_for_build_arch() {
 			shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		fi
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-		# Sometimes shasum files are missing, check for error and ignore on error.
+		# Sometimes shasum files are missing, check for error and do not print on error.
 		shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
 		if [ ! -z "${shasum_available}" ]; then
 			continue;
