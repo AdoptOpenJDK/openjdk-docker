@@ -17,7 +17,6 @@ idlj
 jarsigner
 javah
 javap
-jcmd
 jconsole
 jdmpview
 jdb
