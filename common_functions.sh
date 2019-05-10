@@ -393,6 +393,11 @@ function get_sums_for_build_arch() {
 			shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 		fi
 		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+		# Sometimes shasum files are missing, check for error and do not print on error.
+		shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
+		if [ ! -z "${shasum_available}" ]; then
+			continue;
+		fi
 		# Get the release version for this arch from the info file
 		arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
 		# For nightly builds get the short version without the date/time stamp

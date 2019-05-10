@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -eo pipefail
+set -o pipefail
 
 # Dockerfiles to be generated
 version="9"
-package="jdk"
-osver="ubuntu alpine debian windows"
+root_dir="$PWD"
 
 source ./common_functions.sh
 source ./dockerfile_functions.sh
@@ -26,55 +25,50 @@ if [ ! -z "$1" ]; then
 	set_version $1
 fi
 
-# Which JVMs are available for the current version
-./generate_latest_sums.sh ${version}
-
-# Source the hotspot and openj9 shasums scripts
-available_jvms=""
-if [ -f hotspot_shasums_latest.sh ]; then
-	source ./hotspot_shasums_latest.sh
-	available_jvms="hotspot"
-fi
-if [ -f openj9_shasums_latest.sh ]; then
-	source ./openj9_shasums_latest.sh
-	available_jvms="${available_jvms} openj9"
-fi
+# Set the OSes that will be built on based on the current arch
+set_arch_os
 
 # Iterate through all the Java versions for each of the supported packages,
 # architectures and supported Operating Systems.
-for vm in ${available_jvms}
+for vm in ${all_jvms}
 do
-	oses=$(parse_os_entry ${vm})
-	for os in ${oses}
+	for package in ${all_packages}
 	do
-		# Build = Release or Nightly
-		builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
-		# Build Type = Full or Slim
-		btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
-		dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
-
-		for build in ${builds}
+		oses=$(parse_os_entry ${vm})
+		for os in ${oses}
 		do
-			shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-			jverinfo=${shasums}[version]
+			# Build = Release or Nightly
+			builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
+			# Build Type = Full or Slim
+			btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+			dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
 
-			eval jver=\${$jverinfo}
-			if [[ -z ${jver} ]]; then
-				continue;
-			fi
-			for btype in ${btypes}
+			for build in ${builds}
 			do
-				file=${dir}/Dockerfile.${vm}.${build}.${btype}
-				# Copy the script to generate slim builds.
-				if [ "${btype}" = "slim" ]; then
-					cp slim-java* config/slim-java* ${dir}
+				echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
+				get_shasums ${version} ${vm} ${package} ${build}
+				# Source the generated shasums file to access the array
+				if [ -f ${vm}_shasums_latest.sh ]; then
+					source ./${vm}_shasums_latest.sh
+				else
+					continue;
 				fi
-				reldir="openjdk${version}";
-				if [ "${vm}" != "hotspot" ]; then
-					reldir="${reldir}-${vm}";
+				# Check if the VM is supported for the current arch
+				shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+				sup=$(vm_supported_onarch ${vm} ${shasums})
+				if [ -z "${sup}" ]; then
+					continue;
 				fi
-
-				generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
+				# Generate all the Dockerfiles for each of the builds and build types
+				for btype in ${btypes}
+				do
+					file="${dir}/Dockerfile.${vm}.${build}.${btype}"
+					generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
+					# Copy the script to generate slim builds.
+					if [ "${btype}" = "slim" ]; then
+						cp slim-java* config/slim-java* ${dir}
+					fi
+				done
 			done
 		done
 	done
