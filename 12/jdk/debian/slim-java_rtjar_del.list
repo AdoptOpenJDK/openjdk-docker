@@ -1,0 +1,91 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+META-INF/services/com.sun.jdi.connect.Connector
+META-INF/services/com.sun.jdi.connect.spi.TransportService
+META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory
+META-INF/services/com.sun.tools.xjc.Plugin
+META-INF/services/com.sun.tools.attach.spi.AttachProvider
+META-INF/services/com.sun.jdi.connect.Connector
+META-INF/services/com.sun.jdi.connect.spi.TransportService
+com/sun/codemodel/
+com/sun/codemodel/
+com/sun/corba
+com/sun/crypto/provider/
+com/sun/istack/internal/tools/
+com/sun/istack/internal/ws/
+com/sun/javadoc/
+com/sun/jdi/
+com/sun/jarsigner/
+com/sun/java/swing/plaf/gtk
+com/sun/java/swing/plaf/motif
+com/sun/java/swing/plaf/nimbus
+com/sun/java/swing/plaf/windows
+com/sun/java/swing/plaf/com/sun/javadoc/
+com/sun/jdi/
+com/sun/mirror/
+com/sun/net/ssl/internal/ssl/
+com/sun/source/
+com/sun/tools/
+com/sun/tools/attach/
+com/sun/tools/classfile/
+com/sun/tools/javap/
+com/sun/tools/script/shell/
+com/sun/xml/internal/dtdparser/
+com/sun/xml/internal/rngom/
+com/sun/xml/internal/xsom/
+javax/crypto/
+org/relaxng/datatype/
+sun/applet/
+sun/awt/HKSCS.class
+sun/awt/motif/X11GB2312$Decoder.class
+sun/awt/motif/X11GB2312$Encoder.class
+sun/awt/motif/X11GB2312.class
+sun/awt/motif/X11GBK$Encoder.class
+sun/awt/motif/X11GBK.class
+sun/awt/motif/X11KSC5601$Decoder.class
+sun/awt/motif/X11KSC5601$Encoder.class
+sun/awt/motif/X11KSC5601.class
+sun/awt/motif/
+sun/awt/X11/
+sun/applet/
+sun/java2d/opengl/
+sun/jvmstat/
+sun/nio/cs/ext/
+sun/rmi/rmic/
+sun/security/internal/
+sun/security/ssl/
+sun/security/tools/JarBASE64Encoder.class
+sun/security/tools/JarSigner.class
+sun/security/tools/JarSignerParameters.class
+sun/security/tools/JarSignerResources*.class
+sun/security/tools/SignatureFile$Block.class
+sun/security/tools/SignatureFile.class
+sun/security/tools/TimestampedSigner.class
+sun/security/rsa/SunRsaSign.class
+sun/tools/asm/
+sun/tools/attach/
+sun/tools/java/
+sun/tools/javac/
+sun/tools/jcmd/
+sun/tools/jconsole/
+sun/tools/jinfo/
+sun/tools/jmap/
+sun/tools/jps/
+sun/tools/jstack/
+sun/tools/jstat/
+sun/tools/jstatd/
+sun/tools/native2ascii/
+sun/tools/serialver/
+sun/tools/tree/
+sun/tools/util/

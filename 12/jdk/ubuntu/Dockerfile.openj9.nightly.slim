@@ -21,28 +21,29 @@ FROM ubuntu:18.04
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
 ENV JAVA_VERSION jdk12u
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates locales \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 COPY slim-java* /usr/local/bin/
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='14fd2e29dfb466da3219b088ac34b2eebc148bb45652a0f0e7a1b816b8ca8944'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-04-18-18-35/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-04-18-18-35.tar.gz'; \
+         ESUM='55548b8036f8da300a3977152b0581ba219ffe4dbec941f40e746f50f722e582'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-10-09-50.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c482230c93c53f9847bbff749d089ac9201df9a9a447b1cdf7e31d4f9645a94c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-04-12-15-45/OpenJDK12U-jdk_s390x_linux_openj9_2019-04-12-15-45.tar.gz'; \
+         ESUM='2d9a833061d15f0c095f4d1ed29f4d0261a160bde58808036c67bf1c06a187ee'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_s390x_linux_openj9_2019-05-10-09-50.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='4c69875dc598c6df015dfb01f6d051563bd060ca6505b8d12f446c23ce598385'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-04-18-18-35/OpenJDK12U-jdk_x64_linux_openj9_2019-04-18-18-35.tar.gz'; \
+         ESUM='943e1c1362da865cc2428893ac4bc6e729eb045f7d880acc37921f6a4146bd2f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_x64_linux_openj9_2019-05-10-09-50.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -21,30 +21,31 @@ FROM ubuntu:18.04
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
 ENV JAVA_VERSION jdk8u
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates locales \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='a5465eb19f4b25c77629087b5960f08402e4dc359dcdd5bdc2be8e8c2189f249'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jre_ppc64le_linux_hotspot_2019-04-12-05-08.tar.gz'; \
+         ESUM='4c777d7917a8b67f68f1617cd76e46de6327348d727cc4f9b9583a4dc4113770'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-05-12-56/OpenJDK8U-jre_ppc64le_linux_hotspot_2019-05-05-12-56.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='763dd8cabbe2ad947adc7672cb9ae42c379208c690ba978677a9c27facf990ad'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jre_s390x_linux_hotspot_2019-04-12-05-08.tar.gz'; \
+         ESUM='51b3b76f1bdf401d0e9f61b3691c9f0a41ad3baabfc9330c09667a6ff90aac7d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-05-12-56/OpenJDK8U-jre_s390x_linux_hotspot_2019-05-05-12-56.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='fa1bd63e6edec01fcd604ec0035cad69ecbad6cb9d1543789bc995aeb98169e1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jre_x64_linux_hotspot_2019-04-12-05-08.tar.gz'; \
+         ESUM='d4c2ab60de938812a5ff76875f2cb4eae0e9715fa7d667b4c1538342bf35720f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-05-12-56/OpenJDK8U-jre_x64_linux_hotspot_2019-05-05-12-56.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='756f8c4299e022db78d80e6393b663e28f83faa6b98e64eb4542428746d90ec0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-04-12-05-08/OpenJDK8U-jre_aarch64_linux_hotspot_2019-04-12-05-08.tar.gz'; \
+         ESUM='ccf770e200cbcfe21e533c7d7230d4102a1a92caefb6ae43ca200e0b645af5e7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-05-12-56/OpenJDK8U-jre_aarch64_linux_hotspot_2019-05-05-12-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
