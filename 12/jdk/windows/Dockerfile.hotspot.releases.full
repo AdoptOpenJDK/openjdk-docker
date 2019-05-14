@@ -1,0 +1,51 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM mcr.microsoft.com/windows/servercore:ltsc2016
+
+LABEL maintainer="dinakar.g@in.ibm.com"
+
+ENV JAVA_VERSION jdk-12.0.1+12
+
+# $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.msi
+ENV JAVA_SHA256 c08f97625f0562889497b4cfc023bd06ada9554050c9b34c1050167fcf89847c
+
+RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+        wget $env:JAVA_URL -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 ({0}) ...' -f $env:JAVA_SHA256); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne $env:JAVA_SHA256) { \
+                Write-Host 'FAILED!'; \
+                exit 1; \
+        }; \
+        \
+        New-Item -ItemType Directory -Path C:\temp | Out-Null;
+
+RUN Write-Host 'Installing using MSI ...'; \
+        Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+        '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+        Write-Host 'Removing ...'; \
+        Remove-Item openjdk.msi -Force;
+
+RUN Write-Host 'Verifying install ...'; \
+        Write-Host '  java -version'; java -version; \
+        Write-Host '  javac -version'; javac -version; \
+        Write-Host '  JAVA_HOME'; Test-Path $env:JAVA_HOME;

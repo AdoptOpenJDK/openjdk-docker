@@ -21,13 +21,16 @@ FROM alpine:3.9
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
+ENV JAVA_VERSION jdk11u
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
-    && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.9-1-x86_64.pkg.tar.xz" \
-    && ZLIB_SHA256=bb0959c08c1735de27abf01440a6f8a17c5c51e61c3b4c707e988c906d3b7f67 \
+    && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
+    && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
     && curl -Ls https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
     && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
     && echo "${SGERRAND_RSA_SHA256}  /etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
@@ -46,9 +49,6 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
-
-ENV JAVA_VERSION jdk11u
-
 COPY slim-java* /usr/local/bin/
 
 RUN set -eux; \
@@ -56,20 +56,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='6e0f8a6e14b5931cb4369b592af62adbb8e103637b6df725d1001b98dd133881'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-04-13-18-49.tar.gz'; \
+         ESUM='3b0aa89e3c5a094e8622683cf4c760491b3ac248a19320fd6fc04db9bc807ce3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-05-11-00-03.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='716b3e73b5f756c1087fac3284dd408340318885419717ec62623f327cbc8311'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_s390x_linux_openj9_2019-04-13-18-49.tar.gz'; \
+         ESUM='47f66727aaae66214b2255c402180c141f07c1888debf0982e193c6740d6ff00'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_s390x_linux_openj9_2019-05-11-00-03.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='4692f5ab376f0acd9755fd0a98403dc9b38c8e7a1b6ab88d388ef7ba2b9e89f8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-13-18-49/OpenJDK11U-jdk_x64_linux_openj9_2019-04-13-18-49.tar.gz'; \
+         ESUM='daea96d12ebff787da44f40f5c9780a090f534c5e464eb380ac4206c3f2afd43'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_x64_linux_openj9_2019-05-11-00-03.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='ca87ee1702e1daf006af71de93b7b35f6840e0c263de18d8673eb490483259cd'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-04-15-17-57/OpenJDK11U-jdk_aarch64_linux_openj9_2019-04-15-17-57.tar.gz'; \
+         ESUM='313d0805c329fe90ba6c74b2a92ed58c1547703abf13904b3147b39ec0072cb6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_aarch64_linux_openj9_2019-05-11-00-03.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
