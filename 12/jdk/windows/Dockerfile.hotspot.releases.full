@@ -19,12 +19,13 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk-12.0.1+12
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+ENV JAVA_VERSION jdk-12.0.1+12
 ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.1%2B12/OpenJDK12U-jdk_x64_windows_hotspot_12.0.1_12.msi
 ENV JAVA_SHA256 c08f97625f0562889497b4cfc023bd06ada9554050c9b34c1050167fcf89847c
 
@@ -49,3 +50,4 @@ RUN Write-Host 'Verifying install ...'; \
         Write-Host '  java -version'; java -version; \
         Write-Host '  javac -version'; javac -version; \
         Write-Host '  JAVA_HOME'; Test-Path $env:JAVA_HOME;
+CMD ["jshell"]

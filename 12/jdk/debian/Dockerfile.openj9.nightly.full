@@ -19,45 +19,42 @@
 
 FROM debian:stretch
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk12u
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk12u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='55548b8036f8da300a3977152b0581ba219ffe4dbec941f40e746f50f722e582'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-10-09-50.tar.gz'; \
+         ESUM='87b3bc56744283a8fb5e9dc91e6178929a79e89e7912897c78d85222ec798efc'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-12-11-23.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='2d9a833061d15f0c095f4d1ed29f4d0261a160bde58808036c67bf1c06a187ee'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_s390x_linux_openj9_2019-05-10-09-50.tar.gz'; \
+         ESUM='c9bc37974d08c722e683ae7643fb155c4472ffdd4b5aba9f8fe84afb25ee4c36'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_s390x_linux_openj9_2019-05-12-11-23.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='943e1c1362da865cc2428893ac4bc6e729eb045f7d880acc37921f6a4146bd2f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-10-09-50/OpenJDK12U-jdk_x64_linux_openj9_2019-05-10-09-50.tar.gz'; \
+         ESUM='ba8e9853909d6d0b7913a34d31da5557b7726fcbf6f32af4e0c63be15f70c195'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_x64_linux_openj9_2019-05-12-11-23.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
-    sha256sum /tmp/openjdk.tar.gz; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
-    tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-    mv ${jdir}/* /opt/java/openjdk; \
-    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+CMD ["jshell"]

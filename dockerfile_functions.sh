@@ -79,16 +79,21 @@ print_alpine_ver() {
 # Print the maintainer
 print_maint() {
 	cat >> $1 <<-EOI
-	LABEL maintainer="dinakar.g@in.ibm.com"
+	LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
+	EOI
+}
+
+# Print the locale and language
+print_lang_locale() {
+	cat >> $1 <<-EOI
+	ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 	EOI
 }
 
 # Select the ubuntu OS packages
 print_ubuntu_pkg() {
 	cat >> $1 <<'EOI'
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -120,19 +125,19 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
-    && curl -Ls https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
+    && curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
     && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
-    && echo "${SGERRAND_RSA_SHA256}  /etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
-    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
+    && echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
+    && curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/${GLIBC_VER}.apk \
     && apk add /tmp/${GLIBC_VER}.apk \
-    && curl -Ls ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
-    && echo "${GCC_LIBS_SHA256}  /tmp/gcc-libs.tar.xz" | sha256sum -c - \
+    && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
+    && echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.xz" | sha256sum -c - \
     && mkdir /tmp/gcc \
     && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
     && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
     && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
-    && curl -Ls ${ZLIB_URL} -o /tmp/libz.tar.xz \
-    && echo "${ZLIB_SHA256}  /tmp/libz.tar.xz" | sha256sum -c - \
+    && curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.xz \
+    && echo "${ZLIB_SHA256} */tmp/libz.tar.xz" | sha256sum -c - \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
@@ -215,20 +220,17 @@ print_java_install_pre() {
     esac; \\
 EOI
 	cat >> $1 <<'EOI'
-    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
-    sha256sum /tmp/openjdk.tar.gz; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
-    tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-    mv ${jdir}/* /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
 EOI
 }
 
 print_java_install_post() {
 	cat >> $1 <<-EOI
-    rm -rf \${jdir} /tmp/openjdk.tar.gz;
+    rm -rf /tmp/openjdk.tar.gz;
 EOI
 }
 
@@ -394,6 +396,16 @@ EOI
 	fi
 }
 
+print_cmd() {
+	# for version > 8, set CMD["jshell"] in the Dockerfile
+	above_8="^(9|[1-9][0-9]+)$"
+	if [[ "${version}" =~ ${above_8} ]]; then
+		cat >> $1 <<-EOI
+		CMD ["jshell"]
+		EOI
+	fi
+}
+
 # Generate the dockerfile for a given build, build_type and OS
 generate_dockerfile() {
 	file=$1
@@ -410,12 +422,14 @@ generate_dockerfile() {
 	print_legal ${file};
 	print_${os}_ver ${file} ${bld} ${btype};
 	print_maint ${file};
-	print_env ${file} ${bld} ${btype};
+	print_lang_locale ${file};
 	print_${os}_pkg ${file};
+	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
 	print_${os}_java_install ${file} ${pkg} ${bld} ${btype};
 	print_java_env ${file} ${bld} ${btype} ${os};
 	print_java_options ${file} ${bld} ${btype};
+	print_cmd ${file};
 	echo "done"
 	echo
 }

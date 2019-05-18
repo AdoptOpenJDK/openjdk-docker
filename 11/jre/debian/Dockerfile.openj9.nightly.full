@@ -19,49 +19,46 @@
 
 FROM debian:stretch
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk11u
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk11u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='bbe3013c1ea9a770f49824cc98be48178ba2e479afd68905eed6f08169069455'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-09-10-36/OpenJDK11U-jre_ppc64le_linux_openj9_2019-05-09-10-36.tar.gz'; \
+         ESUM='a48665d51dbfe8d65f168eb03347228137e88335cc7d93147ae3da86cae908d7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_ppc64le_linux_openj9_2019-05-16-16-51.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='1a2791802acd3338d04a8806add51c239fa75ff230fbdebb161f8a3beb6a44a7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-09-10-36/OpenJDK11U-jre_s390x_linux_openj9_2019-05-09-10-36.tar.gz'; \
+         ESUM='8894db2bb6751dff343c41389fd0a639dde30ba4d8b927d0feecc0b3d28eeae3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_s390x_linux_openj9_2019-05-16-16-51.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='a0a896f0e5ad39d8a75a0f42976ac3940267c7cb494a96cd078cb1e84a543691'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-09-10-36/OpenJDK11U-jre_x64_linux_openj9_2019-05-09-10-36.tar.gz'; \
+         ESUM='7eb05032bbb23f353663792f66a6e9aa2f5cf818fcd59e0c546ad7b4d9a51186'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_x64_linux_openj9_2019-05-16-16-51.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='f60930163d362466476a00c43deafda415fc0a7403f50818308826882d55b015'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-09-10-36/OpenJDK11U-jre_aarch64_linux_openj9_2019-05-09-10-36.tar.gz'; \
+         ESUM='dead96a6a945bdf5babc7522dad3f9f653eb6656a35e0b5c8377e2ee2e290fd5'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_aarch64_linux_openj9_2019-05-16-16-51.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
-    sha256sum /tmp/openjdk.tar.gz; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
-    tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-    mv ${jdir}/* /opt/java/openjdk; \
-    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+CMD ["jshell"]
