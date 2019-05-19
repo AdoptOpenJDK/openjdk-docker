@@ -19,14 +19,15 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk8u
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-08-01-40/OpenJDK8U-jdk_x64_windows_hotspot_2019-05-08-01-40.msi
-ENV JAVA_SHA256 c6c31fc15483e7b656a47439026d86a2817cf359e2f57ffa027bfc8b18803835
+
+ENV JAVA_VERSION jdk8u
+ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-18-01-49/OpenJDK8U-jdk_x64_windows_hotspot_2019-05-18-01-49.msi
+ENV JAVA_SHA256 5d22e7fa9d515c00c7dc99ab5565a59e1fc99e35573419591ca95b84067c8b32
 
 RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \

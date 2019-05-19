@@ -19,52 +19,49 @@
 
 FROM debian:stretch
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk11u
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_VERSION jdk11u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='5c6902216dc6418e199c94b98dbad71b79c34236d8e369984e07477351b29a01'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-05-11-00-03.tar.gz'; \
+         ESUM='73c65749f370d8388b7304a45947d788710cdc3567d6b4d13e8a0167de6f07e0'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f0e9f750d92c4ccd62650259e619c1a387948fd88e8f7f42a2bc8fec693dcde5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_s390x_linux_hotspot_2019-05-11-00-03.tar.gz'; \
+         ESUM='4a8f4013b06a70cf68781a4c8fcaa30796402ce1f2d990fdb8ddfe93e550f77a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_s390x_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b8c3df30fbc2e8492e71bcb6514750d451eaebddf576066b0145eb00b08d9481'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_x64_linux_hotspot_2019-05-11-00-03.tar.gz'; \
+         ESUM='adfc98ade1d166ec3f0d4fa155793dd9950abeb6eb6579a36d0fbcf94faf86c7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_x64_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='1df860efac4cce533e67f10f277c8a2e6574f25bc6893a966f01f5781f4dd7d7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_arm_linux_hotspot_2019-05-11-00-03.tar.gz'; \
+         ESUM='1b36928b5d27d9ea8e3afcfd562e268fa5d0f303f85b8a7054eab89f24b0fc8d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_arm_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='7e616b1bfa4a0f36e6a8b8fd932fe2b44a4e8ba809af21b17fc81db127a6afde'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-11-00-03/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-05-11-00-03.tar.gz'; \
+         ESUM='8847f25cc012993ac28022e6f9b980bb1a3b2463867c6ec3f38a526adc1fda8e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
          exit 1; \
          ;; \
     esac; \
-    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
-    sha256sum /tmp/openjdk.tar.gz; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
-    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
-    tar -xf /tmp/openjdk.tar.gz; \
-    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-    mv ${jdir}/* /opt/java/openjdk; \
-    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
+CMD ["jshell"]

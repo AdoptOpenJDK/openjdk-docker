@@ -19,14 +19,15 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
-LABEL maintainer="dinakar.g@in.ibm.com"
-
-ENV JAVA_VERSION jdk11u
+LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-ENV JAVA_URL 
-ENV JAVA_SHA256 72186b7802e905319944a84e909219dbd25e61d54025e3deba6289bd9625f22d
+
+ENV JAVA_VERSION jdk11u
+ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-13-08-49/OpenJDK11U-jdk_x64_windows_hotspot_2019-05-13-08-49.msi
+ENV JAVA_SHA256 841e52e7f4f70445f962272f75aa3c9124bc1a9587865570f1104509da6d1c3f
 
 RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -49,3 +50,4 @@ RUN Write-Host 'Verifying install ...'; \
         Write-Host '  java -version'; java -version; \
         Write-Host '  javac -version'; javac -version; \
         Write-Host '  JAVA_HOME'; Test-Path $env:JAVA_HOME;
+CMD ["jshell"]
