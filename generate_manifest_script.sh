@@ -32,9 +32,13 @@ function print_annotate_cmd() {
 	# The manifest tool expects "amd64" as arch and not "x86_64"
 	march=$(echo ${arch_tag} | awk -F':' '{ print $2 }' | awk -F'-' '{ print $1 }')
 	if [ ${march} == "x86_64" ]; then
-		march="amd64"
+		if [ ${os} == "windows" ]; then
+			march="windows-amd"
+		else
+			march="amd64"
+		fi
 	fi
-	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> ${man_file}
+	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os ${os} --arch ${march}" >> ${man_file}
 }
 
 # Space separated list of tags
@@ -83,8 +87,7 @@ if [ ! -z "$1" ]; then
 fi
 
 # Set the OSes that will be built on based on the current arch
-# oses="ubuntu alpine debian windows"
-oses="windows"
+set_arch_os
 
 # Which JVMs are available for the current version
 # ./generate_latest_sums.sh ${version}
