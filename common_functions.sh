@@ -205,10 +205,15 @@ manifest_tool_dir="/opt/manifest_tool"
 manifest_tool=${manifest_tool_dir}/cli/build/docker
 
 function check_manifest_tool() {
-	if [ ! -f ${manifest_tool} ]; then
-		echo
-		echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
-		# exit 1
+	if [ $(docker manifest) ]; then
+		echo "INFO: Docker manifest found at $(which docker)"
+		manifest_tool=$(which docker)
+	else
+		if [ ! -f ${manifest_tool} ]; then
+			echo
+			echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
+			exit 1
+		fi
 	fi
 }
 
