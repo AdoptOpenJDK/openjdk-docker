@@ -205,7 +205,7 @@ manifest_tool_dir="/opt/manifest_tool"
 manifest_tool=${manifest_tool_dir}/cli/build/docker
 
 function check_manifest_tool() {
-	if [ $(docker manifest) ]; then
+	if $(docker manifest); then
 		echo "INFO: Docker manifest found at $(which docker)"
 		manifest_tool=$(which docker)
 	else
