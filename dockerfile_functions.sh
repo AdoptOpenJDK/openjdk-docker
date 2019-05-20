@@ -79,7 +79,7 @@ print_alpine_ver() {
 # Print the maintainer
 print_maint() {
 	cat >> $1 <<-EOI
-	LABEL net.adoptopenjdk.image.authors="dinakar.g@in.ibm.com"
+	LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 	EOI
 }
 
@@ -116,8 +116,6 @@ EOI
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
 	cat >> $1 <<'EOI'
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
 RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
