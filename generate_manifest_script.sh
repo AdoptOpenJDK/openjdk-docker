@@ -86,7 +86,7 @@ fi
 set_arch_os
 
 # Which JVMs are available for the current version
-# ./generate_latest_sums.sh ${version}
+./generate_latest_sums.sh ${version}
 
 # Source the hotspot and openj9 shasums scripts
 available_jvms=""
