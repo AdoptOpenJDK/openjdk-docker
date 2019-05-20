@@ -32,11 +32,7 @@ function print_annotate_cmd() {
 	# The manifest tool expects "amd64" as arch and not "x86_64"
 	march=$(echo ${arch_tag} | awk -F':' '{ print $2 }' | awk -F'-' '{ print $1 }')
 	if [ ${march} == "x86_64" ]; then
-		if [ ${os} == "windows" ]; then
-			march="windows-amd"
-		else
-			march="amd64"
-		fi
+		march="amd64"
 	fi
 	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os ${os} --arch ${march}" >> ${man_file}
 }
