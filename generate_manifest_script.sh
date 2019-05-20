@@ -83,7 +83,7 @@ if [ ! -z "$1" ]; then
 fi
 
 # Set the OSes that will be built on based on the current arch
-set_arch_os
+oses="ubuntu alpine debian windows"
 
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh ${version}
