@@ -208,7 +208,7 @@ function check_manifest_tool() {
 	if [ ! -f ${manifest_tool} ]; then
 		echo
 		echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
-		exit 1
+		# exit 1
 	fi
 }
 
@@ -254,6 +254,9 @@ function build_tags() {
 	do
 		for arch in ${arches}
 		do
+			if [ "$arch" == "windows-amd" ]; then
+				arch="x86_64"
+			fi
 			# Check if all the supported arches are available for this build.
 			supported=$(vm_supported_onarch ${vm} ${shasums} ${arch})
 			if [ -z "${supported}" ]; then

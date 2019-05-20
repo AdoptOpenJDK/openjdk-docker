@@ -83,10 +83,11 @@ if [ ! -z "$1" ]; then
 fi
 
 # Set the OSes that will be built on based on the current arch
-oses="ubuntu alpine debian windows"
+# oses="ubuntu alpine debian windows"
+oses="windows"
 
 # Which JVMs are available for the current version
-./generate_latest_sums.sh ${version}
+# ./generate_latest_sums.sh ${version}
 
 # Source the hotspot and openj9 shasums scripts
 available_jvms=""
