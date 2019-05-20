@@ -38,7 +38,7 @@ function print_annotate_cmd() {
 			march="amd64"
 		fi
 	fi
-	echo "${manifest_tool} manifest annotate ${main_tag} ${arch_tag} --os ${os} --arch ${march}" >> ${man_file}
+	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os ${os} --arch ${march}" >> ${man_file}
 }
 
 # Space separated list of tags
@@ -49,12 +49,12 @@ function print_manifest_cmd() {
 	# Global variable tag_aliases has the alias list
 	for talias in ${tag_aliases}
 	do
-		echo "${manifest_tool} manifest create ${trepo}:${talias} ${img_list}" >> ${man_file}
+		echo "\"${manifest_tool}\" manifest create ${trepo}:${talias} ${img_list}" >> ${man_file}
 		for img in ${img_list}
 		do
 			print_annotate_cmd ${trepo}:${talias} ${img}
 		done
-		echo "${manifest_tool} manifest push ${trepo}:${talias}" >> ${man_file}
+		echo "\"${manifest_tool}\" manifest push ${trepo}:${talias}" >> ${man_file}
 		echo >> ${man_file}
 	done
 }
