@@ -7,6 +7,9 @@ Dockerfiles and build scripts for generating various Docker Images related to Op
 * Hotspot is supported on ```aarch64```, ```ppc64le```, ```s390x``` and ```x86_64```.
 * Eclipse OpenJ9 is supported on ```ppc64le```, ```s390x``` and ```x86_64```.
 
+## Mac OS X
+Please note you'll need to [upgrade bash shell on Mac OS X](https://itnext.io/upgrading-bash-on-macos-7138bd1066ba) if you're to use our Docker images on there.
+
 # License
 The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html).
 
