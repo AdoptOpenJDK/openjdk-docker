@@ -38,6 +38,9 @@ function print_annotate_cmd() {
 	aarch64)
 		march="arm64"
 		;;
+	armv7l)
+		march="arm"
+		;;
 	*)
 		;;
 	esac
