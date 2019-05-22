@@ -31,10 +31,17 @@ function print_annotate_cmd() {
 
 	# The manifest tool expects "amd64" as arch and not "x86_64"
 	march=$(echo ${arch_tag} | awk -F':' '{ print $2 }' | awk -F'-' '{ print $1 }')
-	if [ ${march} == "x86_64" ]; then
+	case ${march} in
+	x86_64)
 		march="amd64"
-	fi
-	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os ${os} --arch ${march}" >> ${man_file}
+		;;
+	aarch64)
+		march="arm64"
+		;;
+	*)
+		;;
+	esac
+	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os ${os_family} --arch ${march}" >> ${man_file}
 }
 
 # Space separated list of tags

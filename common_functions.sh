@@ -66,28 +66,34 @@ function set_arch_os() {
 	armv7l)
 		current_arch="armv7l"
 		oses="ubuntu debian"
+		os_family="linux"
 		;;
 	aarch64)
 		current_arch="aarch64"
 		oses="ubuntu debian"
+		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
 		oses="ubuntu debian"
+		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
 		oses="ubuntu debian"
+		os_family="linux"
 		;;
 	amd64|x86_64)
 		case $(uname) in
 			MINGW64*|MSYS_NT*)
 				current_arch="x86_64"
 				oses="windows"
+				os_family="windows"
 				;;
 			*)
 			current_arch="x86_64"
 			oses="ubuntu alpine debian"
+			os_family="linux"
 			;;
 		esac
 		;;
