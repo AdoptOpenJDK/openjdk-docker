@@ -76,17 +76,11 @@ print_alpine_ver() {
 	EOI
 }
 
-# Print the maintainer
-print_maint() {
-	cat >> $1 <<-EOI
-	LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
-	EOI
-}
-
 # Print the locale and language
 print_lang_locale() {
 	cat >> $1 <<-EOI
 	ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 	EOI
 }
 
@@ -159,6 +153,7 @@ print_env() {
 	cat >> $1 <<-EOI
 
 ENV JAVA_VERSION ${jver}
+
 EOI
 }
 
@@ -403,7 +398,7 @@ EOI
 print_cmd() {
 	# for version > 8, set CMD["jshell"] in the Dockerfile
 	above_8="^(9|[1-9][0-9]+)$"
-	if [[ "${version}" =~ ${above_8} ]]; then
+	if [[ "${version}" =~ ${above_8} && "${package}" == "jdk" ]]; then
 		cat >> $1 <<-EOI
 		CMD ["jshell"]
 		EOI
@@ -425,7 +420,6 @@ generate_dockerfile() {
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
 	print_${os}_ver ${file} ${bld} ${btype};
-	print_maint ${file};
 	print_lang_locale ${file};
 	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
