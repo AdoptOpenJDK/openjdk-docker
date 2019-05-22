@@ -19,14 +19,15 @@
 
 FROM debian:stretch
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk-12.0.1+12
+
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \

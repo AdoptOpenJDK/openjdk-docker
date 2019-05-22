@@ -19,36 +19,37 @@
 
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk12u
+
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='05a4991271c674ac86984a81a84822bb61919dccc9c92885d5b5f4b4e659fb90'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_ppc64le_linux_hotspot_2019-05-12-11-23.tar.gz'; \
+         ESUM='775de9592744e9581d78c70be8f480a5d77a3fa7ffc6b5e1fe2c4b9ddec7d19f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_ppc64le_linux_hotspot_2019-05-22-01-47.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f6447b32c57023e5d330532e22b4909a243a03cdfb5cb4462e9cb03ad908b626'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_s390x_linux_hotspot_2019-05-12-11-23.tar.gz'; \
+         ESUM='10fd6bec199c5dce42d019c9ddc2411b5392d9950a37328688d6287a32fbf8fe'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_s390x_linux_hotspot_2019-05-22-01-47.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='0f4a724238ac4595779150b35bfd463c67d9fb1a8494813a43f87dd6c9910dbe'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_x64_linux_hotspot_2019-05-12-11-23.tar.gz'; \
+         ESUM='136d6d7a047c92710fda27c25172162177a999d90cf17d2149200f38cdc0267b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_x64_linux_hotspot_2019-05-22-01-47.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='aaf08fd4b0fab81ea90372851303b2e8933cc4572dbccb2c976d8881ae2dcfb1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_arm_linux_hotspot_2019-05-12-11-23.tar.gz'; \
+         ESUM='2267eee756eaa1c6883fb87e4a7a370935620f81de8a5fb698a6c749dd3dd61a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_arm_linux_hotspot_2019-05-22-01-47.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='423221583c5f5e4f4e1f6a88409c5c4fd12d1719dce6c881120a8d74e8b5e99c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_aarch64_linux_hotspot_2019-05-12-11-23.tar.gz'; \
+         ESUM='15ca4ede257575873bdf18d0999f8f04988b13d5a13d5bb5216a2e14c02ca95d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_aarch64_linux_hotspot_2019-05-22-01-47.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
