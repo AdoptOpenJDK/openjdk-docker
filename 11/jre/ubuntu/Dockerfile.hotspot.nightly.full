@@ -19,32 +19,33 @@
 
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk11u
+
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='0ccba184a411213a91beb6388a3b5f2b34d503df4b252e6f825595ae63879ee4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_ppc64le_linux_hotspot_2019-05-16-16-51.tar.gz'; \
+         ESUM='633176821465100982f82b8ca870dee0a9162071dad36f6e9bc5e7aececbbe70'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jre_ppc64le_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        s390x) \
          ESUM='af41fcc157b5b4cf21453a5ca21350220ef5d876de581a1d0d3e14d31a0be4f1'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_s390x_linux_hotspot_2019-05-16-16-51.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='7f88ba64fe36295785e416e60fb85497039d7e50654da61b3d00624c5bc8322c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_x64_linux_hotspot_2019-05-16-16-51.tar.gz'; \
+         ESUM='fe5350847a7ec4e4c5128bb48de1fea8f5a9d121ef12a35a711fe720e417fc26'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jre_x64_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='db4cdf32477212445e5c118f8074b5b19eecd44603a8ad28372ccea45932f186'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-16-16-51/OpenJDK11U-jre_aarch64_linux_hotspot_2019-05-16-16-51.tar.gz'; \
+         ESUM='91ec141e39faaf758ccd259655d710751c6670f7ffa59752529821748b836b90'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jre_aarch64_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -60,4 +61,3 @@ RUN set -eux; \
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
-CMD ["jshell"]

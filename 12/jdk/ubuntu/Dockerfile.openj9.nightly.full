@@ -19,28 +19,29 @@
 
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk12u
+
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='87b3bc56744283a8fb5e9dc91e6178929a79e89e7912897c78d85222ec798efc'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-12-11-23.tar.gz'; \
+         ESUM='b34ef3215f183cbd28b89b223f7dbe35ef1f33724eee3128a9ff006450ae91ad'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-22-01-47.tar.gz'; \
          ;; \
        s390x) \
          ESUM='c9bc37974d08c722e683ae7643fb155c4472ffdd4b5aba9f8fe84afb25ee4c36'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_s390x_linux_openj9_2019-05-12-11-23.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='ba8e9853909d6d0b7913a34d31da5557b7726fcbf6f32af4e0c63be15f70c195'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_x64_linux_openj9_2019-05-12-11-23.tar.gz'; \
+         ESUM='216221e9a50eaaab92d34c010bd32b3228865cba5067c7e2ff80c5a1cab8ddb7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-21-11-11/OpenJDK12U-jdk_x64_linux_openj9_2019-05-21-11-11.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

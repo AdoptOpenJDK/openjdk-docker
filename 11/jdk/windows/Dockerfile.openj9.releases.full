@@ -19,13 +19,14 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk-11.0.3+7_openj9-0.14.0
+
 ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7_openj9-0.14.0/OpenJDK11U-jdk_x64_windows_openj9_11.0.3_7_openj9-0.14.0.msi
 ENV JAVA_SHA256 182ad6464f0bcaf7d7cb8afc58ecfe775295f4cb7ea891f3b20ac5180fb88a4e
 

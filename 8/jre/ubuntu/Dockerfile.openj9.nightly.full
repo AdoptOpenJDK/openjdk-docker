@@ -19,28 +19,29 @@
 
 FROM ubuntu:18.04
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk8u
+
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='dae8e74e211635ef5e71d9c45c66e2d2e2d10e5b1ee88bf7b7f3b95a7e5aedb9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-18-01-49/OpenJDK8U-jre_ppc64le_linux_openj9_2019-05-18-01-49.tar.gz'; \
+         ESUM='2475ceaacc59efb7db0a9ac892e8b1c36d98328524d06a88d54cf782993f2b5b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-22-03-43/OpenJDK8U-jre_ppc64le_linux_openj9_2019-05-22-03-43.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b4a141f62f4fe0bee34b3ae9aac5cfe8110fae8c44dc7821228a8b6610aa0730'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-18-01-49/OpenJDK8U-jre_s390x_linux_openj9_2019-05-18-01-49.tar.gz'; \
+         ESUM='984af9cb0b74f3a50620b6c154d46551ef5960014a0a9a45798cef2716c9bf87'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-22-03-43/OpenJDK8U-jre_s390x_linux_openj9_2019-05-22-03-43.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='67500fa01648fe2af9e852c8aa2593275657a3d17a891049df66394930e3f353'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-18-01-49/OpenJDK8U-jre_x64_linux_openj9_2019-05-18-01-49.tar.gz'; \
+         ESUM='e6372fb3a5379cea8e5279694009415d76e60a59ea80a0762ed7d7dab0a7665d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-05-22-03-43/OpenJDK8U-jre_x64_linux_openj9_2019-05-22-03-43.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -19,38 +19,39 @@
 
 FROM debian:stretch
 
-LABEL org.opencontainers.image.authors="dinakar.g@in.ibm.com"
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk11u
+
 COPY slim-java* /usr/local/bin/
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='73c65749f370d8388b7304a45947d788710cdc3567d6b4d13e8a0167de6f07e0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-05-17-14-56.tar.gz'; \
+         ESUM='b99789ce5d00cf64474f3cd60023aef63db0f58d2c9fa115e13c69ac09e952fe'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        s390x) \
          ESUM='4a8f4013b06a70cf68781a4c8fcaa30796402ce1f2d990fdb8ddfe93e550f77a'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_s390x_linux_hotspot_2019-05-17-14-56.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='adfc98ade1d166ec3f0d4fa155793dd9950abeb6eb6579a36d0fbcf94faf86c7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_x64_linux_hotspot_2019-05-17-14-56.tar.gz'; \
+         ESUM='89ef1f721c47890128a6713a7cf4612feb6a71159c98970645ea4f01fdcfe8ea'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jdk_x64_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='1b36928b5d27d9ea8e3afcfd562e268fa5d0f303f85b8a7054eab89f24b0fc8d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_arm_linux_hotspot_2019-05-17-14-56.tar.gz'; \
+         ESUM='8da6f861302cc9c995404e0ace9127f3c16e43a30b1780428c8819e767bc0556'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jdk_arm_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='8847f25cc012993ac28022e6f9b980bb1a3b2463867c6ec3f38a526adc1fda8e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-17-14-56/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-05-17-14-56.tar.gz'; \
+         ESUM='7289a7897dbb0327fbd56622060b62d760e1d3935ca33287a8bdfa965175ae25'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-05-21-20-56/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-05-21-20-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
