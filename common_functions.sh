@@ -87,7 +87,8 @@ function set_arch_os() {
 		case $(uname) in
 			MINGW64*|MSYS_NT*)
 				current_arch="x86_64"
-				oses="windowsservercore-ltsc2016 windowsservercore-1809 windowsservercore-1803"
+				#  windowsservercore-1809 windowsservercore-1803 are not included as Adopt can't build them
+				oses="windowsservercore-ltsc2016"
 				os_family="windows"
 				;;
 			*)
