@@ -87,7 +87,7 @@ function set_arch_os() {
 		case $(uname) in
 			MINGW64*|MSYS_NT*)
 				current_arch="x86_64"
-				oses="windows"
+				oses="windowsservercore-ltsc2016 windowsservercore-1809 windowsservercore-1803"
 				os_family="windows"
 				;;
 			*)
@@ -178,7 +178,7 @@ function check_image() {
 # $4 = OS
 # $5 = String to look for.
 function parse_vm_entry() {
-	entry=$(cat config/$1.config | grep -B 4 "$2\/$3\/$4" | grep "$5" | sed "s/$5 //")
+	entry=$(cat config/$1.config | grep -B 4 -E "$2\/$3\/$4|$2\/$3\/windows\/$4" | grep "$5" | sed "s/$5 //")
 	echo ${entry}
 }
 

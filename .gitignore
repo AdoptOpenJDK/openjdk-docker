@@ -3,3 +3,4 @@
 *_shasums_latest.sh
 manifest_commands.sh
 hadolint/
+push_commands.sh

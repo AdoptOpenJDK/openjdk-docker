@@ -60,7 +60,12 @@ print_debian_ver() {
 
 # Print the supported Windows OS
 print_windows_ver() {
-	os_version="ltsc2016"
+	distro=$4
+	case $distro in
+		*ltsc2016) os_version="ltsc2016" ;;
+		*1809) os_version="1809" ;;
+		*1803) os_version="1803" ;;
+	esac
 
 	cat >> $1 <<-EOI
 	FROM mcr.microsoft.com/windows/servercore:${os_version}
@@ -407,7 +412,14 @@ generate_dockerfile() {
 	pkg=$2
 	bld=$3
 	btype=$4
-	os=$5
+	case $5 in
+		windows*)
+			os=windows
+			distro=$5 ;;
+		*)
+			os=$5
+			distro=$5 ;;
+	esac
 
 	jhome="/opt/java/openjdk"
 
@@ -415,7 +427,7 @@ generate_dockerfile() {
 	echo
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
-	print_${os}_ver ${file} ${bld} ${btype};
+	print_${os}_ver ${file} ${bld} ${btype} ${distro};
 	print_lang_locale ${file} ${os};
 	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
