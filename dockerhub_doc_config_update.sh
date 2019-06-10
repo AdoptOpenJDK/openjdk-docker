@@ -200,15 +200,23 @@ function print_official_image_file() {
 rm -f ${official_docker_image_file}
 print_official_header
 
+# Currently we are not pushing official docker images for Alpine, Debian and Windows
+official_os_ignore_array=(alpine debian windows)
+
+# Generate config and doc info only for "supported" official builds.
 function generate_official_image_info() {
-	# Currently we are not pushing official docker images for Alpine, Debian and Windows
-	if [ "${os}" == "windows" -o "${os}" == "alpine" -o "${os}" == "debian" ]; then
-		return;
-	fi
+	# If it is an unsupported OS from the array above, return.
+	for arr_os in "${official_os_ignore_array[@]}"; 
+	do
+		if [ "${os}" == "${arr_os}" ]; then
+			return;
+		fi
+	done	
 	# We do not push our nightly and slim images either.
 	if [ "${build}" == "nightly" -o "${btype}" == "slim" ]; then
 		return;
 	fi
+
 	generate_official_image_tags
 	generate_official_image_arches
 	print_official_image_file
