@@ -57,11 +57,13 @@ print_official_header() {
 
 function generate_unofficial_image_info() {
 	full_version=$(grep "VERSION" ${file} | awk '{ print $3 }')
+	# Replace "+" with "_" in the version info as docker does not support "+"
 	full_version=$(echo ${full_version} | sed 's/+/_/')
 	if [ "${pkg}" == "jre" ]; then
 		full_version=$(echo ${full_version} | sed 's/jdk/jre/')
 	fi
 
+	# Suffix nightly and slim builds accordingly
 	if [ "${build}" == "nightly" ]; then
 		full_version="${full_version}-${build}"
 	fi
@@ -69,12 +71,15 @@ function generate_unofficial_image_info() {
 		full_version="${full_version}-${btype}"
 	fi
 
+	# Build a lit of super tags (in addition to the non arch specific tags)
 	super_tags="";
 	case ${os} in
 	ubuntu)
+		# JRE ubuntu builds have a `jre` tag
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${pkg}";
 		fi
+		# Nightly ubuntu builds have a `nightly` tag
 		if [ "${build}" == "nightly" ]; then
 			if [ "${super_tags}" == "" ]; then
 				super_tags="${build}";
@@ -82,6 +87,7 @@ function generate_unofficial_image_info() {
 				super_tags="${super_tags}-${build}"
 			fi
 		fi
+		# Slim ubuntu builds have a `slim` tag
 		if [ "${btype}" == "slim" ]; then
 			if [ "${super_tags}" == "" ]; then
 				super_tags="${btype}"
@@ -89,11 +95,13 @@ function generate_unofficial_image_info() {
 				super_tags="${super_tags}-${btype}"
 			fi
 		fi
+		# If none of the above, it has to be the `latest` build
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
 		fi
 		;;
 	alpine|debian|windows)
+		# Non Ubuntu builds all have the `$os` tag prepended
 		super_tags="${os}";
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
@@ -107,18 +115,23 @@ function generate_unofficial_image_info() {
 		;;
 	esac
 
+	# Unofficial images support x86_64, aarch64, s390x and ppc64le
+	# Remove ppc64el, amd64 and arm64
+	# Retain ppc64le, x86_64 and aarch64
 	arches=$(echo $(grep ') \\' ${file} | \
 		sed 's/\(ppc64el\|amd64\|arm64\)//g' | \
 		sort | grep -v "*" | \
 		sed 's/) \\//g; s/|/ /g'))
 	if [ "${os}" == "alpine" ]; then
-		arches=$(echo ${arches} | sed 's/\(armhf\|aarch64\|ppc64le\|s390x\)//g')
+		# Alpine builds are only available for x86_64 currently
+		arches="x86_64"
 	fi
 	print_unofficial_tags "${super_tags} ${full_version}"
 	for arch in ${arches}
 	do
 		print_unofficial_tags "${arch}-${os}-${full_version}" >> ${ver}_${vm}.txt
 	done
+	# Remove the leading "./" from the file name
 	file=$(echo ${file} | cut -c 3-)
 	echo "(*${file}*)](${git_repo}/${file})" >> ${ver}_${vm}.txt
 }
@@ -127,9 +140,15 @@ function generate_official_image_tags() {
 	# Generate the tags
 	full_version=$(grep "VERSION" ${file} | awk '{ print $3 }')
 
+	# Remove any `jdk` references in the version
 	ojdk_version=$(echo ${full_version} | sed 's/\(jdk\|jdk-\)//' | awk -F '_' '{ print $1 }')
+	# Replace "+" with "_" in the version info as docker does not support "+"
 	ojdk_version=$(echo ${ojdk_version} | sed 's/+/_/')
 
+	# Official image build tags are as below
+	# 8u212-jre-openj9_0.12.1
+	# 8-jre-openj9
+	# 8u212-jdk-hotspot
 	full_ver_tag="${ojdk_version}-${pkg}"
 	# Add the openj9 version
 	if [ "${vm}" == "openj9" ]; then
@@ -140,6 +159,7 @@ function generate_official_image_tags() {
 	fi
 		ver_tag="${ver}-${pkg}-${vm}"
 	all_tags="${full_ver_tag}, ${ver_tag}"
+	# jdk builds also have additional tags
 	if [ "${pkg}" == "jdk" ]; then
 		jdk_tag="${ver}-${vm}"
 		all_tags="${all_tags}, ${jdk_tag}"
@@ -154,12 +174,17 @@ function generate_official_image_tags() {
 
 function generate_official_image_arches() {
 	# Generate the supported arches for the above tags.
+	# Official images supports amd64, arm64vX, s390x and ppc64le
+	# Remove ppc64el, x86_64 and aarch64
+	# Retain ppc64le, amd64 and arm64
 	arches=$(echo $(grep ') \\' ${file} | \
 		sed 's/\(ppc64el\|x86_64\|aarch64\)//g' | \
+		# armhf is arm32v7 and arm64 is arm64v8 for docker builds
 		sed 's/armhf/arm32v7/' | \
 		sed 's/arm64/arm64v8/' | \
 		sort | grep -v "*" | \
 		sed 's/) \\//g; s/|/ /g'))
+	# Add a "," after each arch
 	arches=$(echo ${arches} | sed 's/ /, /g')
 }
 
@@ -176,7 +201,7 @@ rm -f ${official_docker_image_file}
 print_official_header
 
 function generate_official_image_info() {
-	# Currently we are not pushing docker images for Alpine, Debian and Windows
+	# Currently we are not pushing official docker images for Alpine, Debian and Windows
 	if [ "${os}" == "windows" -o "${os}" == "alpine" -o "${os}" == "debian" ]; then
 		return;
 	fi
@@ -190,7 +215,8 @@ function generate_official_image_info() {
 }
 
 # Iterate through all the VMs, for each supported version and packages to
-# generate the config file.
+# generate the config file for the official docker images.
+# Official docker images = https://hub.docker.com/_/adoptopenjdk
 for vm in ${all_jvms}
 do
 	for ver in ${supported_versions}
@@ -220,7 +246,8 @@ do
 	done
 done
 
-
+# This loop generated the documentation for the unofficial docker images
+# Unofficial docker images = https://hub.docker.com/r/adoptopenjdk
 for vm in ${all_jvms}
 do
 	for ver in ${supported_versions}
