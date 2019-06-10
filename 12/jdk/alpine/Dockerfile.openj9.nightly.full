@@ -51,7 +51,7 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps glibc-i18n \
-    && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
 ENV JAVA_VERSION jdk12u
 
@@ -60,16 +60,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='b34ef3215f183cbd28b89b223f7dbe35ef1f33724eee3128a9ff006450ae91ad'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-22-01-47/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-05-22-01-47.tar.gz'; \
+         ESUM='4fe14da4a539838f97f93af2bf971564b1d55aa7461b91430aebd52dc1cddb17'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_ppc64le_linux_openj9_2019-06-09-18-38.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c9bc37974d08c722e683ae7643fb155c4472ffdd4b5aba9f8fe84afb25ee4c36'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-12-11-23/OpenJDK12U-jdk_s390x_linux_openj9_2019-05-12-11-23.tar.gz'; \
+         ESUM='448ca202e111240ffca139c624373b0da27c9465b0a1d0b561d43a128983e57e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_s390x_linux_openj9_2019-06-09-18-38.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='216221e9a50eaaab92d34c010bd32b3228865cba5067c7e2ff80c5a1cab8ddb7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-05-21-11-11/OpenJDK12U-jdk_x64_linux_openj9_2019-05-21-11-11.tar.gz'; \
+         ESUM='b3f0c974ffc026b9e405026975c0d639f42a1a36bfadf5078eaf4d5f1cfea821'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_x64_linux_openj9_2019-06-09-18-38.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

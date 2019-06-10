@@ -26,22 +26,14 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk8u212-b03
+ENV JAVA_VERSION jdk8u212-b04
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='2de019954c0898c1798ed30ed55314534423b853bfb373806b6a6224dc98fa6d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_ppc64le_linux_hotspot_8u212b03.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='269a6a3735d12438866754a28d89180d39819aea70e0023b90ca31e15a69e1b0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_s390x_linux_hotspot_8u212b03.tar.gz'; \
-         ;; \
        amd64|x86_64) \
-         ESUM='74daf0b77a7fd679cbb3a6228e0efa8c4a90b7664aa057f211e34bbfb38640fb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b03/OpenJDK8U-jre_x64_linux_hotspot_8u212b03.tar.gz'; \
+         ESUM='96d24d94c022b3e414b612cae8829244329d71ad2cce790f099c020f33247e7e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u212-b04/OpenJDK8U-jre_x64_linux_hotspot_8u212b04.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
