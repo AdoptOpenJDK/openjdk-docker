@@ -260,6 +260,8 @@ for vm in ${all_jvms}
 do
 	for ver in ${supported_versions}
 	do
+		# Remove any previous doc files
+		rm -f ${ver}_${vm}.txt
 		for build in ${supported_builds}
 		do
 			if [ "${build}" == "releases" ]; then
