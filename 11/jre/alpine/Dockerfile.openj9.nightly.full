@@ -60,20 +60,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='a3296b9fad21a61c98d495e911605ecbc3f1c41acb908eadd586b0e03189b76a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-10-05-04/OpenJDK11U-jre_ppc64le_linux_openj9_2019-06-10-05-04.tar.gz'; \
+         ESUM='4124d6273bdb51cdc3ced62ce5fe3283a8790427fd918036a4604428cfc6560f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-11-10-43/OpenJDK11U-jre_ppc64le_linux_openj9_2019-06-11-10-43.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c0f0a35117274cca26b889690547b26ef5b626aa663f4dfc2c5b96d88e75062b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-10-05-04/OpenJDK11U-jre_s390x_linux_openj9_2019-06-10-05-04.tar.gz'; \
+         ESUM='6ad6e0abc167157c27eaaea70ac1b8e2b5f54da1aa9d18a23d4412037c242b4e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-11-10-43/OpenJDK11U-jre_s390x_linux_openj9_2019-06-11-10-43.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='3b975c69526fee8fd8aa108d4c3d243fcfd1e1a74615fa12eb737efd84f76c17'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-10-05-04/OpenJDK11U-jre_x64_linux_openj9_2019-06-10-05-04.tar.gz'; \
+         ESUM='10c7156d8197d691af27dcd2160f45c55ca28b010bd27e33c904aa7740f38325'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-12-22-42/OpenJDK11U-jre_x64_linux_openj9_2019-06-12-22-42.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='b5f31ba2990c92c5ef3217731b35a5111c9958425008fa46ad9702666d340e32'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-07-20-53/OpenJDK11U-jre_aarch64_linux_openj9_2019-06-07-20-53.tar.gz'; \
+         ESUM='af9c7af9476daf110b9bd6858b3ca3cda1362f4a7dcd815432dfac5ef6131d6a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-12-22-42/OpenJDK11U-jre_aarch64_linux_openj9_2019-06-12-22-42.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

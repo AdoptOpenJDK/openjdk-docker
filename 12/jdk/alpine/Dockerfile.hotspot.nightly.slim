@@ -62,24 +62,24 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='42dff2ebe567bd4a9c0f4b870c15397133a83451e2d837ef4ea2bdfe57b79275'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_ppc64le_linux_hotspot_2019-06-09-18-38.tar.gz'; \
+         ESUM='243912d536f8762994e46e605fdac262a2d322bb903bfd1610b6ac0a711cdaef'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-12-22-41/OpenJDK12U-jdk_ppc64le_linux_hotspot_2019-06-12-22-41.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='0fe4d81c0bd24c8f4b271a9fe6714ab52bf88b2aeae8bc17c41dbf8b7bc09c37'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_s390x_linux_hotspot_2019-06-09-18-38.tar.gz'; \
+         ESUM='c135c37037189317d1a385d9e87a3ec98c7576d157f9e589146e1417b3a875f4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-11-01-17/OpenJDK12U-jdk_s390x_linux_hotspot_2019-06-11-01-17.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='74e7314c26330c005d5c15e1424d277a1dd664ddf87b8e89c423d488bdca1dc0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_x64_linux_hotspot_2019-06-09-18-38.tar.gz'; \
+         ESUM='59868804a7fd478eca6a4b131338d67a6e0e7cf2fef364987c2821bd29e682e9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-12-22-41/OpenJDK12U-jdk_x64_linux_hotspot_2019-06-12-22-41.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='a566fa740f109524979490a0f5fa12e9c1048a13caf31863916ee22b0345eb99'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_arm_linux_hotspot_2019-06-09-18-38.tar.gz'; \
+         ESUM='51791f810d40015d69b8645f76cf37b8970361fdfd73d00d23b2cc5594430971'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-11-01-17/OpenJDK12U-jdk_arm_linux_hotspot_2019-06-11-01-17.tar.gz'; \
          ;; \
        aarch64|arm64) \
-         ESUM='b5d1d5bc0ca53181ddd11527e38ae2c45962bcd61df2a63a62d2380638388b98'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-09-18-38/OpenJDK12U-jdk_aarch64_linux_hotspot_2019-06-09-18-38.tar.gz'; \
+         ESUM='9d91a8f8d9245ebd06df078a0d80f8b30fce045bde7630586718a0ebb9d84cd3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-06-12-22-41/OpenJDK12U-jdk_aarch64_linux_hotspot_2019-06-12-22-41.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
