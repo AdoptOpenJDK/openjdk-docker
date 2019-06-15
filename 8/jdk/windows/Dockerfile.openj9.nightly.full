@@ -27,8 +27,8 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-ENV JAVA_URL 
-ENV JAVA_SHA256 e119ce919c55139986086bb2c96ab1c421703faf4dd57b8ef38e924bfd13d85f
+ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jdk_x64_windows_openj9_2019-06-10-11-05.msi
+ENV JAVA_SHA256 313ebe7618f252c28137d960065642a362c67c2c86af108c81fa59d80168bf4d
 
 RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \

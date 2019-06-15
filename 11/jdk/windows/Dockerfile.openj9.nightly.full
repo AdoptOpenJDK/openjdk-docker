@@ -27,8 +27,8 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk11u
 
-ENV JAVA_URL 
-ENV JAVA_SHA256 3eaa9fec4da117f36e6f8f14e32e86970596f30e98141f9ea98cccbf12db9400
+ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-11-10-43/OpenJDK11U-jdk_x64_windows_openj9_2019-06-11-10-43.msi
+ENV JAVA_SHA256 117efe910ac018d1504522c6fe1c8935a9edc953ca4796edc5dc2d2697c5f644
 
 RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
