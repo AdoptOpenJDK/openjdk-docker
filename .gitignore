@@ -2,3 +2,4 @@
 .idea/vcs.xml
 *_shasums_latest.sh
 manifest_commands.sh
+hadolint/
