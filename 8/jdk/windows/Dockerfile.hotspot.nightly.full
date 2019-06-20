@@ -19,35 +19,25 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2016
 
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-
-
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk8u
 
-ENV JAVA_URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jdk_x64_windows_hotspot_2019-06-10-11-05.msi
-ENV JAVA_SHA256 eff7ef2b6aa93696f1da5f49877a878f988aa99cff71e1a6edc6011f9ff23cfd
-
-RUN Write-Host ('Downloading {0} ...' -f $env:JAVA_URL); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-17-02-47/OpenJDK8U-jdk_x64_windows_hotspot_2019-06-17-02-47.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget $env:JAVA_URL -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 ({0}) ...' -f $env:JAVA_SHA256); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne $env:JAVA_SHA256) { \
+        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-17-02-47/OpenJDK8U-jdk_x64_windows_hotspot_2019-06-17-02-47.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (f44c9579550c8f028c3a23307444d7db93a646891d37c7f03ec278498bf161aa) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f44c9579550c8f028c3a23307444d7db93a646891d37c7f03ec278498bf161aa') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
         \
-        New-Item -ItemType Directory -Path C:\temp | Out-Null;
-
-RUN Write-Host 'Installing using MSI ...'; \
+        New-Item -ItemType Directory -Path C:\temp | Out-Null; \
+        \
+        Write-Host 'Installing using MSI ...'; \
         Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
         '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
-        Write-Host 'Removing ...'; \
-        Remove-Item openjdk.msi -Force;
-
-RUN Write-Host 'Verifying install ...'; \
-        Write-Host '  java -version'; java -version; \
-        Write-Host '  javac -version'; javac -version; \
-        Write-Host '  JAVA_HOME'; Test-Path $env:JAVA_HOME;
+        Write-Host 'Removing openjdk.msi ...'; \
+        Remove-Item openjdk.msi -Force; \
+        Remove-Item -Path C:\temp -Recurse | Out-Null;

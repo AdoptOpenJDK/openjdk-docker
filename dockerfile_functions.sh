@@ -78,10 +78,13 @@ print_alpine_ver() {
 
 # Print the locale and language
 print_lang_locale() {
-	cat >> $1 <<-EOI
+	os=$2
+	if [ $os != "windows" ]; then
+		cat >> $1 <<-EOI
 	ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 	EOI
+	fi
 }
 
 # Select the ubuntu OS packages
@@ -100,7 +103,6 @@ print_debian_pkg() {
 
 print_windows_pkg() {
 	cat >> $1 <<'EOI'
-
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 EOI
@@ -296,30 +298,23 @@ print_windows_java_install() {
 	BINARY_URL=$(get_instaler_url ${JAVA_URL});
 
 	cat >> $1 <<-EOI
-ENV JAVA_URL ${BINARY_URL}
-ENV JAVA_SHA256 ${ESUM}
-
-RUN Write-Host ('Downloading {0} ...' -f \$env:JAVA_URL); \\
+RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        wget \$env:JAVA_URL -O 'openjdk.msi'; \\
-        Write-Host ('Verifying sha256 ({0}) ...' -f \$env:JAVA_SHA256); \\
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne \$env:JAVA_SHA256) { \\
+        wget ${BINARY_URL} -O 'openjdk.msi'; \\
+        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
                 Write-Host 'FAILED!'; \\
                 exit 1; \\
         }; \\
         \\
-        New-Item -ItemType Directory -Path C:\temp | Out-Null;
-
-RUN Write-Host 'Installing using MSI ...'; \\
+        New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
+        \\
+        Write-Host 'Installing using MSI ...'; \\
         Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
         '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
-        Write-Host 'Removing ...'; \\
-        Remove-Item openjdk.msi -Force;
-
-RUN Write-Host 'Verifying install ...'; \\
-        Write-Host '  java -version'; java -version; \\
-        Write-Host '  javac -version'; javac -version; \\
-        Write-Host '  JAVA_HOME'; Test-Path \$env:JAVA_HOME;
+        Write-Host 'Removing openjdk.msi ...'; \\
+        Remove-Item openjdk.msi -Force; \\
+        Remove-Item -Path C:\temp -Recurse | Out-Null;
 EOI
 }
 
@@ -420,7 +415,7 @@ generate_dockerfile() {
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
 	print_${os}_ver ${file} ${bld} ${btype};
-	print_lang_locale ${file};
+	print_lang_locale ${file} ${os};
 	print_${os}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
