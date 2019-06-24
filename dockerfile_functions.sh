@@ -60,7 +60,12 @@ print_debian_ver() {
 
 # Print the supported Windows OS
 print_windows_ver() {
-	os_version="ltsc2016"
+	os=$4
+	case $os in
+		*ltsc2016) os_version="ltsc2016" ;;
+		*1809) os_version="1809" ;;
+		*1803) os_version="1803" ;;
+	esac
 
 	cat >> $1 <<-EOI
 	FROM mcr.microsoft.com/windows/servercore:${os_version}
@@ -407,7 +412,14 @@ generate_dockerfile() {
 	pkg=$2
 	bld=$3
 	btype=$4
-	os=$5
+	case $5 in
+		windows*)
+			os_family=windows
+			os=$5 ;;
+		*)
+			os_family=$5
+			os=$5 ;;
+	esac
 
 	jhome="/opt/java/openjdk"
 
@@ -415,15 +427,17 @@ generate_dockerfile() {
 	echo
 	echo -n "Writing ${file} ... "
 	print_legal ${file};
-	print_${os}_ver ${file} ${bld} ${btype};
-	print_lang_locale ${file} ${os};
-	print_${os}_pkg ${file};
+	print_${os_family}_ver ${file} ${bld} ${btype} ${os};
+	print_lang_locale ${file} ${os_family};
+	print_${os_family}_pkg ${file};
 	print_env ${file} ${bld} ${btype};
 	copy_slim_script ${file};
-	print_${os}_java_install ${file} ${pkg} ${bld} ${btype};
-	print_java_env ${file} ${bld} ${btype} ${os};
+	print_${os_family}_java_install ${file} ${pkg} ${bld} ${btype};
+	print_java_env ${file} ${bld} ${btype} ${os_family};
 	print_java_options ${file} ${bld} ${btype};
 	print_cmd ${file};
 	echo "done"
 	echo
+	# Reset os back to the value of disto
+	os_family=$os
 }
