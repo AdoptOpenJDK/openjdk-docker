@@ -59,17 +59,17 @@ RUN set -eux; \
     apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='b57f9ceeb018e65e61825fd47f11d43387850b98333b56a2705d5512f4f10f98'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-12-22-37/OpenJDK8U-jre_ppc64le_linux_openj9_2019-06-12-22-37.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='3ce56dd1b7f42f95211f436e0510a95e2b094cc22a3505a2470e0be84cfad6f2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jre_x64_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='701c5a3c8de4c1d388385e42a3ef2ead3ec5cd9a5a1c6887d644db46bffd2070'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jre_s390x_linux_openj9_2019-06-10-11-05.tar.gz'; \
+         ESUM='d4c6be4aa43fe27f408c12bbd90dee6ca4c24fd0c514a753192a2985617b6e73'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jre_s390x_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
-       amd64|x86_64) \
-         ESUM='14393f7587de10928a178adeb9ff6ceea2cc8f123c260fdb4b9f89cb1a210e49'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jre_x64_linux_openj9_2019-06-10-11-05.tar.gz'; \
+       ppc64el|ppc64le) \
+         ESUM='ba761d8a681a51faecf164e7bf5898f1b6eb6b5c0c265f5fefec2fc3af158259'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jre_ppc64le_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
