@@ -23,6 +23,7 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates locales \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,17 +34,17 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       ppc64el|ppc64le) \
-         ESUM='7377609bf7a02bf726a1e1883eb04c29600c73d759c8b535f888df43a4339532'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-12-22-37/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-06-12-22-37.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='5f2a95f77aa681703f49164a77f93ec524baaf6ea3af8a89fff3fc85e8298bc8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_x64_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='860a232c3609e807e0948ab6ac7afd9a9a6aa83fe7a9dae75dae6897f799831f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jdk_s390x_linux_openj9_2019-06-10-11-05.tar.gz'; \
+         ESUM='afa9be11503eb15d5422da35cd90b376abbc9411d7defddeae2a0e038ea275df'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_s390x_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
-       amd64|x86_64) \
-         ESUM='652003268856f59f8178dfd868c75f2c7556dbbf08928fdf2e391e9fe664076f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-10-11-05/OpenJDK8U-jdk_x64_linux_openj9_2019-06-10-11-05.tar.gz'; \
+       ppc64el|ppc64le) \
+         ESUM='f8f4be6ecf58279409c819d4274777e781da7e770f02218f83a38a7f2f9e8862'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-06-24-02-58.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
