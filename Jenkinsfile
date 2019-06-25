@@ -8,11 +8,11 @@ emailBreaks {
         stage('Build Docker Images') {
             docker.withRegistry('https://docker.tivo.com', 'docker-registry') {
                 dir('8/jre/alpine') {
-                    def image = docker.build("docker.tivo.com/alpine-java:8_server-jre", "-f Dockerfile.hotspot.releases.full --pull .")
+                    def image = docker.build("docker.tivo.com/openjdk8:alpine-jre", "-f Dockerfile.hotspot.releases.full --pull .")
                     image.push()
                 }
                 dir('8/jdk/alpine') {
-                    def image = docker.build("docker.tivo.com/alpine-java:8_jdk", "-f Dockerfile.hotspot.releases.full --pull .")
+                    def image = docker.build("docker.tivo.com/openjdk8:alpine", "-f Dockerfile.hotspot.releases.full --pull .")
                     image.push()
                 }
                 dir('11/jre/alpine') {
