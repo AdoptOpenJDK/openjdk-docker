@@ -24,8 +24,8 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
-    && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
+    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
+    && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
     && curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
@@ -59,21 +59,21 @@ RUN set -eux; \
     apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='cd69817cb0218d2e9d5c445b076a77933426219c02985a53d1cbbd27aa02fe51'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_aarch64_linux_hotspot_2019-06-24-02-58.tar.gz'; \
-         ;; \
-       amd64|x86_64) \
-         ESUM='93c37a9180f8167821b7b98985bbb00298a81d6847cdea0bca9a15aef16ae49d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_x64_linux_hotspot_2019-06-24-02-58.tar.gz'; \
+       ppc64el|ppc64le) \
+         ESUM='005b0b71f5a69c71a6e63c0da15b88bfb0cbe1b29bce8e8906d333643d6ba746'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_ppc64le_linux_hotspot_2019-07-14-16-25.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b16901ef21627f953e98644b0b2197d56e8c22e1c461df88d97219fb2adfff8a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_s390x_linux_hotspot_2019-06-24-02-58.tar.gz'; \
+         ESUM='67f82b1c6f20316a0c1106794bc1a83496eca2e2a81f15f9179f0de4786ab9bb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_s390x_linux_hotspot_2019-07-14-16-25.tar.gz'; \
          ;; \
-       ppc64el|ppc64le) \
-         ESUM='127e9d0fed4e1efd904aa284abc128fa04a7c7f4f3370ba2078e3bcd91ace706'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_ppc64le_linux_hotspot_2019-06-24-02-58.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='39b6ac1ff60c308b77f5982db186ed775888958e1118c772fb689a32d64c84d1'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_x64_linux_hotspot_2019-07-14-16-25.tar.gz'; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='633e36e039df314f017f123bd8b8670b6a25e4f3850581d7ed4deb3ddd03ca92'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_aarch64_linux_hotspot_2019-07-14-16-25.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

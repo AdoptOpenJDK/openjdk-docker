@@ -34,17 +34,17 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       amd64|x86_64) \
-         ESUM='5f2a95f77aa681703f49164a77f93ec524baaf6ea3af8a89fff3fc85e8298bc8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_x64_linux_openj9_2019-06-24-02-58.tar.gz'; \
+       ppc64el|ppc64le) \
+         ESUM='895a2dce24b66c3a10647349852011c2d24644920b8cbc0670229bdee200f874'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-07-14-16-25.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='afa9be11503eb15d5422da35cd90b376abbc9411d7defddeae2a0e038ea275df'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_s390x_linux_openj9_2019-06-24-02-58.tar.gz'; \
+         ESUM='12a9312e533063ce86d8cbe517c468c86b0ae13411203a27b29270c5fca57e9a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-14-16-25/OpenJDK8U-jdk_s390x_linux_openj9_2019-07-14-16-25.tar.gz'; \
          ;; \
-       ppc64el|ppc64le) \
-         ESUM='f8f4be6ecf58279409c819d4274777e781da7e770f02218f83a38a7f2f9e8862'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-06-24-02-58/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-06-24-02-58.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='8ca370bb5c9d9bd6a7a71615a443123e6be92534f2c7350012639f7fa75c34da'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-10-11-48/OpenJDK8U-jdk_x64_linux_openj9_2019-07-10-11-48.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
