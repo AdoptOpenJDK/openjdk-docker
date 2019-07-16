@@ -24,8 +24,8 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apk add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.29-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
-    && GCC_LIBS_SHA256=e4b39fb1f5957c5aab5c2ce0c46e03d30426f3b94b9992b009d417ff2d56af4d \
+    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
+    && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
     && curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
@@ -61,25 +61,25 @@ RUN set -eux; \
     apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='efd333adf395c3f972b012d3baa26ab58431eaebee0d23e633a9c698ce6b5e80'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-24-01-36/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-06-24-01-36.tar.gz'; \
-         ;; \
-       amd64|x86_64) \
-         ESUM='a8d2449b7424f516857bf0c8dc76de22c4592adb36268bc1820d52301aebe3c6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-24-01-36/OpenJDK11U-jdk_x64_linux_hotspot_2019-06-24-01-36.tar.gz'; \
-         ;; \
-       armhf) \
-         ESUM='a2634a347b08d9b89659884f6e91d56a76c9d5deeddee52bb4804a96ec9b1dc4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-24-01-36/OpenJDK11U-jdk_arm_linux_hotspot_2019-06-24-01-36.tar.gz'; \
+       ppc64el|ppc64le) \
+         ESUM='e25ac0af203837e9e93de523289f2678951aae80a4e5a1f7e148f960bdd0a3ec'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-07-16-04-03.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b3ed18935f91dc39766aef0e17f13280164abaa37f1cdcf8798cdecb910904a5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-24-01-36/OpenJDK11U-jdk_s390x_linux_hotspot_2019-06-24-01-36.tar.gz'; \
+         ESUM='8247d64691285b4d78e4725c81d2de0dababf67c2e0b167fa1537fe60d9b4e94'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_s390x_linux_hotspot_2019-07-16-04-03.tar.gz'; \
          ;; \
-       ppc64el|ppc64le) \
-         ESUM='6f177acbbf48e15f28e137c2d04ef75dedde18ae64355ded2b8c456b2e245599'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-06-24-01-36/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-06-24-01-36.tar.gz'; \
+       amd64|x86_64) \
+         ESUM='aba0f7b6206ab2ce6914e48744cbe02000a6db24a0b3fe63dc4e06d06a0c9fa4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_x64_linux_hotspot_2019-07-16-04-03.tar.gz'; \
+         ;; \
+       armhf) \
+         ESUM='b04d6472121cfb470350a993069d6e4bbabb53faab0c34166bb461f7e3b6e097'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_arm_linux_hotspot_2019-07-16-04-03.tar.gz'; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='5dce7b2d2d645252b693d7da78bf424e890574e17ed9bef3f7a87b24eaa47d52'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-07-16-04-03.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
