@@ -34,6 +34,10 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='46af87315e6620a5998ab92d6a70f75f9d7ef4437f22cf6f07561ddcd389e12a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_aarch64_linux_openj9_2019-07-16-04-03.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='0d092fb8612e8e2e1c2c464d78b1206bf0f0eaf1932b12e0dda39c26b0406022'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_ppc64le_linux_openj9_2019-07-16-04-03.tar.gz'; \
@@ -45,10 +49,6 @@ RUN set -eux; \
        amd64|x86_64) \
          ESUM='f9fe9316fd23893698523bfd1347e4912c8670376c21b8ea49321ce395407d01'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_x64_linux_openj9_2019-07-16-04-03.tar.gz'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='46af87315e6620a5998ab92d6a70f75f9d7ef4437f22cf6f07561ddcd389e12a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_aarch64_linux_openj9_2019-07-16-04-03.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

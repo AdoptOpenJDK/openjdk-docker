@@ -174,7 +174,7 @@ print_java_install_pre() {
 	if [ "${vm}" != "hotspot" ]; then
 		reldir="${reldir}-${vm}";
 	fi
-	supported_arches=$(get_arches ${shasums})
+	supported_arches=$(get_arches ${shasums} | sort)
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
