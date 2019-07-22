@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk12u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-15-15-21/OpenJDK12U-jre_x64_windows_hotspot_2019-07-15-15-21.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_x64_windows_hotspot_2019-07-17-05-46.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-15-15-21/OpenJDK12U-jre_x64_windows_hotspot_2019-07-15-15-21.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (e9a8d027fc7c48de3adbec2b82a8e46e38cd3b5258a89ae3526e07af078defdf) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'e9a8d027fc7c48de3adbec2b82a8e46e38cd3b5258a89ae3526e07af078defdf') { \
+        wget https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_x64_windows_hotspot_2019-07-17-05-46.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (f6ade156d2c05ba63d005db2e71ba11a0226fdb632430e600b5d341c03c7f0ed) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f6ade156d2c05ba63d005db2e71ba11a0226fdb632430e600b5d341c03c7f0ed') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
