@@ -32,6 +32,10 @@ ENV JAVA_VERSION jdk-12.0.2+10
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='df8f75fda5430bb99d12316811e2fdb084cd88084a0cbabaa0ae0574cbcd007c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_aarch64_linux_hotspot_12.0.2_10.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='3a8554c1cc340b31c55698a4946d2d9039121f509e2e4be33fae39e5fb452698'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_ppc64le_linux_hotspot_12.0.2_10.tar.gz'; \
@@ -43,10 +47,6 @@ RUN set -eux; \
        amd64|x86_64) \
          ESUM='1e43c4129272d49f7d3c25b6054d5f1140a7168864d9a9b965f9295adc62e44b'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_x64_linux_hotspot_12.0.2_10.tar.gz'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='df8f75fda5430bb99d12316811e2fdb084cd88084a0cbabaa0ae0574cbcd007c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jre_aarch64_linux_hotspot_12.0.2_10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -32,6 +32,10 @@ ENV JAVA_VERSION jdk12u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='0511fb699d3ecbb884859e6954027aa7b8be9964f43a6ac66c1dd50f7c1e8ae8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_aarch64_linux_hotspot_2019-07-17-05-46.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='2895861094103966b1d7a50b04927c7e10733f385ce5eab4028610dccf0171ad'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_ppc64le_linux_hotspot_2019-07-17-05-46.tar.gz'; \
@@ -43,10 +47,6 @@ RUN set -eux; \
        amd64|x86_64) \
          ESUM='97a5a92b899fe7bc8927064d0d16837023e77dc27484d4eb3d1b5b6418ce838d'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_x64_linux_hotspot_2019-07-17-05-46.tar.gz'; \
-         ;; \
-       aarch64|arm64) \
-         ESUM='0511fb699d3ecbb884859e6954027aa7b8be9964f43a6ac66c1dd50f7c1e8ae8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk12u-2019-07-17-05-46/OpenJDK12U-jre_aarch64_linux_hotspot_2019-07-17-05-46.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
