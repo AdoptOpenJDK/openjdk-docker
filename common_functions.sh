@@ -480,6 +480,18 @@ function get_shasums() {
 	arch=$5
 	ofile="${root_dir}/${vm}_shasums_latest.sh"
 
+	# Dont build the shasums array it already exists for the Ver/VM/Pkg/Build combination
+	if [ -f ${ofile} ]; then
+		source ./${vm}_shasums_latest.sh
+		sums="${pkg}_${vm}_${ver}_${build}_sums"
+		# File exists, which means shasums for the VM exists.
+		# Now check for the specific Ver/VM/Pg/Build combo
+		suparches=$(get_arches ${sums})
+		if [ ! -z "${suparches}" ]; then
+			return;
+		fi
+	fi
+
 	if [ ! -z "${build}" ]; then
 		get_sums_for_build ${ver} ${vm} ${pkg} ${build} ${arch}
 	else
