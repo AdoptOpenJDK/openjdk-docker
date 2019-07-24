@@ -3,7 +3,7 @@
 emailBreaks {
     node('docker') {
         stage('Code Checkout'){
-            git 'https://github.com/TiVo/openjdk-docker.git'
+            checkout scm
         }
         stage('Build Docker Images') {
             docker.withRegistry('https://docker.tivo.com', 'docker-registry') {
