@@ -50,7 +50,7 @@ print_ubuntu_ver() {
 
 # Print the supported Debian OS
 print_debian_ver() {
-	os_version="stretch"
+	os_version="buster"
 
 	cat >> $1 <<-EOI
 	FROM debian:${os_version}
