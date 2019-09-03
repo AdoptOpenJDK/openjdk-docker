@@ -129,11 +129,11 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
     && echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
     && curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/glibc-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-${GLIBC_VER}.apk \
     && curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk > /tmp/glibc-bin-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-bin-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-bin-${GLIBC_VER}.apk \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-i18n-${GLIBC_VER}.apk > /tmp/glibc-i18n-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-i18n-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-i18n-${GLIBC_VER}.apk \
     && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
     && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
     && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
@@ -264,7 +264,7 @@ print_debian_slim_package() {
 print_alpine_slim_package() {
 	cat >> $1 <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
-    apk add --virtual .build-deps bash binutils; \\
+    apk add --no-cache --virtual .build-deps bash binutils; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
     apk del --purge .build-deps; \\
     rm -rf /var/cache/apk/*; \\
@@ -331,7 +331,7 @@ print_alpine_java_install() {
 	btype=$4
 	cat >> $1 <<-EOI
 RUN set -eux; \\
-    apk add --virtual .fetch-deps curl; \\
+    apk add --no-cache --virtual .fetch-deps curl; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
