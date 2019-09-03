@@ -17,17 +17,24 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 1. There are two kinds of build images
    * Release build images
      - These are release tested versions of the JDKs.
-     - Associated tags: latest, alpine, ${version}
+     - Associated tags: latest, alpine|debian, ${version}, ${version}-alpine|debian
    * Nightly build images
      - These are nightly builds with minimal testing.
-     - Associated tags: nightly, alpine-nightly, ${version}-nightly
+     - Associated tags: nightly, alpine|debian-nightly, ${version}-nightly, ${version}-alpine|debian-nightly
 2. There are two build types
    * Full build images
      - This consists of the full JDK.
-     - Associated tags: latest, alpine, ${version}
+     - Associated tags: latest, nightly, alpine|debian, ${version}, ${version}-alpine|debian
    * Slim build images
      - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud.
-     - Associated tags: slim, alpine-slim, ${version}-slim
+     - Associated tags: slim, nightly-slim, alpine|debian-slim, ${version}-slim, ${version}-alpine|debian-slim
+3. There are also JDK and JRE only variants
+   * JDK build images
+     - This consists of the full JDK.
+     - Associated tags: latest, nightly, slim, nightly-slim, alpine|debian, ${version}, ${version}-alpine|debian
+   * JRE build images
+     - This consists of only JRE.
+     - Associated tags: jre, jre-nightly, alpine|debian-jre, ${version}-alpine|debian-jre
 
 **Here is a listing of the image sizes for the various build images and types for JDK Version 8**
 
