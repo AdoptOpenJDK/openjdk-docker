@@ -193,6 +193,20 @@ print_env() {
 	jverinfo=${shasums}[version]
 	eval jver=\${$jverinfo}
 
+# Print additional label for UBI alone
+if [ "${os}" == "ubi-minimal" ]; then
+	cat >> $1 <<-EOI
+
+LABEL name="AdoptOpenJDK Java" \\
+      vendor="AdoptOpenJDK" \\
+      version="${jver}" \\
+      release="${version}" \\
+      run="docker run --rm -ti <image_name:tag> /bin/bash" \\
+      summary="AdoptOpenJDK Docker Image for OpenJDK with ${vm} and ${os}" \\
+      description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
+EOI
+fi
+
 	cat >> $1 <<-EOI
 
 ENV JAVA_VERSION ${jver}
