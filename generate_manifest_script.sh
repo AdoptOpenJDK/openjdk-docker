@@ -113,6 +113,7 @@ fi
 # Populate the script to create the manifest list
 echo "#!/usr/bin/env bash" > ${man_file}
 echo  >> ${man_file}
+chmod +x ${man_file}
 
 # Go through each vm / os / build / type combination and build the manifest commands
 # vm    = hotspot / openj9
@@ -146,6 +147,10 @@ do
 				fi
 				for btype in ${btypes}
 				do
+					# Do not build anything built by Official Docker builds.
+					if [ "${os}" == "ubuntu" && "${build}" == "releases" && "${btype}" == "full" ]; then
+						continue;
+					fi
 					echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."
 					# Get the relevant tags for this vm / os / build / type combo from the tags.config file
 					raw_tags=$(parse_tag_entry ${os} ${package} ${build} ${btype})
@@ -158,5 +163,4 @@ do
 	done
 done
 
-chmod +x ${man_file}
 echo "INFO: Manifest commands in file: ${man_file}"
