@@ -306,6 +306,8 @@ function get_v2_url() {
 		else
 			specifiers="${specifiers}&os=linux&arch=${url_arch}"
 		fi
+	else
+		specifiers="${specifiers}&os=linux"
 	fi
 
 	echo "${baseurl}?${specifiers}"
@@ -392,6 +394,7 @@ function get_sums_for_build_arch() {
 	curl -Lso ${shasum_file} ${LATEST_URL};
 	# Bad builds cause the latest url to return an empty file or sometimes curl fails
 	if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
+		echo "Latest url not available at url: ${LATEST_URL}"
 		continue;
 	fi
 	# Even if the file is not empty, it might just say "No matches"
@@ -411,6 +414,7 @@ function get_sums_for_build_arch() {
 		# Sometimes shasum files are missing, check for error and do not print on error.
 		shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
 		if [ ! -z "${shasum_available}" ]; then
+			echo "shasum file not available at url: ${shasums_url}"
 			continue;
 		fi
 		# Get the release version for this arch from the info file
@@ -422,6 +426,7 @@ function get_sums_for_build_arch() {
 		# Parent version in this case would be the "full_version" from function get_sums_for_build
 		# The parent version will automatically be the latest for all arches as returned by the v2 API
 		if [ "${arch_build_version}" != "${full_version}" ]; then
+			echo "Parent version not matching: ${arch_build_version}, ${full_version}"
 			continue;
 		fi
 		# Only print the entry if the shasum is not empty
