@@ -14,27 +14,65 @@ Please note you'll need to [upgrade bash shell on Mac OS X](https://itnext.io/up
 The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Supported builds and build types
+
+### Legend
+
+   * ${os} = alpine|debian|ubuntu|windows
+   * ${slim-os} = alpine|debian|ubuntu
+   * ${jdk-version} Eg. jdk-11.0.3_7, jdk-12.33_openj9-0.13.0
+   * ${jre-version} Eg. jre-11.0.3_7, jre-12.33_openj9-0.13.0
+
 1. There are two kinds of build images
    * Release build images
      - These are release tested versions of the JDKs.
-     - Associated tags: latest, alpine|debian, ${version}, ${version}-alpine|debian
+     - Associated tags:
+     ```
+       - latest, ${os},           ${jdk-version},      ${jdk-version}-${os}
+       - jre,    ${os}-jre,       ${jre-version},      ${jre-version}-${os}
+       - slim,   ${slim-os}-slim, ${jdk-version}-slim, ${jdk-version}-${slim-os}-slim
+     ```
    * Nightly build images
      - These are nightly builds with minimal testing.
-     - Associated tags: nightly, alpine|debian-nightly, ${version}-nightly, ${version}-alpine|debian-nightly
+     - Associated tags:
+     ```
+       - nightly,      ${os}-nightly,           ${jdk-version}-${os}-nightly
+       - jre-nightly,  ${os}-jre-nightly,       ${jre-version}-${os}-nightly
+       - nightly-slim, ${slim-os}-nightly-slim, ${jdk-version}-${slim-os}-nightly-slim
+     ```  
 2. There are two build types
    * Full build images
      - This consists of the full JDK.
-     - Associated tags: latest, nightly, alpine|debian, ${version}, ${version}-alpine|debian
+     - Associated tags:
+     ```
+       - latest,      ${os},             ${jdk-version},         ${jdk-version}-${os}
+       - jre,         ${os}-jre,         ${jre-version},         ${jre-version}-${os}
+       - nightly,     ${os}-nightly,     ${jdk-version}-nightly, ${jdk-version}-${os}-nightly
+       - jre-nightly, ${os}-jre-nightly, ${jre-version}-nightly, ${jre-version}-${os}-nightly
+     ```  
    * Slim build images
      - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud.
-     - Associated tags: slim, nightly-slim, alpine|debian-slim, ${version}-slim, ${version}-alpine|debian-slim
+     - Associated tags:
+     ```
+       - slim,         ${slim-os}-slim,         ${jdk-version}-slim,         ${jdk-version}-${slim-os}-slim
+       - nightly-slim, ${slim-os}-nightly-slim, ${jdk-version}-nightly-slim, ${jdk-version}-${slim-os}-nightly-slim
+     ```  
 3. There are also JDK and JRE only variants
    * JDK build images
      - This consists of the full JDK.
-     - Associated tags: latest, nightly, slim, nightly-slim, alpine|debian, ${version}, ${version}-alpine|debian
+     - Associated tags:
+     ```
+       - latest,       ${os},                   ${jdk-version},              ${jdk-version}-${os}
+       - slim,         ${slim-os}-slim,         ${jdk-version}-slim,         ${jdk-version}-${slim-os}-slim
+       - nightly,      ${os}-nightly,           ${jdk-version}-nightly,      ${jdk-version}-${os}-nightly
+       - nightly-slim, ${slim-os}-nightly-slim, ${jdk-version}-nightly-slim, ${jdk-version}-${slim-os}-nightly-slim
+     ```  
    * JRE build images
      - This consists of only JRE.
-     - Associated tags: jre, jre-nightly, alpine|debian-jre, ${version}-alpine|debian-jre
+     - Associated tags:
+     ```
+       - jre,         ${os}-jre,         ${jre-version},         ${jre-version}-${os}
+       - jre-nightly, ${os}-jre-nightly, ${jre-version}-nightly, ${jre-version}-${os}-nightly
+     ```
 
 **Here is a listing of the image sizes for the various build images and types for JDK Version 8**
 
