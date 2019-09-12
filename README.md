@@ -17,7 +17,7 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 ### Legend
 
-   * ${os} = alpine|debian|ubuntu|windows
+   * ${os} = alpine|debian|ubi-minimal|ubuntu|windows
    * ${slim-os} = alpine|debian|ubuntu
    * ${jdk-version} Eg. jdk-11.0.3_7, jdk-12.33_openj9-0.13.0
    * ${jre-version} Eg. jre-11.0.3_7, jre-12.33_openj9-0.13.0
