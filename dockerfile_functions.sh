@@ -58,6 +58,24 @@ print_debian_ver() {
 	EOI
 }
 
+print_ubi_ver() {
+	os_version="latest"
+
+	cat >> $1 <<-EOI
+	FROM registry.access.redhat.com/ubi8/ubi:${os_version}
+
+	EOI
+}
+
+print_ubi-minimal_ver() {
+	os_version="latest"
+
+	cat >> $1 <<-EOI
+	FROM registry.access.redhat.com/ubi8/ubi-minimal:${os_version}
+
+	EOI
+}
+
 # Print the supported Windows OS
 print_windows_ver() {
 	os=$4
@@ -152,11 +170,42 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 EOI
 }
 
+# Select the ubi OS packages.
+print_ubi_pkg() {
+	cat >> $1 <<'EOI'
+RUN dnf install -y openssl curl ca-certificates gzip tar \
+    && dnf update; dnf clean all
+EOI
+}
+
+
+# Select the ubi OS packages.
+print_ubi-minimal_pkg() {
+	cat >> $1 <<'EOI'
+RUN microdnf install openssl curl ca-certificates gzip tar \
+    && microdnf update; microdnf clean all
+EOI
+}
+
 # Print the Java version that is being installed here
 print_env() {
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 	jverinfo=${shasums}[version]
 	eval jver=\${$jverinfo}
+
+# Print additional label for UBI alone
+if [ "${os}" == "ubi-minimal" ]; then
+	cat >> $1 <<-EOI
+
+LABEL name="AdoptOpenJDK Java" \\
+      vendor="AdoptOpenJDK" \\
+      version="${jver}" \\
+      release="${version}" \\
+      run="docker run --rm -ti <image_name:tag> /bin/bash" \\
+      summary="AdoptOpenJDK Docker Image for OpenJDK with ${vm} and ${os}" \\
+      description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
+EOI
+fi
 
 	cat >> $1 <<-EOI
 
@@ -344,6 +393,25 @@ EOI
     rm -rf /var/cache/apk/*; \\
 EOI
 	print_java_install_post $1
+}
+
+# Print the main RUN command that installs Java on ubi
+print_ubi_java_install() {
+	pkg=$2
+	bld=$3
+	btype=$4
+	cat >> $1 <<-EOI
+RUN set -eux; \\
+    ARCH="\$(uname -m)"; \\
+    case "\${ARCH}" in \\
+EOI
+	print_java_install_pre ${file} ${pkg} ${bld} ${btype}
+	print_java_install_post $1
+}
+
+# Print the main RUN command that installs Java on ubi
+print_ubi-minimal_java_install() {
+	print_ubi_java_install $1 $2 $3 $4
 }
 
 # Print the JAVA_HOME and PATH.

@@ -70,17 +70,17 @@ function set_arch_os() {
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian"
+		oses="ubuntu debian ubi-minimal"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian"
+		oses="ubuntu debian ubi-minimal"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian"
+		oses="ubuntu debian ubi-minimal"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -93,7 +93,7 @@ function set_arch_os() {
 				;;
 			*)
 			current_arch="x86_64"
-			oses="ubuntu alpine debian"
+			oses="ubuntu alpine debian ubi-minimal"
 			os_family="linux"
 			;;
 		esac
