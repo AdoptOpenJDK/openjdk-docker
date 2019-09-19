@@ -27,7 +27,6 @@ source ./common_functions.sh
 official_docker_image_file="adoptopenjdk"
 oses="ubuntu alpine debian windows"
 
-latest_version="12"
 hotspot_latest_tags="hotspot, latest"
 openj9_latest_tags="openj9"
 

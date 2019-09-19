@@ -33,7 +33,8 @@ all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd"
 all_packages="jdk jre"
 
 # Current JVM versions supported
-export supported_versions="8 11 12"
+export supported_versions="8 11 13"
+export latest_version="13"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -41,7 +42,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10|11|12)
+	8|9|10|11|12|13)
 		;;
 	*)
 		echo "ERROR: Invalid version"
