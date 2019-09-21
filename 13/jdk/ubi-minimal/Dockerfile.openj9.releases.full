@@ -1,0 +1,67 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN microdnf install openssl curl ca-certificates gzip tar \
+    && microdnf update; microdnf clean all
+
+LABEL name="AdoptOpenJDK Java" \
+      vendor="AdoptOpenJDK" \
+      version="jdk-13+33_openj9-0.16.0" \
+      release="13" \
+      run="docker run --rm -ti <image_name:tag> /bin/bash" \
+      summary="AdoptOpenJDK Docker Image for OpenJDK with openj9 and ubi-minimal" \
+      description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
+
+ENV JAVA_VERSION jdk-13+33_openj9-0.16.0
+
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+       ppc64el|ppc64le) \
+         ESUM='296442d3f311e47b7404745791655dbfbab4bf97531c3af38aa95529754305c7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13%2B33_openj9-0.16.0/OpenJDK13U-jdk_ppc64le_linux_openj9_13_33_openj9-0.16.0.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='8c8c5cabf75454e6da595eca7f8fa9481d8ebdd97db19d94f04164435b2ba8bb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13%2B33_openj9-0.16.0/OpenJDK13U-jdk_s390x_linux_openj9_13_33_openj9-0.16.0.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='68ebab0021c719694be8fc868478725a69c5c515cdb62e2933eefe87ba6437df'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13%2B33_openj9-0.16.0/OpenJDK13U-jdk_x64_linux_openj9_13_33_openj9-0.16.0.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+CMD ["jshell"]

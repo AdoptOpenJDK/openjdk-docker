@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk11u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_x64_windows_openj9_2019-07-16-04-03.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-17-08-16/OpenJDK11U-jdk_x64_windows_openj9_2019-09-17-08-16.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-07-16-04-03/OpenJDK11U-jdk_x64_windows_openj9_2019-07-16-04-03.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (43f4a26ab6a0b79e5abad84279ffa0daf934fc1b1ea741e7bd985017645ce5a7) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '43f4a26ab6a0b79e5abad84279ffa0daf934fc1b1ea741e7bd985017645ce5a7') { \
+        wget https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-17-08-16/OpenJDK11U-jdk_x64_windows_openj9_2019-09-17-08-16.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (b61e9fcc6d25c5fcd8f645d4ebd81a93df7ad346c2c599b1c87d132952478296) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'b61e9fcc6d25c5fcd8f645d4ebd81a93df7ad346c2c599b1c87d132952478296') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
