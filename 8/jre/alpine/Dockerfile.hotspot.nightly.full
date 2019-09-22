@@ -32,11 +32,11 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" \
     && echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - \
     && curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/glibc-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-${GLIBC_VER}.apk \
     && curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk > /tmp/glibc-bin-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-bin-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-bin-${GLIBC_VER}.apk \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-i18n-${GLIBC_VER}.apk > /tmp/glibc-i18n-${GLIBC_VER}.apk \
-    && apk add /tmp/glibc-i18n-${GLIBC_VER}.apk \
+    && apk add --no-cache /tmp/glibc-i18n-${GLIBC_VER}.apk \
     && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
     && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
     && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
@@ -56,24 +56,28 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 ENV JAVA_VERSION jdk8u
 
 RUN set -eux; \
-    apk add --virtual .fetch-deps curl; \
+    apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='7e251946a82216f39ecf3a341bc075f2d5e5c54ea915de64ff6f477fefed648c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-16-20-20/OpenJDK8U-jre_aarch64_linux_hotspot_2019-07-16-20-20.tar.gz'; \
+         ESUM='f0fe7fe129b8365cf1b7da1c650b280625a97a9364ffb8ed98a06a9b0445b06f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-17-13-32/OpenJDK8U-jre_aarch64_linux_hotspot_2019-09-17-13-32.tar.gz'; \
+         ;; \
+       armhf) \
+         ESUM='7d30849471a22e9f0282a5b83897c9fd579a20b01cb5ebeb0ec6fad271e0eebc'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-05-18-46/OpenJDK8U-jre_arm_linux_hotspot_2019-09-05-18-46.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='1e2a2d8f96dcf65dc50b4a981d0a09674461e726853f2dea72abcb38e813059b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-16-20-20/OpenJDK8U-jre_ppc64le_linux_hotspot_2019-07-16-20-20.tar.gz'; \
+         ESUM='9dc30b2e267e2a8766e7ca89728f654bc32f4c6bf9190044e83755a75cccf948'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-17-13-32/OpenJDK8U-jre_ppc64le_linux_hotspot_2019-09-17-13-32.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='84cfcd6fbf111b3c30fbe191f34d9e6cb874420057c52d3ffdbfae0ccae52fcb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-16-20-20/OpenJDK8U-jre_s390x_linux_hotspot_2019-07-16-20-20.tar.gz'; \
+         ESUM='1a50dbc3274ab3ddf111e18b980df0893c6557967c8e08b50aa7d29d3e1c58b9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-17-13-32/OpenJDK8U-jre_s390x_linux_hotspot_2019-09-17-13-32.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='8df29c7454b0f7f2bcd625867d636b251ffacfd6cc172bfb6ca9c4c3966fc97e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-07-16-20-20/OpenJDK8U-jre_x64_linux_hotspot_2019-07-16-20-20.tar.gz'; \
+         ESUM='63701612b9ecd82ffe7eb9c8e3711c1e013de403b1932c53c72843833eacf6fb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-17-13-32/OpenJDK8U-jre_x64_linux_hotspot-jfr_2019-09-17-13-32.tar.gz https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-17-13-32/OpenJDK8U-jre_x64_linux_hotspot_2019-09-17-13-32.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
