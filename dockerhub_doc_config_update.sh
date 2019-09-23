@@ -25,7 +25,7 @@ set -o pipefail
 source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
-oses="ubuntu alpine debian windows"
+oses="alpine debian ubi-minimal ubuntu"
 
 hotspot_latest_tags="hotspot, latest"
 openj9_latest_tags="openj9"
@@ -58,25 +58,15 @@ function generate_unofficial_image_info() {
 	full_version=$(grep "VERSION" ${file} | awk '{ print $3 }')
 	# Replace "+" with "_" in the version info as docker does not support "+"
 	full_version=$(echo ${full_version} | sed 's/+/_/')
-	if [ "${pkg}" == "jre" ]; then
-		full_version=$(echo ${full_version} | sed 's/jdk/jre/')
-	fi
 
-	# Suffix nightly and slim builds accordingly
-	if [ "${build}" == "nightly" ]; then
-		full_version="${full_version}-${build}"
-	fi
-	if [ "${btype}" == "slim" ]; then
-		full_version="${full_version}-${btype}"
-	fi
-
-	# Build a lit of super tags (in addition to the non arch specific tags)
+	# Build a list of super tags (in addition to the non arch specific tags)
 	super_tags="";
 	case ${os} in
 	ubuntu)
 		# JRE ubuntu builds have a `jre` tag
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${pkg}";
+			full_version=$(echo ${full_version} | sed 's/jdk/jre/')
 		fi
 		# Nightly ubuntu builds have a `nightly` tag
 		if [ "${build}" == "nightly" ]; then
@@ -85,6 +75,7 @@ function generate_unofficial_image_info() {
 			else
 				super_tags="${super_tags}-${build}"
 			fi
+			full_version="${full_version}-${build}"
 		fi
 		# Slim ubuntu builds have a `slim` tag
 		if [ "${btype}" == "slim" ]; then
@@ -93,23 +84,28 @@ function generate_unofficial_image_info() {
 			else
 				super_tags="${super_tags}-${btype}"
 			fi
+			full_version="${full_version}-${btype}"
 		fi
 		# If none of the above, it has to be the `latest` build
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
 		fi
 		;;
-	alpine|debian|windows)
+	alpine|debian|ubi-minimal|windows)
 		# Non Ubuntu builds all have the `$os` tag prepended
 		super_tags="${os}";
+		full_version="${full_version}-${os}"
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
+			full_version=$(echo ${full_version} | sed 's/jdk/jre/')
 		fi
 		if [ "${build}" == "nightly" ]; then
 			super_tags="${super_tags}-${build}";
+			full_version="${full_version}-${build}"
 		fi
 		if [ "${btype}" == "slim" ]; then
 			super_tags="${super_tags}-${btype}"
+			full_version="${full_version}-${btype}"
 		fi
 		;;
 	esac
@@ -200,7 +196,7 @@ rm -f ${official_docker_image_file}
 print_official_header
 
 # Currently we are not pushing official docker images for Alpine, Debian and Windows
-official_os_ignore_array=(alpine debian windows)
+official_os_ignore_array=(alpine debian ubi-minimal windows)
 
 # Generate config and doc info only for "supported" official builds.
 function generate_official_image_info() {
