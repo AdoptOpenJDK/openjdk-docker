@@ -38,24 +38,24 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='fc51a8c8290b3e62c9a12e04d37675d585588ca7e2c3ac03d51b7a9747f70272'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-17-13-18/OpenJDK13U-jdk_aarch64_linux_hotspot_2019-09-17-13-18.tar.gz'; \
+         ESUM='3e67cafa8af2cd8ad382a8fe7f0c3032e1f020428202d3adb3bd354fd8323a43'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_aarch64_linux_hotspot_2019-09-25-02-58.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='1ce2b632cc333234b521362ee9a4528436a8f8600cae44d7bc5267e7ba412edc'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-17-13-18/OpenJDK13U-jdk_arm_linux_hotspot_2019-09-17-13-18.tar.gz'; \
+         ESUM='54e48d2ad701296fed326ad764212bdd0e069ba6adb6ed0d0d17504a7f9920b8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_arm_linux_hotspot_2019-09-25-02-58.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='3e743fec317318934c8d4d9665bf908d214858d51eaf9c57e4e8cb5111fd4cf7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-17-13-18/OpenJDK13U-jdk_ppc64le_linux_hotspot_2019-09-17-13-18.tar.gz'; \
+         ESUM='ccf05e9937f67f21a0af06a00c865451dda96d014d93ec01d5219c664bc26e29'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_ppc64le_linux_hotspot_2019-09-25-02-58.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='9c14cf47a4e3398f83daa653b6744348f2b10f2b8337bab3959f97c19de0aad9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-17-13-18/OpenJDK13U-jdk_s390x_linux_hotspot_2019-09-17-13-18.tar.gz'; \
+         ESUM='995b88e59a06039c6f317652eda5a89cfa140a4ee913978e3649390ba97e52a6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_s390x_linux_hotspot_2019-09-25-02-58.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='c528682dcb6a89cdc232fb1e15e569c34edf15861efa080d860894e81cd599a9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-17-13-18/OpenJDK13U-jdk_x64_linux_hotspot_2019-09-17-13-18.tar.gz'; \
+         ESUM='c738ff4c945cbc7cb1cbc0b3f0b6199a19dea49cc4c80b068d19a6b6e72163f1'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_x64_linux_hotspot_2019-09-25-02-58.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

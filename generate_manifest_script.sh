@@ -148,7 +148,7 @@ do
 				for btype in ${btypes}
 				do
 					# Do not build anything built by Official Docker builds.
-					if [ "${os}" == "ubuntu" && "${build}" == "releases" && "${btype}" == "full" ]; then
+					if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
 						continue;
 					fi
 					echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."

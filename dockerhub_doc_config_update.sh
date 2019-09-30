@@ -196,7 +196,7 @@ rm -f ${official_docker_image_file}
 print_official_header
 
 # Currently we are not pushing official docker images for Alpine, Debian and Windows
-official_os_ignore_array=(alpine debian ubi-minimal windows)
+official_os_ignore_array=(alpine debian ubi-minimal)
 
 # Generate config and doc info only for "supported" official builds.
 function generate_official_image_info() {

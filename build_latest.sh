@@ -134,6 +134,10 @@ do
 				# Generate all the Dockerfiles for each of the builds and build types
 				for btype in ${btypes}
 				do
+					# Do not build anything built by Official Docker builds.
+					if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
+						continue;
+					fi
 					file="${dir}/Dockerfile.${vm}.${build}.${btype}"
 					generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
 					if [ ! -f ${file} ]; then
