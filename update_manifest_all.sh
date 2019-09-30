@@ -18,54 +18,60 @@ source ./common_functions.sh
 
 for ver in ${supported_versions}
 do
-	# Cleanup any old containers, images and manifest entries.
-	cleanup_images
-	cleanup_manifest
+	for vm in ${all_jvms}
+	do
+		for package in ${all_packages}
+		do
+			# Cleanup any old containers, images and manifest entries.
+			cleanup_images
+			cleanup_manifest
 
-	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			# Remove any temporary files
+			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
 
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                 Generating Manifest Entries for Version ${ver}                "
-	echo "                                                                               "
-	echo "==============================================================================="
-	./generate_manifest_script.sh ${ver}
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                 Generating Manifest Entries for Version ${ver}                "
+			echo "                                                                               "
+			echo "==============================================================================="
+			./generate_manifest_script.sh ${ver} ${vm} ${package}
 
-	err=$?
-	if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
-		echo
-		echo "ERROR: Docker Build for version ${ver} failed."
-		echo
-		exit 1;
-	fi
-	echo
-	echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
-	echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
-	echo
-	sleep 5
+			err=$?
+			if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
+				echo
+				echo "ERROR: Docker Build for version ${ver} failed."
+				echo
+				exit 1;
+			fi
+			echo
+			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
+			echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
+			echo
+			sleep 5
 
-	# Now push the manifest entries to hub.docker.com
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                 Pushing Manifest Entries for Version ${ver}                   "
-	echo "                                                                               "
-	echo "==============================================================================="
-	cat manifest_commands.sh
-	./manifest_commands.sh
+			# Now push the manifest entries to hub.docker.com
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                 Pushing Manifest Entries for Version ${ver}                   "
+			echo "                                                                               "
+			echo "==============================================================================="
+			cat manifest_commands.sh
+			./manifest_commands.sh
 
-	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			# Remove any temporary files
+			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
 
-	# Now test the images from hub.docker.com
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                    Testing Docker Images for Version ${ver}                   "
-	echo "                                                                               "
-	echo "==============================================================================="
-	# We will test all image types
-	cp ${test_image_types_all_file} ${test_image_types_file}
-	./test_multiarch.sh ${ver}
+			# Now test the images from hub.docker.com
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                    Testing Docker Images for Version ${ver}                   "
+			echo "                                                                               "
+			echo "==============================================================================="
+			# We will test all image types
+			cp ${test_image_types_all_file} ${test_image_types_file}
+			./test_multiarch.sh ${ver} ${vm} ${package}
+		done
+	done
 done
 
 # Cleanup any old containers, images and manifest entries.
