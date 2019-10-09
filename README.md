@@ -50,7 +50,7 @@ The Dockerfiles and associated scripts found in this project are licensed under 
        - jre-nightly, ${os}-jre-nightly, ${jre-version}-nightly, ${jre-version}-${os}-nightly
      ```  
    * Slim build images
-     - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud.
+     - These are stripped down JDK builds that remove functionality not typically needed while running in a cloud. See the [./slim-java.sh](./slim-java.sh) script to see what is stripped out.
      - Associated tags:
      ```
        - slim,         ${slim-os}-slim,         ${jdk-version}-slim,         ${jdk-version}-${slim-os}-slim
