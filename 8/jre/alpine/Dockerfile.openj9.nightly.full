@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM alpine:3.10
+FROM alpine:3.10.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -60,16 +60,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='90272f3d3b88be11dd318e801c3f6b52edbca382430d72fd423f8224612660a1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jre_ppc64le_linux_openj9_2019-09-25-11-47.tar.gz'; \
+         ESUM='b3ef145728a14695744ea920270cbf8a5b48d06c8b3d84161429e65da3ed9961'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-10-11-15/OpenJDK8U-jre_ppc64le_linux_openj9_2019-10-10-11-15.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='bb4932e94d269ff8d99eb0226117fc21c9779db9d94032688df4603f9ed0e63e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-24-22-27/OpenJDK8U-jre_s390x_linux_openj9_2019-09-24-22-27.tar.gz'; \
+         ESUM='8de87f5bf73d9fc93e99e1a1891627564a16740e0a533d5b69e80b7f97a67c1e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-10-11-15/OpenJDK8U-jre_s390x_linux_openj9_2019-10-10-11-15.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='dc8685f5a6a01ce5bcc301d7b5ce30ae2e9c3d15b35828e764553d98a12382e7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jre_x64_linux_openj9_2019-09-25-11-47.tar.gz'; \
+         ESUM='8a7d7876ffd005c71b3fdbb8debd00c462e3631525b2eb81617daa1f8e793401'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-10-11-15/OpenJDK8U-jre_x64_linux_openj9_2019-10-10-11-15.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

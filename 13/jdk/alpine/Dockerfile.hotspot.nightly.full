@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM alpine:3.10
+FROM alpine:3.10.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -60,24 +60,24 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='3e67cafa8af2cd8ad382a8fe7f0c3032e1f020428202d3adb3bd354fd8323a43'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_aarch64_linux_hotspot_2019-09-25-02-58.tar.gz'; \
+         ESUM='d2452f9f6fd87bd028d9df276d1c5c77824032056ee3a1c2ca06e5e73af56916'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-10-13-35/OpenJDK13U-jdk_aarch64_linux_hotspot_2019-10-10-13-35.tar.gz'; \
          ;; \
        armhf) \
-         ESUM='54e48d2ad701296fed326ad764212bdd0e069ba6adb6ed0d0d17504a7f9920b8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_arm_linux_hotspot_2019-09-25-02-58.tar.gz'; \
+         ESUM='330c841afa7e7b0159a8812b79e01ed564ab256b5692a7baa0458319e4ef81de'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-07-10-47/OpenJDK13U-jdk_arm_linux_hotspot_2019-10-07-10-47.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='ccf05e9937f67f21a0af06a00c865451dda96d014d93ec01d5219c664bc26e29'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_ppc64le_linux_hotspot_2019-09-25-02-58.tar.gz'; \
+         ESUM='bca9a2c80f9e3179fa888838b1eb750b694d000725d325c54e3049b5f2bb7823'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-07-10-47/OpenJDK13U-jdk_ppc64le_linux_hotspot_2019-10-07-10-47.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='995b88e59a06039c6f317652eda5a89cfa140a4ee913978e3649390ba97e52a6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_s390x_linux_hotspot_2019-09-25-02-58.tar.gz'; \
+         ESUM='caf6c8e240d2634ef0b61a7d388bc3ada9a2a44fd0278ee8dba45b0adb04b61f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-07-10-47/OpenJDK13U-jdk_s390x_linux_hotspot_2019-10-07-10-47.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='c738ff4c945cbc7cb1cbc0b3f0b6199a19dea49cc4c80b068d19a6b6e72163f1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_x64_linux_hotspot_2019-09-25-02-58.tar.gz'; \
+         ESUM='28e27aae0341604204fe97feb31360ab231f8920290da6262b502ebfdbe96895'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-10-13-35/OpenJDK13U-jdk_x64_linux_hotspot_2019-10-10-13-35.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
