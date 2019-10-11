@@ -17,7 +17,7 @@
 print_legal() {
 	cat > $1 <<-EOI
 	# ------------------------------------------------------------------------------
-	#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+	#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 	#
 	#                       PLEASE DO NOT EDIT IT DIRECTLY.
 	# ------------------------------------------------------------------------------
