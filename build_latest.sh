@@ -22,6 +22,19 @@ version="9"
 source ./common_functions.sh
 source ./dockerfile_functions.sh
 
+if [ $# -ne 3 ]; then
+	echo
+	echo "usage: $0 version vm package"
+	echo "version = ${supported_versions}"
+	echo "vm      = ${all_jvms}"
+	echo "package = ${all_packages}"
+	exit -1
+fi
+
+set_version $1
+vm=$2
+package=$3
+
 # Build the Docker image with the given repo, build, build type and tags.
 function build_image() {
 	repo=$1; shift;
@@ -83,10 +96,6 @@ function build_dockerfile {
 	popd >/dev/null
 }
 
-if [ ! -z "$1" ]; then
-	set_version $1
-fi
-
 # Set the OSes that will be built on based on the current arch
 set_arch_os
 
@@ -103,50 +112,44 @@ echo >> ${push_cmdfile}
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-slim
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly
 #adoptopenjdk/openjdk${version}-openj9:${arch}-${os}-${rel}-nightly-slim
-for vm in ${all_jvms}
+for os in ${oses}
 do
-	for package in ${all_packages}
-	do
-		for os in ${oses}
-		do
-			# Build = Release or Nightly
-			builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
-			# Type = Full or Slim
-			btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
-			dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
+	# Build = Release or Nightly
+	builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
+	# Type = Full or Slim
+	btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+	dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
 
-			for build in ${builds}
-			do
-				echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
-				get_shasums ${version} ${vm} ${package} ${build}
-				# Source the generated shasums file to access the array
-				if [ -f ${vm}_shasums_latest.sh ]; then
-					source ./${vm}_shasums_latest.sh
-				else
-					continue;
-				fi
-				# Check if the VM is supported for the current arch
-				shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-				sup=$(vm_supported_onarch ${vm} ${shasums})
-				if [ -z "${sup}" ]; then
-					continue;
-				fi
-				# Generate all the Dockerfiles for each of the builds and build types
-				for btype in ${btypes}
-				do
-					# Do not build anything built by Official Docker builds.
-					if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
-						continue;
-					fi
-					file="${dir}/Dockerfile.${vm}.${build}.${btype}"
-					generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
-					if [ ! -f ${file} ]; then
-						continue;
-					fi
-					# Build the docker images for valid Dockerfiles
-					build_dockerfile ${vm} ${package} ${os} ${build} ${btype}
-				done
-			done
+	for build in ${builds}
+	do
+		echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
+		get_shasums ${version} ${vm} ${package} ${build}
+		# Source the generated shasums file to access the array
+		if [ -f ${vm}_shasums_latest.sh ]; then
+			source ./${vm}_shasums_latest.sh
+		else
+			continue;
+		fi
+		# Check if the VM is supported for the current arch
+		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+		sup=$(vm_supported_onarch ${vm} ${shasums})
+		if [ -z "${sup}" ]; then
+			continue;
+		fi
+		# Generate all the Dockerfiles for each of the builds and build types
+		for btype in ${btypes}
+		do
+			# Do not build anything built by Official Docker builds.
+			if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
+				continue;
+			fi
+			file="${dir}/Dockerfile.${vm}.${build}.${btype}"
+			generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
+			if [ ! -f ${file} ]; then
+				continue;
+			fi
+			# Build the docker images for valid Dockerfiles
+			build_dockerfile ${vm} ${package} ${os} ${build} ${btype}
 		done
 	done
 done

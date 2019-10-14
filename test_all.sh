@@ -18,29 +18,35 @@ source ./common_functions.sh
 
 for ver in ${supported_versions}
 do
-	# Cleanup any old containers and images
-	cleanup_images
-	cleanup_manifest
+	for vm in ${all_jvms}
+	do
+		for package in ${all_packages}
+		do
+			# Cleanup any old containers and images
+			cleanup_images
+			cleanup_manifest
 
-	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh manifest_commands.sh
+			# Remove any temporary files
+			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh manifest_commands.sh
 
-	# We will test all categories
-	cp ${test_image_types_all_file} ${test_image_types_file}
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                    Testing Docker Images for Version ${ver}                   "
-	echo "                                                                               "
-	echo "==============================================================================="
-	./test_multiarch.sh ${ver}
+			# We will test all categories
+			cp ${test_image_types_all_file} ${test_image_types_file}
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                    Testing Docker Images for Version ${ver}                   "
+			echo "                                                                               "
+			echo "==============================================================================="
+			./test_multiarch.sh ${ver} ${vm} ${package}
 
-	err=$?
-	if [ ${err} != 0 ]; then
-		echo
-		echo "ERROR: Docker test for version ${ver} failed."
-		echo
-		exit 1;
-	fi
+			err=$?
+			if [ ${err} != 0 ]; then
+				echo
+				echo "ERROR: Docker test for version ${ver} failed."
+				echo
+				exit 1;
+			fi
+		done
+	done
 done
 
 # Cleanup any old containers and images

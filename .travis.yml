@@ -5,11 +5,15 @@ services: docker
 
 env:
   matrix:
-    - VERSION=12
+    - VERSION=13
     - VERSION=11
     - VERSION=8
+    - VM=hotspot
+    - VM=openj9
+    - PACKAGE=jdk
+    - PACKAGE=jre
 
-script: bash build_latest.sh $VERSION
+script: bash build_latest.sh $VERSION $VM $PACKAGE
 
 stages:
   - linter

@@ -24,6 +24,19 @@ man_file=${root_dir}/manifest_commands.sh
 
 source ./common_functions.sh
 
+if [ $# -ne 3 ]; then
+	echo
+	echo "usage: $0 version vm package"
+	echo "version = ${supported_versions}"
+	echo "vm      = ${all_jvms}"
+	echo "package = ${all_packages}"
+	exit -1
+fi
+
+set_version $1
+vm=$2
+package=$3
+
 # Print the arch specific annotate command.
 function print_annotate_cmd() {
 	main_tag=$1
@@ -81,16 +94,13 @@ function print_tags() {
 			continue;
 		fi
 		img_list="${img_list} ${trepo}:${arch_tag}"
+		echo "done"
 	done
 	print_manifest_cmd ${trepo} ${img_list}
 }
 
 # Check if the manifest tool is installed
 check_manifest_tool
-
-if [ ! -z "$1" ]; then
-	set_version $1
-fi
 
 # Set the OSes that will be built on based on the current arch
 set_arch_os
@@ -100,11 +110,11 @@ set_arch_os
 
 # Source the hotspot and openj9 shasums scripts
 available_jvms=""
-if [ -f hotspot_shasums_latest.sh ]; then
+if [ "${vm}" == "hotspot" -a -f hotspot_shasums_latest.sh ]; then
 	source ./hotspot_shasums_latest.sh
 	available_jvms="hotspot"
 fi
-if [ -f openj9_shasums_latest.sh ]; then
+if [ "${vm}" == "openj9" -a -f openj9_shasums_latest.sh ]; then
 	source ./openj9_shasums_latest.sh
 	available_jvms="${available_jvms} openj9"
 fi
@@ -120,45 +130,39 @@ chmod +x ${man_file}
 # os    = alpine / ubuntu
 # build = releases / nightly
 # type  = full / slim
-for vm in ${available_jvms}
+for os in ${oses}
 do
-	for package in ${all_packages}
+	# Build = Release or Nightly
+	builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
+	# Type = Full or Slim
+	btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
+	for build in ${builds}
 	do
-		for os in ${oses}
-		do
-			# Build = Release or Nightly
-			builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
-			# Type = Full or Slim
-			btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
-			for build in ${builds}
-			do
-				shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-				jverinfo=${shasums}[version]
-				eval jrel=\${$jverinfo}
-				if [[ -z ${jrel} ]]; then
-					continue;
-				fi
-				# Docker image tags cannot have "+" in them, replace it with "_" instead.
-				rel=$(echo ${jrel} | sed 's/+/_/g')
+		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+		jverinfo=${shasums}[version]
+		eval jrel=\${$jverinfo}
+		if [[ -z ${jrel} ]]; then
+			continue;
+		fi
+		# Docker image tags cannot have "+" in them, replace it with "_" instead.
+		rel=$(echo ${jrel} | sed 's/+/_/g')
 
-				srepo=${source_repo}${version}
-				if [ "${vm}" != "hotspot" ]; then
-					srepo=${srepo}-${vm}
-				fi
-				for btype in ${btypes}
-				do
-					# Do not build anything built by Official Docker builds.
-					if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
-						continue;
-					fi
-					echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."
-					# Get the relevant tags for this vm / os / build / type combo from the tags.config file
-					raw_tags=$(parse_tag_entry ${os} ${package} ${build} ${btype})
-					build_tags ${vm} ${version} ${package} ${rel} ${os} ${build} ${raw_tags}
-					echo "done"
-					print_tags ${srepo}
-				done
-			done
+		srepo=${source_repo}${version}
+		if [ "${vm}" != "hotspot" ]; then
+			srepo=${srepo}-${vm}
+		fi
+		for btype in ${btypes}
+		do
+			# Do not build anything built by Official Docker builds.
+			if [ "${os}" == "ubuntu" -a "${build}" == "releases" -a "${btype}" == "full" ]; then
+				continue;
+			fi
+			echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."
+			# Get the relevant tags for this vm / os / build / type combo from the tags.config file
+			raw_tags=$(parse_tag_entry ${os} ${package} ${build} ${btype})
+			build_tags ${vm} ${version} ${package} ${rel} ${os} ${build} ${raw_tags}
+			echo "done"
+			print_tags ${srepo}
 		done
 	done
 done

@@ -18,54 +18,60 @@ source ./common_functions.sh
 
 for ver in ${supported_versions}
 do
-	# Cleanup any old containers and images
-	cleanup_images
-	cleanup_manifest
+	for vm in ${all_jvms}
+	do
+		for package in ${all_packages}
+		do
+			# Cleanup any old containers and images
+			cleanup_images
+			cleanup_manifest
 
-	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+			# Remove any temporary files
+			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
 
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                    Building Docker Images for Version ${ver}                  "
-	echo "                                                                               "
-	echo "==============================================================================="
-	./build_latest.sh ${ver}
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                    Building Docker Images for Version ${ver}                  "
+			echo "                                                                               "
+			echo "==============================================================================="
+			./build_latest.sh ${ver} ${vm} ${package}
 
-	err=$?
-	if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
-		echo
-		echo "ERROR: Docker Build for version ${ver} failed."
-		echo
-		exit 1;
-	fi
-	echo
-	echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
-	echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
-	echo
-	sleep 5
-	# Now push the images to hub.docker.com
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                    Pushing Docker Images for Version ${ver}                   "
-	echo "                                                                               "
-	echo "==============================================================================="
-	cat push_commands.sh
-	./push_commands.sh
+			err=$?
+			if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
+				echo
+				echo "ERROR: Docker Build for version ${ver} failed."
+				echo
+				exit 1;
+			fi
+			echo
+			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
+			echo "WARNING: If you did not intend this, quit now. (Sleep 5)"
+			echo
+			sleep 5
+			# Now push the images to hub.docker.com
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                    Pushing Docker Images for Version ${ver}                   "
+			echo "                                                                               "
+			echo "==============================================================================="
+			cat push_commands.sh
+			./push_commands.sh
 
-	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+			# Remove any temporary files
+			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
 
-	# Now test the images from hub.docker.com
-	echo "==============================================================================="
-	echo "                                                                               "
-	echo "                    Testing Docker Images for Version ${ver}                   "
-	echo "                                                                               "
-	echo "==============================================================================="
-	# Only test the individual docker image tags and not the aliases
-	# as the aliases are not created yet.
-	echo "test_tags" > ${test_image_types_file}
-	./test_multiarch.sh ${ver}
+			# Now test the images from hub.docker.com
+			echo "==============================================================================="
+			echo "                                                                               "
+			echo "                    Testing Docker Images for Version ${ver}                   "
+			echo "                                                                               "
+			echo "==============================================================================="
+			# Only test the individual docker image tags and not the aliases
+			# as the aliases are not created yet.
+			echo "test_tags" > ${test_image_types_file}
+			./test_multiarch.sh ${ver} ${vm} ${package}
+		done
+	done
 done
 
 # Cleanup any old containers and images
