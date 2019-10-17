@@ -1,0 +1,19 @@
+
+FROM docker.tivo.com/openjdk8:alpine
+
+ARG MAVEN_VERSION=3.6.1
+ARG USER_HOME_DIR="/root"
+ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
+
+RUN apk add --update --no-cache wget curl bash && \
+    mkdir -p /usr/share/maven && \
+    curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
+    tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
+    rm -f /tmp/apache-maven.tar.gz && \
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME=/usr/share/maven \
+    MAVEN_CONFIG="$USER_HOME_DIR/.m2" \
+    PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH"
+
+CMD ["mvn"]
