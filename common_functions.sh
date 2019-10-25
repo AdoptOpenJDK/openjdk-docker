@@ -27,7 +27,7 @@ test_buckets_file="config/test_buckets.list"
 all_jvms="hotspot openj9"
 
 # All supported arches
-all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd"
+all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 
 # All supported packges
 all_packages="jdk jre"
@@ -267,7 +267,8 @@ function build_tags() {
 	do
 		for arch in ${arches}
 		do
-			if [ "$arch" == "windows-amd" ]; then
+			windows_pat="windows.*"
+			if [[ "$arch" =~ ${widows_pat} ]]; then
 				arch="x86_64"
 			fi
 			# Check if all the supported arches are available for this build.
@@ -301,8 +302,9 @@ function get_v2_url() {
 
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
 	specifiers="openjdk_impl=${url_impl}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
+	windows_pat="windows.*"
 	if [ ! -z "${url_arch}" ]; then
-		if [ "${url_arch}" == "windows-amd" ]; then
+		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
 			specifiers="${specifiers}&arch=x64&os=windows"
 		else
 			specifiers="${specifiers}&os=linux&arch=${url_arch}"
@@ -384,7 +386,7 @@ function get_sums_for_build_arch() {
 		x86_64)
 			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
 			;;
-		windows-amd)
+		windows-amd|windows-nano)
 			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest windows-amd);
 			;;
 		*)

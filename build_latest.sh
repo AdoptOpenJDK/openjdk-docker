@@ -79,7 +79,12 @@ function build_dockerfile {
 		trepo=${target_repo}${version}-${vm}
 	fi
 	# Get the default tag first
-	tag=${current_arch}-${os}-${rel}
+	nanoserver_pat=".*nanoserver.*"
+	if [[ "$file" =~ $nanoserver_pat ]]; then
+		tag=${current_arch}-${os}-nanoserver-${rel}
+	else
+		tag=${current_arch}-${os}-${rel}
+	fi
 	# Append nightly for nightly builds
 	if [ "${build}" == "nightly" ]; then
 		tag=${tag}-nightly
