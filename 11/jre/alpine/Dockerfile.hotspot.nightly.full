@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 #
 #                       PLEASE DO NOT EDIT IT DIRECTLY.
 # ------------------------------------------------------------------------------
@@ -60,20 +60,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='c3138c27506203b22194f01ede1244b78dc34952ce1e9f14de1dbf352a34a087'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-24-21-58/OpenJDK11U-jre_aarch64_linux_hotspot_2019-09-24-21-58.tar.gz'; \
+         ESUM='187b79b2c454e259275cb2f28d8129f0d831cd82c16f0956b1b8de089384a3a8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-16-10-43/OpenJDK11U-jre_aarch64_linux_hotspot_2019-10-16-10-43.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='63b1a3944800496462d9ea8f0604d9aa26133244ccd9957bf647d31581a6d96b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-25-09-26/OpenJDK11U-jre_ppc64le_linux_hotspot_2019-09-25-09-26.tar.gz'; \
+         ESUM='a9012e7b443b84551f8f4c8b26144cfba896b9dc152c8dea2ce281f8a1492ad9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-16-10-43/OpenJDK11U-jre_ppc64le_linux_hotspot_2019-10-16-10-43.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='d5bc2bce167a1a473634783545a7730991d9e882774b6ce2ebab914e1b32fc86'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-24-21-58/OpenJDK11U-jre_s390x_linux_hotspot_2019-09-24-21-58.tar.gz'; \
+         ESUM='40b15cce4e46bcffdd4cadf20130bc61cd1a52240b4f6e026bc4a27d87d149d3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-16-10-43/OpenJDK11U-jre_s390x_linux_hotspot_2019-10-16-10-43.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='a7a79469f419579a8988590b0ce9a87338abd70e82a701b6458cde6b28dd6e48'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-24-21-58/OpenJDK11U-jre_x64_linux_hotspot_2019-09-24-21-58.tar.gz'; \
+         ESUM='d96bb17f677bb48cd846cadbc3f46340467a235fc82666d25a0e626c66abfa65'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-16-10-43/OpenJDK11U-jre_x64_linux_hotspot_2019-10-16-10-43.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
