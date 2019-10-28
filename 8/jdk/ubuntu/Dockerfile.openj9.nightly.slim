@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 #
 #                       PLEASE DO NOT EDIT IT DIRECTLY.
 # ------------------------------------------------------------------------------
@@ -35,16 +35,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='bc39b28852d605de13a3ef872888f1239a4230e2a589255503c790b054cee460'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-09-25-11-47.tar.gz'; \
+         ESUM='5a757ec6459ddade95b4149d72914b8c7533dc7fd7c7d370e3513bd58f2fc76e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-12-19-18/OpenJDK8U-jdk_ppc64le_linux_openj9_2019-10-12-19-18.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='628bd7601f9603c5b3d7e8d2a1f41050af8e3eeb1faf8b2ee4fa29ad37636a1d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-24-22-27/OpenJDK8U-jdk_s390x_linux_openj9_2019-09-24-22-27.tar.gz'; \
+         ESUM='4e338dd0f2b2a384259ede200bc6881646e7266dbbd41c571c8f2cd5a52bab8b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-12-19-18/OpenJDK8U-jdk_s390x_linux_openj9_2019-10-12-19-18.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='7f3cea4d89c5132c8fb95e2c1e46b3df2fd77567225ea1c06b0b726f6e94ea7c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jdk_x64_linux_openj9_2019-09-25-11-47.tar.gz'; \
+         ESUM='93245f78e9149e25fb559b6eaef74d4498aa1e586bcd20d6f547a4c61e25b8bf'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-11-12-45/OpenJDK8U-jdk_x64_linux_openj9_2019-10-11-12-45.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

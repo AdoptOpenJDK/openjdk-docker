@@ -5,13 +5,18 @@ services: docker
 
 env:
   matrix:
-    - VERSION=13
-    - VERSION=11
-    - VERSION=8
-    - VM=hotspot
-    - VM=openj9
-    - PACKAGE=jdk
-    - PACKAGE=jre
+    - VERSION=13 VM=hotspot PACKAGE=jdk
+    - VERSION=13 VM=openj9 PACKAGE=jdk
+    - VERSION=13 VM=hotspot PACKAGE=jre
+    - VERSION=13 VM=openj9 PACKAGE=jre
+    - VERSION=11 VM=hotspot PACKAGE=jdk
+    - VERSION=11 VM=openj9 PACKAGE=jdk
+    - VERSION=11 VM=hotspot PACKAGE=jre
+    - VERSION=11 VM=openj9 PACKAGE=jre
+    - VERSION=8 VM=hotspot PACKAGE=jdk
+    - VERSION=8 VM=openj9 PACKAGE=jdk
+    - VERSION=8 VM=hotspot PACKAGE=jre
+    - VERSION=8 VM=openj9 PACKAGE=jre
 
 script: bash build_latest.sh $VERSION $VM $PACKAGE
 

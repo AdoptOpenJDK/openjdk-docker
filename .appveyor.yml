@@ -5,12 +5,70 @@ skip_branch_with_pr: true
 
 environment:
   matrix:
+    - version: 13
+      variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jdk
+    - version: 13
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jdk
+    - version: 13
+      variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jre
+    - version: 13
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jre
     - version: 12
       variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jdk
+    - version: 12
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jdk
+    - version: 12
+      variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jre
+    - version: 12
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jre
     - version: 11
       variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jdk
+    - version: 11
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jdk
+    - version: 11
+      variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jre
+    - version: 11
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jre
     - version: 8
       variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jdk
+    - version: 8
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jdk
+    - version: 8
+      variant: windowsservercore-ltsc2016
+      vm: hotspot
+      package: jre
+    - version: 8
+      variant: windowsservercore-ltsc2016
+      vm: openj9
+      package: jre
 
 build_script:
-  - cmd: bash build_latest.sh %version%
+  - cmd: bash build_latest.sh %version% %vm% %package%

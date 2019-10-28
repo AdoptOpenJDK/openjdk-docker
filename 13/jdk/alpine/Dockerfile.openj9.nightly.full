@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 #
 #                       PLEASE DO NOT EDIT IT DIRECTLY.
 # ------------------------------------------------------------------------------
@@ -60,16 +60,16 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='af569f67e1fd5f74a672f13a84a49caf39652533b02fc8d24d00afdfac3fdb2e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_ppc64le_linux_openj9_2019-09-25-02-58.tar.gz'; \
+         ESUM='ab550e8f7db3582e08fdbbd62851570363d3c57e4547ce63f00b94b1adbe5801'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-16-11-07/OpenJDK13U-jdk_ppc64le_linux_openj9_2019-10-16-11-07.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='33be0abe1804f65e4b922c6760bbe4ddf5d08002e2c731f934f338e67cca8c9f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-24-08-26/OpenJDK13U-jdk_s390x_linux_openj9_2019-09-24-08-26.tar.gz'; \
+         ESUM='fce6c2be85b641987759d67a0bd4d32b75a770df0873d9b48d5961330354b6a4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-16-11-07/OpenJDK13U-jdk_s390x_linux_openj9_2019-10-16-11-07.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='07ff00026b21160278510ddc673115bf55b0165e199b10310efd6447b7acf0f0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-09-25-02-58/OpenJDK13U-jdk_x64_linux_openj9_2019-09-25-02-58.tar.gz'; \
+         ESUM='2fe64369e95f64ddbc6d6affa7d988f4255848799f6a49722c8c31c2bb81eeff'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-16-11-07/OpenJDK13U-jdk_x64_linux_openj9_2019-10-16-11-07.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
