@@ -268,7 +268,7 @@ function build_tags() {
 		for arch in ${arches}
 		do
 			windows_pat="windows.*"
-			if [[ "$arch" =~ ${widows_pat} ]]; then
+			if [[ "$arch" =~ ${windows_pat} ]]; then
 				arch="x86_64"
 			fi
 			# Check if all the supported arches are available for this build.
