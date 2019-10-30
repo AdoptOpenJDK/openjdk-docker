@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 #
 #                       PLEASE DO NOT EDIT IT DIRECTLY.
 # ------------------------------------------------------------------------------
@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jre_x64_windows_hotspot_2019-09-25-11-47.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-10-11-15/OpenJDK8U-jre_x64_windows_hotspot_2019-10-10-11-15.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-09-25-11-47/OpenJDK8U-jre_x64_windows_hotspot_2019-09-25-11-47.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (d7152c4fec56de2f66289b33dc668437505beae59901a954f0e2281b9b5e49be) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'd7152c4fec56de2f66289b33dc668437505beae59901a954f0e2281b9b5e49be') { \
+        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2019-10-10-11-15/OpenJDK8U-jre_x64_windows_hotspot_2019-10-10-11-15.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (d3be2801914f19666f41857d1aecec77028580014b258050f9396033eac7af39) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'd3be2801914f19666f41857d1aecec77028580014b258050f9396033eac7af39') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \

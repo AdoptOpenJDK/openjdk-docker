@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#               NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
 #
 #                       PLEASE DO NOT EDIT IT DIRECTLY.
 # ------------------------------------------------------------------------------
@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk11u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-24-21-58/OpenJDK11U-jre_x64_windows_openj9_2019-09-24-21-58.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-12-12-08/OpenJDK11U-jre_x64_windows_openj9_2019-10-12-12-08.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-09-24-21-58/OpenJDK11U-jre_x64_windows_openj9_2019-09-24-21-58.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (389e9ed69cdb79be0fbc63914115f1bffc9567892fc06ae0b2d8cc8f63656e67) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '389e9ed69cdb79be0fbc63914115f1bffc9567892fc06ae0b2d8cc8f63656e67') { \
+        wget https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-10-12-12-08/OpenJDK11U-jre_x64_windows_openj9_2019-10-12-12-08.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (de61c3f2e49d41ffea54d568932c41bde50338bf970ec15a591f0775bf57a34e) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'de61c3f2e49d41ffea54d568932c41bde50338bf970ec15a591f0775bf57a34e') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
