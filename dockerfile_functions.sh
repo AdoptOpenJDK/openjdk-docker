@@ -85,10 +85,20 @@ print_windows_ver() {
 		*1803) os_version="1803" ;;
 	esac
 
-	cat >> $1 <<-EOI
+	servertype=$(echo $file | cut -f4 -d"/")
+	nanoserver_pat="nanoserver.*"
+	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
+		cat >> $1 <<-EOI
+	FROM mcr.microsoft.com/powershell:nanoserver-${os_version}
+
+EOI
+	else
+		cat >> $1 <<-EOI
 	FROM mcr.microsoft.com/windows/servercore:${os_version}
 
-	EOI
+EOI
+	fi
+
 }
 
 # Print the supported Alpine OS
@@ -126,10 +136,19 @@ print_debian_pkg() {
 }
 
 print_windows_pkg() {
-	cat >> $1 <<'EOI'
+	servertype=$(echo $file | cut -f4 -d"/")
+	nanoserver_pat="nanoserver.*"
+	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
+		cat >> $1 <<'EOI'
+# $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
+SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+EOI
+	else
+		cat >> $1 <<'EOI'
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 EOI
+	fi
 }
 
 # Select the alpine OS packages.
@@ -347,12 +366,14 @@ print_windows_java_install() {
 	bld=$3
 	btype=$4
 
-	JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-amd);
+	servertype=$(echo $file | cut -f4 -d"/" | cut -f1 -d"-")
+	version=$(echo $file | cut -f1 -d "/")
+	if [ "$servertype" == "windowsservercore" ]; then
+		JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-amd);
+		ESUM=$(sarray=${shasums}[windows-amd]; eval esum=\${$sarray}; echo ${esum});
+		BINARY_URL=$(get_instaler_url ${JAVA_URL});
 
-	ESUM=$(sarray=${shasums}[windows-amd]; eval esum=\${$sarray}; echo ${esum});
-	BINARY_URL=$(get_instaler_url ${JAVA_URL});
-
-	cat >> $1 <<-EOI
+		cat >> $1 <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
         wget ${BINARY_URL} -O 'openjdk.msi'; \\
@@ -371,6 +392,31 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         Remove-Item openjdk.msi -Force; \\
         Remove-Item -Path C:\temp -Recurse | Out-Null;
 EOI
+	else
+		JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-nano);
+		ESUM=$(sarray=${shasums}[windows-nano]; eval esum=\${$sarray}; echo ${esum});
+		BINARY_URL=$(get_binary_url ${JAVA_URL});
+
+		cat >> $1 <<-EOI
+USER ContainerAdministrator
+RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+        Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
+        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
+                Write-Host 'FAILED!'; \\
+                exit 1; \\
+        }; \\
+        \\
+        Write-Host 'Expanding Zip ...'; \\
+        Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
+        Write-Host 'Removing openjdk.zip ...'; \\
+        Remove-Item openjdk.zip -Force; \\
+        \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
+        Move-Item -Path \$jdkDirectory C:\\openjdk-${version};
+USER ContainerUser
+EOI
+	fi
 }
 
 # Print the main RUN command that installs Java on alpine.
@@ -426,6 +472,17 @@ print_java_env() {
 ENV JAVA_HOME=${jhome} \\
     PATH="${jhome}/bin:\$PATH"
 EOI
+	else
+		servertype=$(echo $file | cut -f4 -d"/")
+		nanoserver_pat="nanoserver.*"
+		if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
+			cat >> $1 <<-EOI
+ENV JAVA_HOME=C:\\\\openjdk-${version} \\
+	ProgramFiles="C:\\\\Program Files" \\
+	WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
+ENV PATH="\${WindowsPATH};\${ProgramFiles}\\\\PowerShell;\${JAVA_HOME}\\\\bin"
+EOI
+		fi
 	fi
 }
 
@@ -481,7 +538,7 @@ generate_dockerfile() {
 	bld=$3
 	btype=$4
 	case $5 in
-		windows*)
+		windows*|nanoserver*)
 			os_family=windows
 			os=$5 ;;
 		*)
