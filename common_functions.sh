@@ -71,17 +71,17 @@ function set_arch_os() {
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian ubi-minimal"
+		oses="ubuntu debian ubi ubi-minimal"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian ubi-minimal"
+		oses="ubuntu debian ubi ubi-minimal"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian ubi-minimal"
+		oses="ubuntu debian ubi ubi-minimal"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -94,7 +94,7 @@ function set_arch_os() {
 				;;
 			*)
 			current_arch="x86_64"
-			oses="ubuntu alpine debian ubi-minimal"
+			oses="ubuntu alpine debian ubi ubi-minimal"
 			os_family="linux"
 			;;
 		esac
@@ -180,7 +180,7 @@ function check_image() {
 # $4 = OS
 # $5 = String to look for.
 function parse_vm_entry() {
-	entry=$(cat config/$1.config | grep -B 4 -E "$2\/$3\/$4|$2\/$3\/windows\/$4" | grep "$5" | sed "s/$5 //")
+	entry=$(cat config/$1.config | grep -B 4 -E "$2\/$3\/$4$|$2\/$3\/windows\/$4$" | grep "$5" | sed "s/$5 //")
 	echo ${entry}
 }
 
@@ -393,50 +393,54 @@ function get_sums_for_build_arch() {
 			echo "Unsupported arch: ${gsba_arch}"
 	esac
 
-	shasum_file="${gsba_arch}_${gsba_build}_latest"
-	curl -Lso ${shasum_file} ${LATEST_URL};
-	# Bad builds cause the latest url to return an empty file or sometimes curl fails
-	if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
-		echo "Latest url not available at url: ${LATEST_URL}"
-		continue;
-	fi
-	# Even if the file is not empty, it might just say "No matches"
-	availability=$(grep -e "No matches" -e "Not found" ${shasum_file});
-	# Print the arch and the corresponding shasums to the vm output file
-	if [ -z "${availability}" ]; then
-		# If there are multiple builds for a single version, then pick the latest one.
-		if [ "$gsba_arch" == "windows-amd" ]; then
-			shasums_url=$(cat ${shasum_file} | grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
-			if [ -z "$shasums_url" ]; then
+	while :
+	do
+		shasum_file="${gsba_arch}_${gsba_build}_latest"
+		curl -Lso ${shasum_file} ${LATEST_URL};
+		# Bad builds cause the latest url to return an empty file or sometimes curl fails
+		if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
+			echo "Latest url not available at url: ${LATEST_URL}"
+			break;
+		fi
+		# Even if the file is not empty, it might just say "No matches"
+		availability=$(grep -e "No matches" -e "Not found" ${shasum_file});
+		# Print the arch and the corresponding shasums to the vm output file
+		if [ -z "${availability}" ]; then
+			# If there are multiple builds for a single version, then pick the latest one.
+			if [ "$gsba_arch" == "windows-amd" ]; then
+				shasums_url=$(cat ${shasum_file} | grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				if [ -z "$shasums_url" ]; then
+					shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				fi
+			else
 				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 			fi
-		else
-			shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+			shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+			# Sometimes shasum files are missing, check for error and do not print on error.
+			shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
+			if [ ! -z "${shasum_available}" ]; then
+				echo "shasum file not available at url: ${shasums_url}"
+				break;
+			fi
+			# Get the release version for this arch from the info file
+			arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
+			# For nightly builds get the short version without the date/time stamp
+			arch_build_version=$(get_nightly_short_version ${gsba_build} ${arch_build_version})
+			# If the latest for the current arch does not match with the latest for the parent arch,
+			# then skip this arch.
+			# Parent version in this case would be the "full_version" from function get_sums_for_build
+			# The parent version will automatically be the latest for all arches as returned by the v2 API
+			if [ "${arch_build_version}" != "${full_version}" ]; then
+				echo "Parent version not matching for arch ${gsba_arch}: ${arch_build_version}, ${full_version}"
+				break;
+			fi
+			# Only print the entry if the shasum is not empty
+			if [ ! -z "${shasum}" ]; then
+				printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
+			fi
 		fi
-		shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
-		# Sometimes shasum files are missing, check for error and do not print on error.
-		shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
-		if [ ! -z "${shasum_available}" ]; then
-			echo "shasum file not available at url: ${shasums_url}"
-			continue;
-		fi
-		# Get the release version for this arch from the info file
-		arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
-		# For nightly builds get the short version without the date/time stamp
-		arch_build_version=$(get_nightly_short_version ${gsba_build} ${arch_build_version})
-		# If the latest for the current arch does not match with the latest for the parent arch,
-		# then skip this arch.
-		# Parent version in this case would be the "full_version" from function get_sums_for_build
-		# The parent version will automatically be the latest for all arches as returned by the v2 API
-		if [ "${arch_build_version}" != "${full_version}" ]; then
-			echo "Parent version not matching: ${arch_build_version}, ${full_version}"
-			continue;
-		fi
-		# Only print the entry if the shasum is not empty
-		if [ ! -z "${shasum}" ]; then
-			printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
-		fi
-	fi
+		break;
+	done
 	rm -f ${shasum_file}
 }
 

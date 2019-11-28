@@ -1,24 +1,34 @@
 [![Build Status](https://travis-ci.com/AdoptOpenJDK/openjdk-docker.svg?branch=master)](https://travis-ci.com/AdoptOpenJDK/openjdk-docker) [![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
 
-# OpenJDK and Docker
-Dockerfiles and build scripts for generating various Docker Images related to OpenJDK. Currently this builds OpenJDK images with hotspot and Eclipse OpenJ9 on Ubuntu and Alpine Linux.
+# AdoptOpenJDK and Docker
+Dockerfiles and build scripts for generating Docker Images based on various AdoptOpenJDK binaries. We support both Hotspot and Eclipse OpenJ9 VMs.
 
 # Supported Architectures
-* Hotspot is supported on ```aarch64```, ```ppc64le```, ```s390x``` and ```x86_64```.
+* Hotspot is supported on ```armv7l```, ```aarch64```, ```ppc64le```, ```s390x``` and ```x86_64```.
 * Eclipse OpenJ9 is supported on ```ppc64le```, ```s390x``` and ```x86_64```.
 
-## Mac OS X
-Please note you'll need to [upgrade bash shell on Mac OS X](https://itnext.io/upgrading-bash-on-macos-7138bd1066ba) if you're to use our Docker images on there.
+# Official and Unofficial Images
+AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Unofficial Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
+* [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
+  - Linux
+    - Ubuntu (18.04): Release
+  - Windows
+    - Windows Server Core (ltsc2016, 1803 and 1809): Release
+* [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
+  - Linux
+    - Alpine (3.10): Release, Nightly and Slim
+    - Debian (Buster): Release, Nightly and Slim
+    - UBI (8): Release, Nightly and Slim
+    - UBI-Minimal (8): Release, Nightly and Slim
+    - Ubuntu (18.04): Nightly and Slim
 
-# License
-The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-# Supported builds and build types
+## Unofficial Images: Docker Image Build Types and Associated Tags
 
 ### Legend
 
-   * ${os} = alpine|debian|ubi-minimal|ubuntu|windows
-   * ${slim-os} = alpine|debian|ubuntu
+   * ${os} = alpine|debian|ubi|ubi-minimal|ubuntu|windows
+   * ${slim-os} = alpine|debian|ubi|ubuntu
    * ${jdk-version} Eg. jdk-11.0.3_7, jdk-12.33_openj9-0.13.0
    * ${jre-version} Eg. jre-11.0.3_7, jre-12.33_openj9-0.13.0
 
@@ -110,22 +120,46 @@ The Dockerfiles and associated scripts found in this project are licensed under 
 
 # We should now have the proper manifest lists pushed to hub.docker.com to support multi-arch pulls.
 ```
-## Linting dockerfiles (via [hadolint](https://github.com/hadolint/hadolint))
-To lint generated dockerfiles run [./linter.sh](./linter.sh) - script will download hadolint binary and check all dockerfiles.
 
 # Info on other scripts
-```
-# Run generate_latest_sums.sh to get the shasums for the latest binaries on adoptopenjdk.net
-  $ ./generate_latest_sums.sh $version
+ - [update_all.sh](/update_all.sh): Script to generate all Dockerfiles.
+   - [update_multiarch.sh](/update_multiarch.sh): Helper script that generates Dockerfiles for a specific Java version.
+   ```
+     $ ./update_multiarch.sh $version
+   ```
+   - [dockerfile_functions.sh](/dockerfile_functions.sh): Dockerfile content is generated from this. Update this script if you want any changes to the generated Dockerfiles.
+ - [build_all.sh](/build_all.sh): Script to build all supported unofficial docker images on a particular architecture.
+   - [build_latest.sh](/build_latest.sh): Helper script that builds a docker image for a specific Java version, VM and package combination.
+ 
+ - [update_manifest_all.sh](/update_manifest_all.sh): Script that generates the multi-arch manifest for all unofficial docker images for supported/released architectures at any given time.
+   - [generate_manifest_script.sh](/generate_manifest_script.sh): Helper script that generates the manifest for a given Java version, VM and Package combination for all supported architectures. If a build is unavailable for a supported architecture (build failed, not yet released etc), a manifest entry for that architecture will not be added.
 
-# You should now have two files, hotspot_shasums_latest.sh and openj9_shasums_latest.sh. These will
-# have the shasums for the latest version for each of the supported arches for hotspot and
-# Eclipse OpenJ9 respectively.
+ - [linter.sh](/linter.sh): Linting dockerfiles (via [hadolint](https://github.com/hadolint/hadolint)). 
+   ```
+    To lint generated dockerfiles run 
+    $ ./linter.sh
+   ```
+#### Helper Scripts
 
-# You can now run update_multiarch.sh to generate the Dockerfiles for all supported arches for both
-# hotspot and Eclipse OpenJ9.
-  $ ./update_multiarch.sh $version
+ - Run [generate_latest_sums.sh](/generate_latest_sums.sh) to get the shasums for the latest binaries on adoptopenjdk.net
+   ```
+    $ ./generate_latest_sums.sh $version
+   ```
+   You should now have two files, `hotspot_shasums_latest.sh` and `openj9_shasums_latest.sh`. These will have the shasums for the latest version for each of the supported arches for hotspot and Eclipse OpenJ9 respectively.
+ - [slim-java.sh](/slim-java.sh): Script that is used to generate the slim docker images. This script strips out various aspects of the JDK that are typically not needed in a server side containerized application. This includes debug info, symbols, classes related to audio, desktop etc
+ - [dockerhub_doc_config_update.sh](/dockerhub_doc_config_update.sh): Script that generates the tag documentation for each of the unofficial AdoptOpenJDK pages on hub.docker.com and the config file for raising a PR at the Official AdoptOpenJDK git repo.
 
-# build_latest.sh will do all of the above and build the docker images for the current arch with the
-# right set of tags
-```
+#### Config Files
+
+The [config](/config/) dir consists of configuration files used by the scripts to determine the supported combinations of Version / OS / VM / Package / Build types and Architectures for both Official/Unofficial images as well as the corresponding tags.
+- [hotspot.config](/config/hotspot.config): Configuration for unofficial images for HotSpot.
+- [hotspot-official.config](/config/hotspot-official.config): Configuration for official images for HotSpot.
+- [openj9.config](/config/openj9.config): Configuration for unofficial images for Eclipse OpenJ9.
+- [openj9-official.config](/config/openj9-official.config): Configuration for official images for Eclipse OpenJ9.
+- [tags.config](/config/tags.config): Configuration for creating tags.
+
+## Mac OS X
+Please note you'll need to [upgrade bash shell on Mac OS X](https://itnext.io/upgrading-bash-on-macos-7138bd1066ba) if you're to use our Docker images on there.
+
+# License
+The Dockerfiles and associated scripts found in this project are licensed under the [Apache License 2.0.](https://www.apache.org/licenses/LICENSE-2.0.html).

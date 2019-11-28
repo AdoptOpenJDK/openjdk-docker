@@ -213,7 +213,7 @@ print_env() {
 	eval jver=\${$jverinfo}
 
 # Print additional label for UBI alone
-if [ "${os}" == "ubi-minimal" ]; then
+if [ "${os}" == "ubi-minimal" ] || [ "${os}" == "ubi" ]; then
 	cat >> $1 <<-EOI
 
 LABEL name="AdoptOpenJDK Java" \\
@@ -455,7 +455,7 @@ EOI
 	print_java_install_post $1
 }
 
-# Print the main RUN command that installs Java on ubi
+# Print the main RUN command that installs Java on ubi-minimal
 print_ubi-minimal_java_install() {
 	print_ubi_java_install $1 $2 $3 $4
 }
