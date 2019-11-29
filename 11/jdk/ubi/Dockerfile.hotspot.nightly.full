@@ -1,0 +1,74 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM registry.access.redhat.com/ubi8/ubi:latest
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN dnf install -y openssl curl ca-certificates fontconfig gzip locales tar \
+    && dnf update; dnf clean all
+
+LABEL name="AdoptOpenJDK Java" \
+      vendor="AdoptOpenJDK" \
+      version="jdk11u" \
+      release="11" \
+      run="docker run --rm -ti <image_name:tag> /bin/bash" \
+      summary="AdoptOpenJDK Docker Image for OpenJDK with hotspot and ubi" \
+      description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
+
+ENV JAVA_VERSION jdk11u
+
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='cd0e72829f3bb8768cf8dfafeae586291628574f7fd92d245420614e93d5ae23'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-11-27-03-31/OpenJDK11U-jdk_aarch64_linux_hotspot_2019-11-27-03-31.tar.gz'; \
+         ;; \
+       armhf) \
+         ESUM='a75e132695e4711fbddef3670a8590e18a18e47a8cd1951e9e56ff48ee76c78c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-11-27-03-31/OpenJDK11U-jdk_arm_linux_hotspot_2019-11-27-03-31.tar.gz'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='f7e197908343e52b7972134f5757516ea9637d9933ccbaf9a1e0e4c2c946a29c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-11-27-03-31/OpenJDK11U-jdk_ppc64le_linux_hotspot_2019-11-27-03-31.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='ec464f755aa41a3ff6ac4026b388fb32634357bab39d63640c828013db625430'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-11-27-03-31/OpenJDK11U-jdk_s390x_linux_hotspot_2019-11-27-03-31.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='2e17916fcaeed47d663855290b6bee42e5160bf0ef6fd8f4809e26b182998b19'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-11-27-03-31/OpenJDK11U-jdk_x64_linux_hotspot_2019-11-27-03-31.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+CMD ["jshell"]

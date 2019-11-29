@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk13u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-11-21-04/OpenJDK13U-jre_x64_windows_openj9_2019-10-11-21-04.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_x64_windows_openj9_2019-11-28-14-53.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-10-11-21-04/OpenJDK13U-jre_x64_windows_openj9_2019-10-11-21-04.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (07ac5e2d4363ba9cacee570608f31ad0f2e2c97e960d9abe9d54b5749333102e) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '07ac5e2d4363ba9cacee570608f31ad0f2e2c97e960d9abe9d54b5749333102e') { \
+        wget https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_x64_windows_openj9_2019-11-28-14-53.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (c0a4aa327f808ddb34ef00c3667d2d3223c5c28baa4221734085a83c7c6bbe5a) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'c0a4aa327f808ddb34ef00c3667d2d3223c5c28baa4221734085a83c7c6bbe5a') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
