@@ -3,4 +3,5 @@
 *_shasums_latest.sh
 manifest_commands.sh
 hadolint/
+shellcheck/
 push_commands.sh

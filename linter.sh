@@ -24,11 +24,14 @@
 set -eu
 
 hadolintDir="hadolint"
+shellcheckDir="shellcheck"
 hadolintVersion="1.17.4"
 hadolintCmd="${hadolintDir}/hadolint"
+shellcheckCmd="${shellcheckDir}/shellcheck"
 
-install()
+install_hadolint()
 {
+  echo "Installing hadolint"
   mkdir -p "${hadolintDir}"
 
   wget -O ${hadolintDir}/hadolint "https://github.com/hadolint/hadolint/releases/download/v${hadolintVersion}/hadolint-Linux-x86_64"
@@ -36,12 +39,32 @@ install()
   "${hadolintCmd}" --version
 }
 
-check()
+install_shellcheck()
 {
-    find . -name "Dockerfile*" -exec sh -c "./${hadolintCmd}  {};echo " \;
+  echo "Installing shellcheck"
+  mkdir -p "${shellcheckDir}"
+
+  wget -O- "https://storage.googleapis.com/shellcheck/shellcheck-stable.linux.x86_64.tar.xz" | tar xvfJ - -C ${shellcheckDir} --strip-components=1
+  chmod +x "${shellcheckCmd}"
+  "${shellcheckCmd}" --version
+}
+
+check_dockerfiles()
+{
+  find . -name "Dockerfile*" -exec sh -c "./${hadolintCmd}  {};echo " \;
+}
+
+check_sh_scripts()
+{
+  shopt -s globstar
+  "./${shellcheckCmd}" ./**/*.sh
 }
 
 if [[ ! -d "${hadolintDir}" ]] ; then
-  install
+  install_hadolint
 fi
-check
+if [[ ! -d "${shellcheckDir}" ]] ; then
+  install_shellcheck
+fi
+check_dockerfiles
+check_sh_scripts
