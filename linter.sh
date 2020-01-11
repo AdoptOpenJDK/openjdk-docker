@@ -24,13 +24,14 @@
 set -eu
 
 hadolintDir="hadolint"
+hadolintVersion="1.17.4"
 hadolintCmd="${hadolintDir}/hadolint"
 
 install()
 {
   mkdir -p "${hadolintDir}"
 
-  wget -O ${hadolintDir}/hadolint "https://github.com/hadolint/hadolint/releases/download/v1.16.0/hadolint-Linux-x86_64"
+  wget -O ${hadolintDir}/hadolint "https://github.com/hadolint/hadolint/releases/download/v${hadolintVersion}/hadolint-Linux-x86_64"
   chmod +x "${hadolintCmd}"
   "${hadolintCmd}" --version
 }
