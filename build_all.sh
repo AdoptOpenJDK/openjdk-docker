@@ -14,6 +14,7 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 for ver in ${supported_versions}
@@ -34,10 +35,10 @@ do
 			echo "                    Building Docker Images for Version ${ver}                  "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./build_latest.sh ${ver} ${vm} ${package}
+			./build_latest.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
-			if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
+			if [ ${err} != 0 ] ||  [ ! -f ./push_commands.sh ]; then
 				echo
 				echo "ERROR: Docker Build for version ${ver} failed."
 				echo
@@ -69,7 +70,7 @@ do
 			# Only test the individual docker image tags and not the aliases
 			# as the aliases are not created yet.
 			echo "test_tags" > ${test_image_types_file}
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 		done
 	done
 done
