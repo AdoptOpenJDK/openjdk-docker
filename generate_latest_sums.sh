@@ -15,19 +15,24 @@
 set -o pipefail
 
 version="9"
+# used in get_shasums
+# shellcheck disable=SC2034
 root_dir="$PWD"
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
-if [ ! -z "$1" ]; then
-	set_version $1
+if [ -n "$1" ]; then
+	set_version "$1"
 fi
 
 echo "Getting latest shasum info for major version: ${version}"
-for vm in ${all_jvms}
+# declared in common_functions.sh
+# shellcheck disable=SC2154
+for vm in ${all_jvms}  #
 do
 	for package in ${all_packages}
 	do
-		get_shasums ${version} ${vm} ${package}
+		get_shasums "${version}" "${vm}" "${package}"
 	done
 done
