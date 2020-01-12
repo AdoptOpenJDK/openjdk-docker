@@ -51,7 +51,7 @@ install_shellcheck()
 
 check_dockerfiles()
 {
-  find . -name "Dockerfile*" -exec sh -c "./${hadolintCmd}  {};echo " \;
+  find . -name "Dockerfile*" -exec sh -c '"$1" "$2"' _  "${hadolintCmd}" {} \; # command and filename are passed as parameters to exec script
 }
 
 check_sh_scripts()
