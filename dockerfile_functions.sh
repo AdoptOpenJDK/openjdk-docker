@@ -228,7 +228,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> $1 <<'EOI'
-RUN yum install -y openssl curl ca-certificates fontconfig gzip locales tar \
+RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
     && yum update; yum clean all
 EOI
 }
