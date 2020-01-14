@@ -192,7 +192,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> $1 <<'EOI'
-RUN dnf install -y openssl curl ca-certificates fontconfig gzip locales tar \
+RUN dnf install -y openssl curl ca-certificates fontconfig gzip tar \
     && dnf update; dnf clean all
 EOI
 }
