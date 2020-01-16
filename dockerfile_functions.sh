@@ -59,7 +59,7 @@ print_debian_ver() {
 }
 
 print_ubi_ver() {
-	os_version="latest"
+	os_version="8.0"
 
 	cat >> $1 <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi:${os_version}
@@ -68,7 +68,7 @@ print_ubi_ver() {
 }
 
 print_ubi-minimal_ver() {
-	os_version="latest"
+	os_version="8.0"
 
 	cat >> $1 <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi-minimal:${os_version}
