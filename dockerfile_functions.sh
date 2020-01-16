@@ -76,6 +76,25 @@ print_ubi-minimal_ver() {
 	EOI
 }
 
+print_centos_ver() {
+	os_version="7"
+
+	cat >> $1 <<-EOI
+	FROM centos:${os_version}
+
+	EOI
+}
+
+print_clefos_ver() {
+	os_version="7"
+
+	cat >> $1 <<-EOI
+	FROM clefos:${os_version}
+
+	EOI
+}
+
+
 # Print the supported Windows OS
 print_windows_ver() {
 	os=$4
@@ -204,6 +223,20 @@ print_ubi-minimal_pkg() {
 RUN microdnf install openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && microdnf update; microdnf clean all
 EOI
+}
+
+# Select the CentOS packages.
+print_centos_pkg() {
+	cat >> $1 <<'EOI'
+RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+    && yum update; yum clean all
+EOI
+}
+
+
+# Select the ClefOS packages.
+print_clefos_pkg() {
+  print_centos_pkg $1
 }
 
 # Print the Java version that is being installed here
@@ -458,6 +491,25 @@ EOI
 # Print the main RUN command that installs Java on ubi-minimal
 print_ubi-minimal_java_install() {
 	print_ubi_java_install $1 $2 $3 $4
+}
+
+# Print the main RUN command that installs Java on CentOS
+print_centos_java_install() {
+	pkg=$2
+	bld=$3
+	btype=$4
+	cat >> $1 <<-EOI
+RUN set -eux; \\
+    ARCH="\$(uname -m)"; \\
+    case "\${ARCH}" in \\
+EOI
+	print_java_install_pre ${file} ${pkg} ${bld} ${btype}
+	print_java_install_post $1
+}
+
+# Print the main RUN command that installs Java on ClefOS
+print_clefos_java_install() {
+	print_centos_java_install $1 $2 $3 $4
 }
 
 # Print the JAVA_HOME and PATH.
