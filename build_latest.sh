@@ -19,7 +19,9 @@ push_cmdfile=${root_dir}/push_commands.sh
 target_repo="adoptopenjdk/openjdk"
 version="9"
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=dockerfile_functions.sh
 source ./dockerfile_functions.sh
 
 if [ $# -ne 3 ]; then
