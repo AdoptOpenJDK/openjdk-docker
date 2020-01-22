@@ -59,7 +59,7 @@ print_debian_ver() {
 }
 
 # Print the supported Debian OS
-print_debian_slim_ver() {
+print_debian-slim_ver() {
 	os_version="buster-slim"
 
 	cat >> $1 <<-EOI
@@ -164,7 +164,7 @@ print_debian_pkg() {
   print_ubuntu_pkg $1
 }
 
-print_debian_slim_pkg() {
+print_debian-slim_pkg() {
   print_ubuntu_pkg $1
 }
 
@@ -369,7 +369,7 @@ print_ubuntu_slim_package() {
 EOI
 }
 
-print_debian_slim_package() {
+print_debian-slim_package() {
   print_ubuntu_slim_package $1
 }
 
@@ -407,7 +407,7 @@ print_debian_java_install() {
   print_ubuntu_java_install $1 $2 $3 $4
 }
 
-print_debian_slim_java_install() {
+print_debian-slim_java_install() {
   print_ubuntu_java_install $1 $2 $3 $4
 }
 
