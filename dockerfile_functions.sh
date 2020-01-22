@@ -59,7 +59,7 @@ print_debian_ver() {
 }
 
 print_ubi_ver() {
-	os_version="latest"
+	os_version="8.1"
 
 	cat >> $1 <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi:${os_version}
@@ -68,7 +68,7 @@ print_ubi_ver() {
 }
 
 print_ubi-minimal_ver() {
-	os_version="latest"
+	os_version="8.1"
 
 	cat >> $1 <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi-minimal:${os_version}
@@ -123,7 +123,7 @@ EOI
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> $1 <<-EOI
-	FROM alpine:3.10
+	FROM alpine:3.11
 
 	EOI
 }
@@ -211,7 +211,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> $1 <<'EOI'
-RUN dnf install -y openssl curl ca-certificates fontconfig gzip locales tar \
+RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update; dnf clean all
 EOI
 }
