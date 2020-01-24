@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='f19fe670f09e2a19c93529be6ba0dd2c24413f104a65b3389ac6836308686a99'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_aarch64_linux_hotspot_2019-11-28-14-53.tar.gz'; \
+         ESUM='fc8e46b821ec29399c22ffc1c7cc93df67ddc2382366da0df0a3f4429d14d095'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-24-09-23/OpenJDK13U-jre_aarch64_linux_hotspot_2020-01-24-09-23.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='6bdc08aa3a097afd13537019d7c195384e0d385790fc5e9db185a93a3c0f7de6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_ppc64le_linux_hotspot_2019-11-28-14-53.tar.gz'; \
+         ESUM='92fb5a0c3b5268d8525770cf88f36a79ffa441c1c3381d9a061d75ae95561e95'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-24-09-23/OpenJDK13U-jre_ppc64le_linux_hotspot_2020-01-24-09-23.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='7eae8fb28367d43a14a35708fc66e43d239ca26130699deb9f40350a77b44753'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-27-16-56/OpenJDK13U-jre_s390x_linux_hotspot_2019-11-27-16-56.tar.gz'; \
+         ESUM='08689e943ab5c04c62fc5807402e5eba2dc8af57d59ecfc07314e2d1d299f756'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-22-09-17/OpenJDK13U-jre_s390x_linux_hotspot_2020-01-22-09-17.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='4aae89defe6610ef0b615ef5a2832a57eb83254058b3b6ccdf4c3694a3dd8885'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_x64_linux_hotspot_2019-11-28-14-53.tar.gz'; \
+         ESUM='61e801872986977d14e7d693aae6dd9b763b90950903583179c0cafb01c02c67'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-24-09-23/OpenJDK13U-jre_x64_linux_hotspot_2020-01-24-09-23.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

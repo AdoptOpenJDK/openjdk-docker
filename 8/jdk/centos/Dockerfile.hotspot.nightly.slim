@@ -1,0 +1,67 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM centos:7
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+    && yum update; yum clean all
+
+ENV JAVA_VERSION jdk8u
+
+COPY slim-java* /usr/local/bin/
+
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='4022b418da69d20203f26201ed0665ef26a8362843d370296a60a633df3df57b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-01-24-10-23/OpenJDK8U-jdk_aarch64_linux_hotspot_2020-01-24-10-23.tar.gz'; \
+         ;; \
+       armhf) \
+         ESUM='3c31deb44d03238a4fc6166941dcc8ef9f09bd29aaebbd237f7456061c58e0da'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-01-24-10-23/OpenJDK8U-jdk_arm_linux_hotspot_2020-01-24-10-23.tar.gz'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='c9c5a6ce5a553b04ffe1e4ebe75278749c7c03c893024c191bb40702a0b8d418'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-01-24-10-23/OpenJDK8U-jdk_ppc64le_linux_hotspot_2020-01-24-10-23.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='dd21e81a0cff9f9a49e605904efaa4d112718353ea0a0788a3e1ad2f3ce0a1e2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-01-24-10-23/OpenJDK8U-jdk_s390x_linux_hotspot_2020-01-24-10-23.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='36bd58b20d8638fcf463105da40725008123397a3b9967695262b1b9b053631c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-01-24-10-23/OpenJDK8U-jdk_x64_linux_hotspot_2020-01-24-10-23.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
