@@ -22,14 +22,14 @@ FROM mcr.microsoft.com/powershell:nanoserver-1803
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk-13.0.1+9
+ENV JAVA_VERSION jdk-13.0.2+8
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jdk_x64_windows_hotspot_13.0.1_9.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jdk_x64_windows_hotspot_13.0.2_8.zip ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jdk_x64_windows_hotspot_13.0.1_9.zip -O 'openjdk.zip'; \
-        Write-Host ('Verifying sha256 (69132fdf7a7316244af59ed26b89d159584e62b0021165e2742115c767522b29) ...'); \
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '69132fdf7a7316244af59ed26b89d159584e62b0021165e2742115c767522b29') { \
+        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jdk_x64_windows_hotspot_13.0.2_8.zip -O 'openjdk.zip'; \
+        Write-Host ('Verifying sha256 (6980db87a3f921801fcf50d1a933304cf4d4b46ef2d35617c96fcc40ac1a1eb9) ...'); \
+        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '6980db87a3f921801fcf50d1a933304cf4d4b46ef2d35617c96fcc40ac1a1eb9') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
