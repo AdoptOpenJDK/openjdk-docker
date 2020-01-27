@@ -39,16 +39,16 @@ RUN set -eux; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2019-12-16-15-41/OpenJDK11U-jdk_aarch64_linux_openj9_2019-12-16-15-41.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='4ae92cd26e48bac03cf778b9adbbffebdd1f91fce3b6deb3d6d7a843213b0a62'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-24-21-50/OpenJDK11U-jdk_ppc64le_linux_openj9_2020-01-24-21-50.tar.gz'; \
+         ESUM='27644f6e74c9218d0cf9c0909c4b96c4c0b2dfd31a54696b08114ceab59ebd10'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-25-22-38/OpenJDK11U-jdk_ppc64le_linux_openj9_2020-01-25-22-38.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='3da2c200cc0fa0df11da96736b353f667425388fee4645b4f01b283130ed258e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-24-21-50/OpenJDK11U-jdk_s390x_linux_openj9_2020-01-24-21-50.tar.gz'; \
+         ESUM='78602f02fd22f12e7d326489c387194a7f53cc6ea5c948208630ded60a8f558d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-25-22-38/OpenJDK11U-jdk_s390x_linux_openj9_2020-01-25-22-38.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='5edd0ed0ee0b256a2153f632aa7053f7733d44955d759ae80d284bfcd977572f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-24-21-50/OpenJDK11U-jdk_x64_linux_openj9_2020-01-24-21-50.tar.gz'; \
+         ESUM='2838d3edc8d7a9124e7de0e51b73c25b166b41e8110902e21baa85cb6a929e6a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-01-25-22-38/OpenJDK11U-jdk_x64_linux_openj9_2020-01-25-22-38.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
