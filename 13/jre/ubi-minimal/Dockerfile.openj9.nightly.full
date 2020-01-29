@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -38,16 +38,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='2356381392db9f36fc1246151e5e1461caa2c332b8da8787eb2050a147729934'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_ppc64le_linux_openj9_2019-11-28-14-53.tar.gz'; \
+         ESUM='5b3ccda3c1b53b1d91fd8940f3318c2f6d73db6d78acb1e1f9ee355a84d84eb6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-15-10-32/OpenJDK13U-jre_ppc64le_linux_openj9_2020-01-15-10-32.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='e21325584706c2ea044c929d851c9614ad266df971059fec830f6f7aee476ab3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_s390x_linux_openj9_2019-11-28-14-53.tar.gz'; \
+         ESUM='1d05b76271b155a37c8302f9e9b8a7b46d8c3e0722c8f8d42c455a8697719007'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-15-10-32/OpenJDK13U-jre_s390x_linux_openj9_2020-01-15-10-32.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='90108ae4ddbc4e3049dcc9bdd7aa7e48b67646415244846e099aecd95135904c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2019-11-28-14-53/OpenJDK13U-jre_x64_linux_openj9_2019-11-28-14-53.tar.gz'; \
+         ESUM='5035215041d0aa11ff51fdc0abec507214162064c9651415934a15891e416ee9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-01-15-10-32/OpenJDK13U-jre_x64_linux_openj9_2020-01-15-10-32.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

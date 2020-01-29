@@ -53,27 +53,27 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-13.0.1+9
+ENV JAVA_VERSION jdk-13.0.2+8
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='58e841a26c1b3a0cf15f052797e5a6a91f8b65c78d0eb84e4eb6310b3af5b9ec'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_aarch64_linux_hotspot_13.0.1_9.tar.gz'; \
+         ESUM='6c4b69d1609f4c65c576c80d6aa101de80048f8ce5566f890e8fff5349228bae'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jre_aarch64_linux_hotspot_13.0.2_8.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='c6258058557fd0ec6f0426c4671ad78e7b665cf8d487e5d07b690e792121b2f3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_ppc64le_linux_hotspot_13.0.1_9.tar.gz'; \
+         ESUM='43d6fb71bdf7b6ad9295087c46dfc9b00bf26db1b5cdcff0c418cbe43b49904a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jre_ppc64le_linux_hotspot_13.0.2_8.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='e866aa35889358bb134675a079510b0cc279737c3fb26f30e229a69726833f5b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_s390x_linux_hotspot_13.0.1_9.tar.gz'; \
+         ESUM='ac07703f9b9aed0676ae751f2b5b2346285566944ba89d0d8833790f83b00163'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jre_s390x_linux_hotspot_13.0.2_8.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='5bd06d9df1f76d953658fbe36812809b43e2d9dd00093e023aded64846f7af5a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9/OpenJDK13U-jre_x64_linux_hotspot_13.0.1_9.tar.gz'; \
+         ESUM='897f16fe8e056395209e35d2384013bd1ff250e717465769079e3f4793628c34'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jre_x64_linux_hotspot_13.0.2_8.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

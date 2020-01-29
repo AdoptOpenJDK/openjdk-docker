@@ -22,14 +22,14 @@ FROM mcr.microsoft.com/powershell:nanoserver-1809
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk8u232-b09
+ENV JAVA_VERSION jdk8u242-b08
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u232-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u232b09.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_windows_hotspot_8u242b08.zip ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u232-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u232b09.zip -O 'openjdk.zip'; \
-        Write-Host ('Verifying sha256 (a8ceaf48582217b413da8d4100407f703c92d1560a763dc85bc49fc226c04958) ...'); \
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'a8ceaf48582217b413da8d4100407f703c92d1560a763dc85bc49fc226c04958') { \
+        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_windows_hotspot_8u242b08.zip -O 'openjdk.zip'; \
+        Write-Host ('Verifying sha256 (8288e4d0983019706db89c153d18bfce28d033f646be65c8ae1c33c6c65b943e) ...'); \
+        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '8288e4d0983019706db89c153d18bfce28d033f646be65c8ae1c33c6c65b943e') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
