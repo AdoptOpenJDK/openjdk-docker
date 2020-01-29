@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -26,28 +26,28 @@ RUN microdnf install openssl curl ca-certificates fontconfig glibc-langpack-en g
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
-      version="jdk-13.0.1+9_openj9-0.17.0" \
+      version="jdk-13.0.2+8_openj9-0.18.0" \
       release="13" \
       run="docker run --rm -ti <image_name:tag> /bin/bash" \
       summary="AdoptOpenJDK Docker Image for OpenJDK with openj9 and ubi-minimal" \
       description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
 
-ENV JAVA_VERSION jdk-13.0.1+9_openj9-0.17.0
+ENV JAVA_VERSION jdk-13.0.2+8_openj9-0.18.0
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='fb7f74e69665a747bdb1c1bab7895b6f3bc39c2a18e54777e70477cc2cefca0b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jdk_ppc64le_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='f71513e525172dfef695b7c27b25e151f232e05b2281648c2b794650c4970832'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jdk_ppc64le_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f975db6af84a3c90f8193ae4e31af100801bd859c916106ee4c1ab90a6b3ea69'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jdk_s390x_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='9e7b2e921710ecaf6d3c743616dc720ef10b7b75ba0b8820bf9f9550bfa52584'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jdk_s390x_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='13f0d693d9888dc7893a34996a9f64aef6d6c0a2b8442f9aa17973f2c1d1bf8b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jdk_x64_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='aeecf6d30d0c847db81d07793cf97e5dc44890c29366d7d9f8f9f397f6c52590'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jdk_x64_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
