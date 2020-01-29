@@ -101,7 +101,6 @@ print_windows_ver() {
 	case $os in
 		*ltsc2016) os_version="ltsc2016" ;;
 		*1809) os_version="1809" ;;
-		*1803) os_version="1803" ;;
 	esac
 
 	servertype=$(echo $file | cut -f4 -d"/")
