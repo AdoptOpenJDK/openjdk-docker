@@ -283,14 +283,14 @@ function build_tags() {
 	rm -f ${tmpfile}
 }
 
-# Build the URL using adoptopenjdk.net v3 api based on the given parameters
+# Build the URL using adoptopenjdk.net v2 api based on the given parameters
 # request_type = info / binary
 # release_type = releases / nightly
 # url_impl = hotspot / openj9
 # url_arch = aarch64 / ppc64le / s390x / x64
 # url_pkg  = jdk / jre
 # url_rel  = latest / ${version}
-function get_v3_url() {
+function get_v2_url() {
 	request_type=$1
 	release_type=$2
 	url_impl=$3
@@ -300,7 +300,7 @@ function get_v3_url() {
 	url_heapsize=normal
 	url_version=openjdk${version}
 
-	baseurl="https://api.adoptopenjdk.net/v3/${request_type}/${release_type}/${url_version}"
+	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
 	specifiers="openjdk_impl=${url_impl}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
 	windows_pat="windows.*"
 	if [ ! -z "${url_arch}" ]; then
@@ -316,12 +316,48 @@ function get_v3_url() {
 	echo "${baseurl}?${specifiers}"
 }
 
+# Build the URL using adoptopenjdk.net v3 api based on the given parameters
+# request_type = feature_releases
+# release_type = ga / ea
+# url_impl = hotspot / openj9
+# url_arch = aarch64 / ppc64le / s390x / x64
+# url_pkg  = jdk / jre
+# url_rel  = latest / ${version}
+# https://api.adoptopenjdk.net/v3/assets/feature_releases/11/ga?page=0&page_size=1&release_type=ga&sort_order=DESC&vendor=adoptopenjdk&jvm_impl=openj9&heap_size=normal&architecture=x64&os=linux&image_type=jdk
+function get_v3_url() {
+	request_type=$1
+	release_type=$2
+	url_impl=$3
+	url_pkg=$4
+	url_rel=$5
+	url_arch=$6
+	url_heapsize="normal"
+	url_version="openjdk${version}"
+	url_vendor="adoptopenjdk"
+
+	baseurl="https://api.adoptopenjdk.net/v3/assets/${request_type}/${version}/${release_type}"
+	specifiers="page=0&page_size=1&sort_order=DESC&vendor=adoptopenjdk"
+	specifiers="${specifiers}&jvm_impl=${url_impl}&image_type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
+	windows_pat="windows.*"
+	if [ ! -z "${url_arch}" ]; then
+		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
+			specifiers="${specifiers}&os=windows&architecture=x64"
+		else
+			specifiers="${specifiers}&os=linux&architecture=${url_arch}"
+		fi
+	else
+		specifiers="${specifiers}&os=linux"
+	fi
+
+	echo "${baseurl}?${specifiers}"
+}
+
 # Get the binary github link for a release given a V2 API URL
 function get_binary_url() {
-	v3_url=$1
+	v2_url=$1
 	info_file=/tmp/info_$$.json
 
-	curl -Lso ${info_file} ${v3_url};
+	curl -Lso ${info_file} ${v2_url};
 	if [ $? -ne 0 -o ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
@@ -332,10 +368,10 @@ function get_binary_url() {
 
 # Get the installer github link for a release given a V2 API URL
 function get_instaler_url() {
-	v3_url=$1
+	v2_url=$1
 	info_file=/tmp/info_$$.json
 
-	curl -Lso ${info_file} ${v3_url};
+	curl -Lso ${info_file} ${v2_url};
 	if [ $? -ne 0 -o ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
@@ -372,22 +408,22 @@ function get_sums_for_build_arch() {
 
 	case ${gsba_arch} in
 		armv7l)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest arm);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest arm);
 			;;
 		aarch64)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest ppc64le);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest ppc64le);
 			;;
 		s390x)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest s390x);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest s390x);
 			;;
 		x86_64)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
 			;;
 		windows-amd|windows-nano)
-			LATEST_URL=$(get_v3_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest windows-amd);
+			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest windows-amd);
 			;;
 		*)
 			echo "Unsupported arch: ${gsba_arch}"
@@ -429,7 +465,7 @@ function get_sums_for_build_arch() {
 			# If the latest for the current arch does not match with the latest for the parent arch,
 			# then skip this arch.
 			# Parent version in this case would be the "full_version" from function get_sums_for_build
-			# The parent version will automatically be the latest for all arches as returned by the v3 API
+			# The parent version will automatically be the latest for all arches as returned by the v2 API
 			if [ "${arch_build_version}" != "${full_version}" ]; then
 				echo "Parent version not matching for arch ${gsba_arch}: ${arch_build_version}, ${full_version}"
 				break;
@@ -453,7 +489,7 @@ function get_sums_for_build() {
 	gsb_build=$4
 	gsb_arch=$5
 
-	info_url=$(get_v3_url info ${gsb_build} ${gsb_vm} ${gsb_pkg} latest);
+	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} ${gsb_pkg} latest);
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls ${info_url})
