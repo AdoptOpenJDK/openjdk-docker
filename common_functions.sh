@@ -66,22 +66,22 @@ function set_arch_os() {
 	case ${machine} in
 	armv7l)
 		current_arch="armv7l"
-		oses="ubuntu debian centos"
+		oses="ubuntu debian debianslim centos"
 		os_family="linux"
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian ubi ubi-minimal clefos"
+		oses="ubuntu debian debianslim ubi ubi-minimal clefos"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -94,7 +94,7 @@ function set_arch_os() {
 				;;
 			*)
 			current_arch="x86_64"
-			oses="ubuntu alpine debian ubi ubi-minimal centos"
+			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos"
 			os_family="linux"
 			;;
 		esac
