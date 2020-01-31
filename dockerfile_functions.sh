@@ -278,7 +278,7 @@ print_java_install_pre() {
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
-			JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest aarch64);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest aarch64);
 			cat >> $1 <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray=${shasums}[aarch64]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -286,7 +286,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 	elif [ "${sarch}" == "armv7l" ]; then
-			JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest arm);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest arm);
 			cat >> $1 <<-EOI
        armhf|armv7l) \\
          ESUM='$(sarray=${shasums}[armv7l]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -294,7 +294,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
-			JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest ppc64le);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest ppc64le);
 			cat >> $1 <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray=${shasums}[ppc64le]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -302,7 +302,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
-			JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest s390x);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest s390x);
 			cat >> $1 <<-EOI
        s390x) \\
          ESUM='$(sarray=${shasums}[s390x]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -310,7 +310,7 @@ print_java_install_pre() {
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
-			JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest x64);
+			JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest x64);
 			cat >> $1 <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray=${shasums}[x86_64]; eval esum=\${$sarray}; echo ${esum})'; \\
@@ -401,7 +401,7 @@ print_windows_java_install() {
 	servertype=$(echo $file | cut -f4 -d"/" | cut -f1 -d"-")
 	version=$(echo $file | cut -f1 -d "/")
 	if [ "$servertype" == "windowsservercore" ]; then
-		JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest windows-amd);
+		JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-amd);
 		ESUM=$(sarray=${shasums}[windows-amd]; eval esum=\${$sarray}; echo ${esum});
 		BINARY_URL=$(get_instaler_url ${JAVA_URL});
 
@@ -425,7 +425,7 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         Remove-Item -Path C:\temp -Recurse | Out-Null;
 EOI
 	else
-		JAVA_URL=$(get_v3_url info ${bld} ${vm} ${pkg} latest windows-nano);
+		JAVA_URL=$(get_v2_url info ${bld} ${vm} ${pkg} latest windows-nano);
 		ESUM=$(sarray=${shasums}[windows-nano]; eval esum=\${$sarray}; echo ${esum});
 		BINARY_URL=$(get_binary_url ${JAVA_URL});
 
