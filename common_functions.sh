@@ -15,21 +15,28 @@
 
 # Config files
 tags_config_file="config/tags.config"
+# shellcheck disable=SC2034
 openj9_config_file="config/openj9.config"
+# shellcheck disable=SC2034
 hotspot_config_file="config/hotspot.config"
 
 # Test lists
+# shellcheck disable=SC2034
 test_image_types_file="config/test_image_types.list"
+# shellcheck disable=SC2034
 test_image_types_all_file="config/test_image_types_all.list"
+# shellcheck disable=SC2034
 test_buckets_file="config/test_buckets.list"
 
 # All supported JVMs
+# shellcheck disable=SC2034 # used externally
 all_jvms="hotspot openj9"
 
 # All supported arches
 all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 
 # All supported packges
+# shellcheck disable=SC2034 # used externally
 all_packages="jdk jre"
 
 # Current JVM versions supported
@@ -53,7 +60,7 @@ function check_version() {
 # Set a valid version
 function set_version() {
 	version=$1
-	if [ ! -z "$(check_version ${version})" ]; then
+	if [ -n "$(check_version "${version}")" ]; then
 		echo "ERROR: Invalid Version: ${version}"
 		echo "Usage: $0 [${supported_versions}]"
 		exit 1
@@ -62,7 +69,7 @@ function set_version() {
 
 # Set the valid OSes for the current architecure.
 function set_arch_os() {
-	machine=`uname -m`
+	machine=$(uname -m)
 	case ${machine} in
 	armv7l)
 		current_arch="armv7l"
@@ -93,8 +100,11 @@ function set_arch_os() {
 				os_family="windows"
 				;;
 			*)
+			# shellcheck disable=SC2034 # used externally
 			current_arch="x86_64"
+			# shellcheck disable=SC2034 # used externally
 			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos"
+			# shellcheck disable=SC2034 # used externally
 			os_family="linux"
 			;;
 		esac
@@ -113,20 +123,20 @@ function get_arches() {
 	# corresponding build combination does not exist.
 	# Eg. jdk_openj9_10_releases_sums does not exist as we do not have any
 	# release builds for version 10 (Only nightly builds).
-	declare -p $1 >/dev/null 2>&1
-	if [ $? -ne 0 ]; then
-		return;
+	if [ -z "${1+x}" ]; then
+	  return;
 	fi
-	archsums="$(declare -p $1)";
-	eval "declare -A sums="${archsums#*=};
-	for arch in ${!sums[@]};
+	archsums="$(declare -p "$1")";
+	eval "declare -A sums=""${archsums#*=}";
+	for arch in "${!sums[@]}";
 	do
 		if [ "${arch}" == "version" ]; then
 			continue;
 		fi
 		# Arch is supported only if the shasum is not empty !
-		shasum=$(sarray=$1[${arch}]; eval esum=\${$sarray}; echo ${esum});
-		if [ ! -z "${shasum}" ]; then
+		# shellcheck disable=SC2154,SC1083
+		shasum=$(sarray=$1[${arch}]; eval esum=\${"$sarray"}; echo "${esum}");
+		if [ -n "${shasum}" ]; then
 			echo "${arch} "
 		fi
 	done
@@ -138,23 +148,23 @@ function vm_supported_onarch() {
 	vm=$1
 	sums=$2
 
-	if [ ! -z "$3" ]; then
+	if [ -n "$3" ]; then
 		test_arch=$3;
 	else
-		test_arch=`uname -m`
+		test_arch=$(uname -m)
 	fi
 
-	suparches=$(get_arches ${sums})
-	sup=$(echo ${suparches} | grep ${test_arch})
-	echo ${sup}
+	suparches=$(get_arches "${sums}")
+	sup=$(echo "${suparches}" | grep "${test_arch}")
+	echo "${sup}"
 }
 
 function cleanup_images() {
 	# Delete any old containers that have exited.
-	docker rm $(docker ps -a | grep "Exited" | awk '{ print $1 }') 2>/dev/null
+	docker rm "$(docker ps -a | grep "Exited" | awk '{ print $1 }')" 2>/dev/null
 
 	# Delete any old images for our target_repo on localhost.
-	docker rmi -f $(docker images | grep -e "adoptopenjdk" | awk '{ print $3 }' | sort | uniq) 2>/dev/null
+	docker rmi -f "$(docker images | grep -e "adoptopenjdk" | awk '{ print $3 }' | sort | uniq)" 2>/dev/null
 }
 
 function cleanup_manifest() {
@@ -168,7 +178,7 @@ function cleanup_manifest() {
 function check_image() {
 	img=$1
 
-	docker pull ${img} >/dev/null
+	docker pull "${img}" >/dev/null
 	ret=$?
 	echo ${ret}
 }
@@ -180,15 +190,15 @@ function check_image() {
 # $4 = OS
 # $5 = String to look for.
 function parse_vm_entry() {
-	entry=$(cat config/$1.config | grep -B 4 -E "$2\/$3\/$4$|$2\/$3\/windows\/$4$" | grep "$5" | sed "s/$5 //")
-	echo ${entry}
+	entry=$( < config/"$1".config grep -B 4 -E "$2\/$3\/$4$|$2\/$3\/windows\/$4$" | grep "$5" | sed "s/$5 //")
+	echo "${entry}"
 }
 
 # Parse the openj9.config / hotspot.config file for the supported OSes
 # $1 = VM
 function parse_os_entry() {
-	entry=$(cat config/$1.config | grep "^OS:" | sed "s/OS: //")
-	echo ${entry}
+	entry=$( < config/"$1".config grep "^OS:" | sed "s/OS: //")
+	echo "${entry}"
 }
 
 # Read the tags file and parse the specific tag.
@@ -198,8 +208,8 @@ function parse_os_entry() {
 # $4 = Type (full / slim)
 function parse_tag_entry() {
 	tag="$1-$2-$3-$4-tags:"
-	entry=$(cat ${tags_config_file} | grep ${tag} | sed "s/${tag} //")
-	echo ${entry}
+	entry=$( < "${tags_config_file}" grep "${tag}" | sed "s/${tag} //")
+	echo "${entry}"
 }
 
 # Where is the manifest tool installed?"
@@ -213,11 +223,11 @@ manifest_tool_dir="/opt/manifest_tool"
 manifest_tool=${manifest_tool_dir}/cli/build/docker
 
 function check_manifest_tool() {
-	if $(docker manifest 2>/dev/null); then
-		echo "INFO: Docker manifest found at $(which docker)"
-		manifest_tool=$(which docker)
+	if docker manifest 2>/dev/null; then
+		echo "INFO: Docker manifest found at $(command -v docker)"
+		manifest_tool=$(command -v docker)
 	else
-		if [ ! -f ${manifest_tool} ]; then
+		if [ ! -f "${manifest_tool}" ]; then
 			echo
 			echo "ERROR: Docker with manifest support not found at path ${manifest_tool}"
 			exit 1
@@ -238,13 +248,13 @@ function build_tags() {
 
 	# For jre builds, replace the version tag to distinguish it from the jdk
 	if [ "${pkg}" == "jre" ]; then
-		rel=$(echo ${rel} | sed 's/jdk/jre/')
+		rel="${rel//jdk/jre}"
 	fi
 	# Get the list of supported arches for this vm / ver /os combo
-	arches=$(parse_vm_entry ${vm} ${ver} ${pkg} ${os} "Architectures:")
+	arches=$(parse_vm_entry "${vm}" "${ver}" "${pkg}" "${os}" "Architectures:")
 	# Replace the proper version string in the tags
-	rtags=$(echo ${rawtags} | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
-	echo ${rtags} | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
+	rtags=$(echo "${rawtags}" | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
+	echo "${rtags}" | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
 	# Separate the arch and the generic alias tags
 	awk '{ a=0; n=0;
 		for (i=1; i<=NF; i++) {
@@ -259,8 +269,9 @@ function build_tags() {
 		printf("tag_aliases: "); for (key in natags) { printf"%s ", natags[key] }; printf"\n";
 	}' > ${tmpfile}
 
-	tag_aliases=$(cat ${tmpfile} | grep "^tag_aliases:" | sed "s/tag_aliases: //")
-	raw_arch_tags=$(cat ${tmpfile} | grep "^arch_tags:" | sed "s/arch_tags: //")
+  # shellcheck disable=SC2034 # used externally
+	tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
+	raw_arch_tags=$( < "${tmpfile}" grep "^arch_tags:" | sed "s/arch_tags: //")
 	arch_tags=""
 	# Iterate through the arch tags and expand to add the supported arches.
 	for tag in ${raw_arch_tags}
@@ -272,11 +283,13 @@ function build_tags() {
 				arch="x86_64"
 			fi
 			# Check if all the supported arches are available for this build.
-			supported=$(vm_supported_onarch ${vm} ${shasums} ${arch})
+			# shellcheck disable=SC2154 #declared externally
+			supported=$(vm_supported_onarch "${vm}" "${shasums}" "${arch}")
 			if [ -z "${supported}" ]; then
 				continue;
 			fi
-			atag=$(echo ${tag} | sed "s/{{ARCH}}/${arch}"/g)
+			# shellcheck disable=SC2001
+			atag=$(echo "${tag}" | sed "s/{{ARCH}}/${arch}"/g)
 			arch_tags="${arch_tags} ${atag}"
 		done
 	done
@@ -303,7 +316,7 @@ function get_v2_url() {
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
 	specifiers="openjdk_impl=${url_impl}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
 	windows_pat="windows.*"
-	if [ ! -z "${url_arch}" ]; then
+	if [ -n "${url_arch}" ]; then
 		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
 			specifiers="${specifiers}&arch=x64&os=windows"
 		else
@@ -333,13 +346,14 @@ function get_v3_url() {
 	url_arch=$6
 	url_heapsize="normal"
 	url_version="openjdk${version}"
+  # shellcheck disable=2034
 	url_vendor="adoptopenjdk"
 
 	baseurl="https://api.adoptopenjdk.net/v3/assets/${request_type}/${version}/${release_type}"
 	specifiers="page=0&page_size=1&sort_order=DESC&vendor=adoptopenjdk"
 	specifiers="${specifiers}&jvm_impl=${url_impl}&image_type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
 	windows_pat="windows.*"
-	if [ ! -z "${url_arch}" ]; then
+	if [ -n "${url_arch}" ]; then
 		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
 			specifiers="${specifiers}&os=windows&architecture=x64"
 		else
@@ -357,13 +371,13 @@ function get_binary_url() {
 	v2_url=$1
 	info_file=/tmp/info_$$.json
 
-	curl -Lso ${info_file} ${v2_url};
-	if [ $? -ne 0 -o ! -s ${info_file} ]; then
+	if ! curl -Lso ${info_file} "${v2_url}" || [ ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
 	fi
-	echo $(cat ${info_file} | grep "binary_link" | awk -F '"' '{ print $4 }')
-	rm -f ${info_file}
+	# shellcheck disable=SC2005
+	echo "$( < "${info_file}"  grep "binary_link" | awk -F '"' '{ print $4 }')"
+	rm -f "${info_file}"
 }
 
 # Get the installer github link for a release given a V2 API URL
@@ -371,12 +385,11 @@ function get_instaler_url() {
 	v2_url=$1
 	info_file=/tmp/info_$$.json
 
-	curl -Lso ${info_file} ${v2_url};
-	if [ $? -ne 0 -o ! -s ${info_file} ]; then
+	if ! curl -Lso "${info_file}" "${v2_url}" || [ ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
 	fi
-	echo $(cat ${info_file} | grep "installer_link" | awk -F '"' '{ print $4 }')
+	< ${info_file} grep "installer_link" | awk -F '"' '{ print $4 }'
 	rm -f ${info_file}
 }
 
@@ -389,17 +402,20 @@ function get_nightly_short_version() {
 		# Remove date and time at the end of full_version for nightly builds.
 		# Handle both the old and new date-time formats used by the Adopt build system.
 		# Older date-time format - 201809270034
-		arch_version=$(echo ${arch_full_version} | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
+    # shellcheck disable=SC2001
+		arch_version=$(echo "${arch_full_version}" | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
 		# New date-time format   - 2018-09-27-00-34
-		arch_version=$(echo ${arch_version} | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
+		# shellcheck disable=SC2001
+		arch_version=$(echo "${arch_version}" | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}$//')
 	else
 		arch_version=${arch_full_version}
 	fi
-	echo ${arch_version}
+	echo "${arch_version}"
 }
 
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
+  # shellcheck disable=SC2034 # TODO check where it is used
 	gsba_ver=$1
 	gsba_vm=$2
 	gsba_pkg=$3
@@ -408,22 +424,22 @@ function get_sums_for_build_arch() {
 
 	case ${gsba_arch} in
 		armv7l)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest arm);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest arm);
 			;;
 		aarch64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest aarch64);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest aarch64);
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest ppc64le);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest ppc64le);
 			;;
 		s390x)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest s390x);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest s390x);
 			;;
 		x86_64)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest x64);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest x64);
 			;;
 		windows-amd|windows-nano)
-			LATEST_URL=$(get_v2_url info ${gsba_build} ${gsba_vm} ${gsba_pkg} latest windows-amd);
+			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest windows-amd);
 			;;
 		*)
 			echo "Unsupported arch: ${gsba_arch}"
@@ -432,36 +448,35 @@ function get_sums_for_build_arch() {
 	while :
 	do
 		shasum_file="${gsba_arch}_${gsba_build}_latest"
-		curl -Lso ${shasum_file} ${LATEST_URL};
 		# Bad builds cause the latest url to return an empty file or sometimes curl fails
-		if [ $? -ne 0 -o ! -s ${shasum_file} ]; then
+		if ! curl -Lso "${shasum_file}" "${LATEST_URL}" || [ ! -s "${shasum_file}" ]; then
 			echo "Latest url not available at url: ${LATEST_URL}"
 			break;
 		fi
 		# Even if the file is not empty, it might just say "No matches"
-		availability=$(grep -e "No matches" -e "Not found" ${shasum_file});
+		availability=$(grep -e "No matches" -e "Not found" "${shasum_file}");
 		# Print the arch and the corresponding shasums to the vm output file
 		if [ -z "${availability}" ]; then
 			# If there are multiple builds for a single version, then pick the latest one.
 			if [ "$gsba_arch" == "windows-amd" ]; then
-				shasums_url=$(cat ${shasum_file} | grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				shasums_url=$( < "${shasum_file}" grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 				if [ -z "$shasums_url" ]; then
-					shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+					shasums_url=$( < "${shasum_file}" grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 				fi
 			else
-				shasums_url=$(cat ${shasum_file} | grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				shasums_url=$( < "${shasum_file}" grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
 			fi
-			shasum=$(curl -Ls ${shasums_url} | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
 			# Sometimes shasum files are missing, check for error and do not print on error.
-			shasum_available=$(echo ${shasum} | grep -e "No" -e "Not");
-			if [ ! -z "${shasum_available}" ]; then
+			shasum_available=$(echo "${shasum}" | grep -e "No" -e "Not");
+			if [ -n "${shasum_available}" ]; then
 				echo "shasum file not available at url: ${shasums_url}"
 				break;
 			fi
 			# Get the release version for this arch from the info file
-			arch_build_version=$(cat ${shasum_file} | grep "release_name" | awk -F'"' '{ print $4 }');
+			arch_build_version=$( < "${shasum_file}" grep "release_name" | awk -F'"' '{ print $4 }');
 			# For nightly builds get the short version without the date/time stamp
-			arch_build_version=$(get_nightly_short_version ${gsba_build} ${arch_build_version})
+			arch_build_version=$(get_nightly_short_version "${gsba_build}" "${arch_build_version}")
 			# If the latest for the current arch does not match with the latest for the parent arch,
 			# then skip this arch.
 			# Parent version in this case would be the "full_version" from function get_sums_for_build
@@ -471,13 +486,13 @@ function get_sums_for_build_arch() {
 				break;
 			fi
 			# Only print the entry if the shasum is not empty
-			if [ ! -z "${shasum}" ]; then
-				printf "\t[%s]=\"%s\"\n" ${gsba_arch} ${shasum} >> ${ofile}
+			if [ -n "${shasum}" ]; then
+				printf "\t[%s]=\"%s\"\n" "${gsba_arch}" "${shasum}" >> "${ofile}"
 			fi
 		fi
 		break;
 	done
-	rm -f ${shasum_file}
+	rm -f "${shasum_file}"
 }
 
 # Get shasums for the build and arch combination given
@@ -489,29 +504,30 @@ function get_sums_for_build() {
 	gsb_build=$4
 	gsb_arch=$5
 
-	info_url=$(get_v2_url info ${gsb_build} ${gsb_vm} ${gsb_pkg} latest);
+	info_url=$(get_v2_url info "${gsb_build}" "${gsb_vm}" "${gsb_pkg}" latest);
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
-	info=$(curl -Ls ${info_url})
-	err=$(echo ${info} | grep -e "Error" -e "No matches" -e "Not found")
-	if [ ! -z "${err}" ]; then
+	info=$(curl -Ls "${info_url}")
+	err=$(echo "${info}" | grep -e "Error" -e "No matches" -e "Not found")
+	if [ -n "${err}" ]; then
+	  # shellcheck disable=SC2104 # TODO need to check flow here
 		continue;
 	fi
-	full_version=$(echo ${info} | grep "release_name" | awk -F'"' '{ print $4 }');
-	full_version=$(get_nightly_short_version ${gsb_build} ${full_version})
+	full_version=$(echo "${info}" | grep "release_name" | awk -F'"' '{ print $4 }');
+	full_version=$(get_nightly_short_version "${gsb_build}" "${full_version}")
 	# Declare the array with the proper name and write to the vm output file.
-	printf "declare -A %s_%s_%s_%s_sums=(\n" ${gsb_pkg} ${gsb_vm} ${gsb_ver} ${gsb_build} >> ${ofile}
+	printf "declare -A %s_%s_%s_%s_sums=(\n" "${gsb_pkg}" "${gsb_vm}" "${gsb_ver}" "${gsb_build}" >> "${ofile}"
 	# Capture the full version according to adoptopenjdk
-	printf "\t[version]=\"%s\"\n" ${full_version} >> ${ofile}
-	if [ ! -z "${gsb_arch}" ]; then
-		get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_pkg} ${gsb_build} ${gsb_arch}
+	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile}"
+	if [ -n "${gsb_arch}" ]; then
+		get_sums_for_build_arch "${gsb_ver}" "${gsb_vm}" "${gsb_pkg}" "${gsb_build}" "${gsb_arch}"
 	else
 		for gsb_arch in ${all_arches}
 		do
-			get_sums_for_build_arch ${gsb_ver} ${gsb_vm} ${gsb_pkg} ${gsb_build} ${gsb_arch}
+			get_sums_for_build_arch "${gsb_ver}" "${gsb_vm}" "${gsb_pkg}" "${gsb_build}" "${gsb_arch}"
 		done
 	fi
-	printf ")\n" >> ${ofile}
+	printf ")\n" >> "${ofile}"
 
 	echo
 	echo "sha256sums for the version ${full_version} for build type \"${gsb_build}\" is now available in ${ofile}"
@@ -526,27 +542,29 @@ function get_shasums() {
 	pkg=$3
 	build=$4
 	arch=$5
+	# shellcheck disable=SC2154 # declared externally
 	ofile="${root_dir}/${vm}_shasums_latest.sh"
 
 	# Dont build the shasums array it already exists for the Ver/VM/Pkg/Build combination
-	if [ -f ${ofile} ]; then
-		source ./${vm}_shasums_latest.sh
+	if [ -f "${ofile}" ]; then
+	  # shellcheck disable=SC1090
+		source ./"${vm}"_shasums_latest.sh
 		sums="${pkg}_${vm}_${ver}_${build}_sums"
 		# File exists, which means shasums for the VM exists.
 		# Now check for the specific Ver/VM/Pg/Build combo
-		suparches=$(get_arches ${sums})
-		if [ ! -z "${suparches}" ]; then
+		suparches=$(get_arches "${sums}")
+		if [ -n "${suparches}" ]; then
 			return;
 		fi
 	fi
 
-	if [ ! -z "${build}" ]; then
-		get_sums_for_build ${ver} ${vm} ${pkg} ${build} ${arch}
+	if [ -n "${build}" ]; then
+		get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 	else
 		for build in ${supported_builds}
 		do
-			get_sums_for_build ${ver} ${vm} ${pkg} ${build} ${arch}
+			get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 		done
 	fi
-	chmod +x ${ofile}
+	chmod +x "${ofile}"
 }
