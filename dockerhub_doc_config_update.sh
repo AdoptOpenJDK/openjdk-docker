@@ -22,12 +22,15 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
 oses="alpine debian ubi-minimal ubuntu"
 
+# shellcheck disable=SC2034 # used externally
 hotspot_latest_tags="hotspot, latest"
+# shellcheck disable=SC2034 # used externally
 openj9_latest_tags="openj9"
 
 git_repo="https://github.com/AdoptOpenJDK/openjdk-docker/blob/master"
@@ -41,9 +44,9 @@ print_official_text() {
 }
 
 print_unofficial_tags() {
-	for tag in $*
+	for tag in "$@"
 	do
-		echo -n "\`${tag}\`, " >>  ${ver}_${vm}.txt
+		echo -n "\`${tag}\`, " >>  "${ver}"_"${vm}".txt
 	done
 }
 
@@ -55,9 +58,9 @@ print_official_header() {
 }
 
 function generate_unofficial_image_info() {
-	full_version=$(grep "VERSION" ${file} | awk '{ print $3 }')
+	full_version=$(grep "VERSION" "${file}" | awk '{ print $3 }')
 	# Replace "+" with "_" in the version info as docker does not support "+"
-	full_version=$(echo ${full_version} | sed 's/+/_/')
+	full_version=${full_version//+/_}
 
 	# Build a list of super tags (in addition to the non arch specific tags)
 	super_tags="";
@@ -66,7 +69,7 @@ function generate_unofficial_image_info() {
 		# JRE ubuntu builds have a `jre` tag
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${pkg}";
-			full_version=$(echo ${full_version} | sed 's/jdk/jre/')
+			full_version=${full_version//jdk/jre}
 		fi
 		# Nightly ubuntu builds have a `nightly` tag
 		if [ "${build}" == "nightly" ]; then
@@ -97,7 +100,7 @@ function generate_unofficial_image_info() {
 		full_version="${full_version}-${os}"
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
-			full_version=$(echo ${full_version} | sed 's/jdk/jre/')
+			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
 			super_tags="${super_tags}-${build}";
@@ -113,10 +116,8 @@ function generate_unofficial_image_info() {
 	# Unofficial images support x86_64, aarch64, s390x and ppc64le
 	# Remove ppc64el, amd64 and arm64
 	# Retain ppc64le, x86_64 and aarch64
-	arches=$(echo $(grep ') \\' ${file} | \
-		sed 's/\(ppc64el\|amd64\|arm64\)//g' | \
-		sort | grep -v "*" | \
-		sed 's/) \\//g; s/|/ /g'))
+	# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063 # TODO need to rewrite this
+	arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\|amd64\|arm64\)//g' | sort | grep -v "*" | sed 's/) \\//g; s/|/ /g'))
 	if [ "${os}" == "alpine" ]; then
 		# Alpine builds are only available for x86_64 currently
 		arches="x86_64"
@@ -124,21 +125,21 @@ function generate_unofficial_image_info() {
 	print_unofficial_tags "${super_tags} ${full_version}"
 	for arch in ${arches}
 	do
-		print_unofficial_tags "${arch}-${os}-${full_version}" >> ${ver}_${vm}.txt
+		print_unofficial_tags "${arch}-${os}-${full_version}" >> "${ver}"_"${vm}".txt
 	done
 	# Remove the leading "./" from the file name
-	file=$(echo ${file} | cut -c 3-)
-	echo "(*${file}*)](${git_repo}/${file})" >> ${ver}_${vm}.txt
+	file=$(echo "${file}" | cut -c 3-)
+	echo "(*${file}*)](${git_repo}/${file})" >> "${ver}"_"${vm}".txt
 }
 
 function generate_official_image_tags() {
 	# Generate the tags
-	full_version=$(grep "VERSION" ${file} | awk '{ print $3 }')
+	full_version=$(grep "VERSION" "${file}" | awk '{ print $3 }')
 
 	# Remove any `jdk` references in the version
-	ojdk_version=$(echo ${full_version} | sed 's/\(jdk\|jdk-\)//' | awk -F '_' '{ print $1 }')
+	ojdk_version=$(echo "${full_version}" | sed 's/\(jdk\|jdk-\)//' | awk -F '_' '{ print $1 }')
 	# Replace "+" with "_" in the version info as docker does not support "+"
-	ojdk_version=$(echo ${ojdk_version} | sed 's/+/_/')
+	ojdk_version=${ojdk_version//+/_}
 
 	# Official image build tags are as below
 	# 8u212-jre-openj9_0.12.1
@@ -147,7 +148,7 @@ function generate_official_image_tags() {
 	full_ver_tag="${ojdk_version}-${pkg}"
 	# Add the openj9 version
 	if [ "${vm}" == "openj9" ]; then
-		openj9_version=$(echo ${full_version} | awk -F '_' '{ print $2 }')
+		openj9_version=$(echo "${full_version}" | awk -F '_' '{ print $2 }')
 		full_ver_tag="${full_ver_tag}-${openj9_version}"
 	else
 		full_ver_tag="${full_ver_tag}-${vm}"
@@ -161,7 +162,9 @@ function generate_official_image_tags() {
 		# Add the "latest", "hotspot" and "openj9" tags for the right version
 		if [ "${ver}" == "${latest_version}" ]; then
 			vm_tags="${vm}_latest_tags"
+			# shellcheck disable=SC1083,SC2086
 			eval vm_tags_val=\${$vm_tags}
+			# shellcheck disable=SC2154
 			all_tags="${all_tags}, ${vm_tags_val}"
 		fi
 	fi
@@ -172,24 +175,22 @@ function generate_official_image_arches() {
 	# Official images supports amd64, arm64vX, s390x and ppc64le
 	# Remove ppc64el, x86_64 and aarch64
 	# Retain ppc64le, amd64 and arm64
-	arches=$(echo $(grep ') \\' ${file} | \
-		sed 's/\(ppc64el\|x86_64\|aarch64\)//g' | \
-		# armhf is arm32v7 and arm64 is arm64v8 for docker builds
-		sed 's/armhf/arm32v7/' | \
-		sed 's/arm64/arm64v8/' | \
-		sort | grep -v "*" | \
-		sed 's/) \\//g; s/|/ /g'))
+	# armhf is arm32v7 and arm64 is arm64v8 for docker builds
+	# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063 # TODO need to rewrite this
+	arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\|x86_64\|aarch64\)//g' | sed 's/armhf/arm32v7/' | sed 's/arm64/arm64v8/' | sort | grep -v "*" | sed 's/) \\//g; s/|/ /g'))
 	# Add a "," after each arch
-	arches=$(echo ${arches} | sed 's/ /, /g')
+	arches=${arches// /, }
 }
 
 function print_official_image_file() {
 	# Print them all
-	echo "Tags: ${all_tags}" >> ${official_docker_image_file}
-	echo "Architectures: ${arches}" >> ${official_docker_image_file}
-	echo "GitCommit: ${gitcommit}" >> ${official_docker_image_file}
-	echo "Directory: ${dfdir}" >> ${official_docker_image_file}
-	echo "File: ${dfname}" >> ${official_docker_image_file}
+	{
+	  echo "Tags: ${all_tags}"
+	  echo "Architectures: ${arches}"
+	  echo "GitCommit: ${gitcommit}"
+	  echo "Directory: ${dfdir}"
+	  echo "File: ${dfname}"
+	} >> ${official_docker_image_file}
 }
 
 rm -f ${official_docker_image_file}
@@ -208,7 +209,7 @@ function generate_official_image_info() {
 		fi
 	done	
 	# We do not push our nightly and slim images either.
-	if [ "${build}" == "nightly" -o "${btype}" == "slim" ]; then
+	if [ "${build}" == "nightly" ] || [ "${btype}" == "slim" ]; then
 		return;
 	fi
 
@@ -234,14 +235,14 @@ do
 			do
 				# file will look like ./12/jdk/debian/Dockerfile.openj9.nightly.slim
 				# dockerfile name
-				dfname=$(basename ${file})
+				dfname=$(basename "${file}")
 				# dockerfile dir
-				dfdir=$(dirname ${file} | cut -c 3-)
-				os=$(echo ${file} | awk -F '/' '{ print $4 }')
+				dfdir=$(dirname : | cut -c 3-)
+				os=$(echo "${file}" | awk -F '/' '{ print $4 }')
 				# build = release or nightly
-				build=$(echo ${dfname} | awk -F "." '{ print $3 }')
+				build=$(echo "${dfname}" | awk -F "." '{ print $3 }')
 				# btype = full or slim
-				btype=$(echo ${dfname} | awk -F "." '{ print $4 }')
+				btype=$(echo "${dfname}" | awk -F "." '{ print $4 }')
 
 				generate_official_image_info
 			done
@@ -256,13 +257,13 @@ do
 	for ver in ${supported_versions}
 	do
 		# Remove any previous doc files
-		rm -f ${ver}_${vm}.txt
+		rm -f "${ver}"_"${vm}".txt
 		for build in ${supported_builds}
 		do
 			if [ "${build}" == "releases" ]; then
-				echo "**Release Builds**" >> ${ver}_${vm}.txt
+				echo "**Release Builds**" >> "${ver}"_"${vm}".txt
 			else
-				echo "**Nightly Builds**" >> ${ver}_${vm}.txt
+				echo "**Nightly Builds**" >> "${ver}"_"${vm}".txt
 			fi
 			for os in ${oses}
 			do
@@ -270,23 +271,23 @@ do
 				do
 					for file in $(find . -name "Dockerfile.*" | grep "/${ver}" | grep "${vm}" | grep "${build}" | grep "${os}" | grep "${pkg}")
 					do
-						echo -n "- [" >> ${ver}_${vm}.txt
-						dfname=$(basename ${file})
+						echo -n "- [" >> "${ver}"_"${vm}".txt
+						dfname=$(basename "${file}")
 						# dockerfile dir
-						dfdir=$(dirname ${file} | cut -c 3-)
-						pkg=$(echo ${file} | awk -F '/' '{ print $3 }')
-						os=$(echo ${file} | awk -F '/' '{ print $4 }')
+						dfdir=$(dirname "${file}" | cut -c 3-)
+						pkg=$(echo "${file}" | awk -F '/' '{ print $3 }')
+						os=$(echo "${file}" | awk -F '/' '{ print $4 }')
 						# build = release or nightly
-						build=$(echo ${dfname} | awk -F "." '{ print $3 }')
+						build=$(echo "${dfname}" | awk -F "." '{ print $3 }')
 						# btype = full or slim
-						btype=$(echo ${dfname} | awk -F "." '{ print $4 }')
+						btype=$(echo "${dfname}" | awk -F "." '{ print $4 }')
 
 						generate_unofficial_image_info
 					done
 				done
-				echo >> ${ver}_${vm}.txt
+				echo >> "${ver}"_"${vm}".txt
 			done
-			echo >> ${ver}_${vm}.txt
+			echo >> "${ver}"_"${vm}".txt
 		done
 	done
 done
