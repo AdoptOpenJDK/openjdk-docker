@@ -106,7 +106,7 @@ function jre_lib_files() {
 		# Derive arch from current platorm.
 		lib_arch_dir=$(parse_platform_specific)
 		if [ -d "${lib_arch_dir}" ]; then
-			pushd" ${lib_arch_dir}" >/dev/null
+			pushd "${lib_arch_dir}" >/dev/null
 				rm -rf classic/ libdeploy.so libjavaplugin_* libjsoundalsa.so libnpjp2.so libsplashscreen.so
 				# Only remove the default dir for 64bit versions
 				if [ "${proc_type}" == "64bit" ]; then
@@ -165,7 +165,7 @@ function rt_jar_classes() {
 	# 2.4 Remove classes in rt.jar
 	echo -n "INFO: Trimming classes in rt.jar..."
 	mkdir -p "${root}"/rt_class
-	pushd" ${root}"/rt_class >/dev/null || return
+	pushd "${root}"/rt_class >/dev/null || return
 		jar -xf "${root}"/jre/lib/rt.jar
 		mkdir -p" ${root}"/rt_keep_class
 		grep -v '^#' < "${keep_list}" | while IFS= read -r class

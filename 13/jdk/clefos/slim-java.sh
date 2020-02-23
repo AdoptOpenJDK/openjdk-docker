@@ -165,7 +165,7 @@ function rt_jar_classes() {
 	# 2.4 Remove classes in rt.jar
 	echo -n "INFO: Trimming classes in rt.jar..."
 	mkdir -p "${root}"/rt_class
-	pushd" ${root}"/rt_class >/dev/null || return
+	pushd "${root}"/rt_class >/dev/null || return
 		jar -xf "${root}"/jre/lib/rt.jar
 		mkdir -p" ${root}"/rt_keep_class
 		grep -v '^#' < "${keep_list}" | while IFS= read -r class
