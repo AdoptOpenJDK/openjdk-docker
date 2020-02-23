@@ -34,10 +34,10 @@ do
 			echo "                 Generating Manifest Entries for Version ${ver}                "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./generate_manifest_script.sh ${ver} ${vm} ${package}
+			./generate_manifest_script.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
-			if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
+			if [ ${err} != 0 ] || [ ! -f ./manifest_commands.sh ]; then
 				echo
 				echo "ERROR: Docker Build for version ${ver} failed."
 				echo
@@ -68,8 +68,8 @@ do
 			echo "                                                                               "
 			echo "==============================================================================="
 			# We will test all image types
-			cp ${test_image_types_all_file} ${test_image_types_file}
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			cp "${test_image_types_all_file}" "${test_image_types_file}"
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 		done
 	done
 done
