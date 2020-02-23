@@ -132,12 +132,12 @@ set_arch_os
 # Source the hotspot and openj9 shasums scripts
 available_jvms=""
 if [ "${vm}" == "hotspot" ] && [ -f hotspot_shasums_latest.sh ]; then
-  # shellcheck source=hotspot_shasums_latest.sh
+  # shellcheck disable=SC1091
 	source ./hotspot_shasums_latest.sh
 	available_jvms="hotspot"
 fi
 if [ "${vm}" == "openj9" ] && [ -f openj9_shasums_latest.sh ]; then
-  # shellcheck source=openj9_shasums_latest.sh
+  # shellcheck disable=SC1091
 	source ./openj9_shasums_latest.sh
 	available_jvms="${available_jvms} openj9"
 fi
