@@ -55,7 +55,8 @@ function build_image() {
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	if ! docker build --pull --no-cache "${tags}" -f "${dockerfile}" . ; then
+	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
+	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
 		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 		exit 1
 	fi

@@ -106,7 +106,7 @@ function jre_lib_files() {
 		# Derive arch from current platorm.
 		lib_arch_dir=$(parse_platform_specific)
 		if [ -d "${lib_arch_dir}" ]; then
-			pushd "${lib_arch_dir}" >/dev/null
+			pushd "${lib_arch_dir}" >/dev/null || return
 				rm -rf classic/ libdeploy.so libjavaplugin_* libjsoundalsa.so libnpjp2.so libsplashscreen.so
 				# Only remove the default dir for 64bit versions
 				if [ "${proc_type}" == "64bit" ]; then
