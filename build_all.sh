@@ -16,6 +16,8 @@ set -o pipefail
 
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=snyk.sh
+source ./snyk.sh
 
 for ver in ${supported_versions}
 do

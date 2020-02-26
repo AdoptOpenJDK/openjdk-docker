@@ -21,6 +21,9 @@ version="9"
 
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=snyk.sh
+source ./snyk.sh
+
 # shellcheck source=dockerfile_functions.sh
 source ./dockerfile_functions.sh
 
@@ -43,25 +46,37 @@ function build_image() {
 	build=$1; shift;
 	btype=$1; shift;
 
-	tags=""
-	for tag in "$@"
-	do
-		tags="${tags} -t ${repo}:${tag}"
-		echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
-	done
+	local tags=("${@[@]}") # copy arguments to local array
+	for i in "${tags[@]}"
+  do
+		echo "docker push ${repo}:${tags[$i]}" >> "${push_cmdfile}"
+  done
 
+  printf -v expanded_tags "-t ${repo}:%s " "${tags[@]}" # concatenate to single strin : -t repo:tag -t repo:tag2
+  expanded_tags=${expanded_tags%?} # remove trailing space
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 
 	echo "#####################################################"
-	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
+	echo "INFO: docker build --no-cache ${expanded_tags} -f ${dockerfile} ."
 	echo "#####################################################"
 	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+	if ! docker build --pull --no-cache ${expanded_tags} -f "${dockerfile}" . ; then
 		echo "#############################################"
 		echo
-		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+		echo "ERROR: Docker build of image: ${expanded_tags} from ${dockerfile} failed."
 		echo
 		echo "#############################################"
+	else
+	  if ((SNYK_ENABLED)); then
+	    echo "#####################################################"
+	    echo "        Scanning with snyk for vulnerabilities       "
+	    echo "#####################################################"
+	    	for i in "${tags[@]}"
+        do
+          printf "...scanning %s" "${tags[$i]}"
+	        snyk test --docker "${tags[$i]}" --file=="${dockerfile}"
+        done
+	  fi
 	fi
 }
 
