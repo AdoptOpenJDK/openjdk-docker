@@ -150,7 +150,7 @@ function charset_files() {
 
 			exclude_charsets="${exclude_charsets} IBM${charset}"
 		done
-		mkdir -p "$root"/jre/lib/slim/sun/nio/cs/ext
+		mkdir -p "${root}"/jre/lib/slim/sun/nio/cs/ext
 		echo "${exclude_charsets}" > "${root}"/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets
 		cp "${root}"/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets sun/nio/cs/ext/
 
@@ -167,7 +167,7 @@ function rt_jar_classes() {
 	mkdir -p "${root}"/rt_class
 	pushd "${root}"/rt_class >/dev/null || return
 		jar -xf "${root}"/jre/lib/rt.jar
-		mkdir -p" ${root}"/rt_keep_class
+		mkdir -p "${root}"/rt_keep_class
 		grep -v '^#' < "${keep_list}" | while IFS= read -r class
 		do
 			cp --parents "${class}".class "${root}"/rt_keep_class/ >null 2>&1
@@ -261,7 +261,7 @@ function lib_files() {
 cd "${basedir}" || exit
 mkdir -p "${target}"
 echo "Copying ${src} to ${target}..."
-cp -rf "${src}/*" "${target}"/
+cp -rf "${src}"/* "${target}"/
 
 pushd "${target}" >/dev/null || exit
 	root=$(pwd)
