@@ -14,6 +14,7 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 for ver in ${supported_versions}
@@ -36,7 +37,7 @@ do
 			echo "                    Testing Docker Images for Version ${ver}                   "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
 			if [ ${err} != 0 ]; then

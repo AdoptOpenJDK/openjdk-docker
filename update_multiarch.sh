@@ -21,8 +21,8 @@ root_dir="$PWD"
 source ./common_functions.sh
 source ./dockerfile_functions.sh
 
-if [ ! -z "$1" ]; then
-	set_version $1
+if [ -n "$1" ]; then
+	set_version "$1"
 fi
 
 # Set the OSes that will be built on based on the current arch
@@ -34,28 +34,29 @@ for vm in ${all_jvms}
 do
 	for package in ${all_packages}
 	do
-		oses=$(parse_os_entry ${vm})
+		oses=$(parse_os_entry "${vm}")
 		for os in ${oses}
 		do
 			# Build = Release or Nightly
-			builds=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Build:")
+			builds=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Build:")
 			# Build Type = Full or Slim
-			btypes=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Type:")
-			dir=$(parse_vm_entry ${vm} ${version} ${package} ${os} "Directory:")
+			btypes=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Type:")
+			dir=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Directory:")
 
 			for build in ${builds}
 			do
 				echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
-				get_shasums ${version} ${vm} ${package} ${build}
+				get_shasums "${version}" "${vm}" "${package}" "${build}"
 				# Source the generated shasums file to access the array
-				if [ -f ${vm}_shasums_latest.sh ]; then
-					source ./${vm}_shasums_latest.sh
+				if [ -f "${vm}"_shasums_latest.sh ]; then
+				  # shellcheck disable=SC1090
+					source ./"${vm}"_shasums_latest.sh
 				else
 					continue;
 				fi
 				# Check if the VM is supported for the current arch
 				shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-				sup=$(vm_supported_onarch ${vm} ${shasums})
+				sup=$(vm_supported_onarch "${vm}" "${shasums}")
 				if [ -z "${sup}" ]; then
 					continue;
 				fi
@@ -63,10 +64,10 @@ do
 				for btype in ${btypes}
 				do
 					file="${dir}/Dockerfile.${vm}.${build}.${btype}"
-					generate_dockerfile ${file} ${package} ${build} ${btype} ${os}
+					generate_dockerfile "${file}" "${package}" "${build}" "${btype}" "${os}"
 					# Copy the script to generate slim builds.
 					if [ "${btype}" = "slim" ]; then
-						cp slim-java* config/slim-java* ${dir}
+						cp slim-java* config/slim-java* "${dir}"
 					fi
 				done
 			done
