@@ -162,9 +162,13 @@ function vm_supported_onarch() {
 function cleanup_images() {
 	# Delete any old containers that have exited.
 	docker rm "$(docker ps -a | grep "Exited" | awk '{ print $1 }')" 2>/dev/null
+	docker container prune -f 2>/dev/null
+
+	# Remove any dangling images
+	docker image prune -f 2>/dev/null
 
 	# Delete any old images for our target_repo on localhost.
-	docker rmi -f "$(docker images | grep -e "adoptopenjdk" | awk '{ print $3 }' | sort | uniq)" 2>/dev/null
+	docker rmi -f "$(docker images | grep -e "adoptopenjdk" | awk '{ printf"%s:%s\n", $1, $2 }')" 2>/dev/null
 }
 
 function cleanup_manifest() {
