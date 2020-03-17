@@ -40,8 +40,8 @@ all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 all_packages="jdk jre"
 
 # Current JVM versions supported
-export supported_versions="8 11 13"
-export latest_version="13"
+export supported_versions="8 11 13 14"
+export latest_version="14"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -49,7 +49,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10|11|12|13)
+	8|9|10|11|12|13|14)
 		;;
 	*)
 		echo "ERROR: Invalid version"
@@ -167,7 +167,7 @@ function cleanup_images() {
 	# Delete any old images for our target_repo on localhost.
 	for image in $(docker images | grep -e 'adoptopenjdk' | awk -v OFS=':' '{ print $1, $2 }');
 	do
-		docker rmi -f "${image}";
+		docker rmi -f "${image}"; 2>/dev/null
 	done
 
 	# Remove any dangling images
