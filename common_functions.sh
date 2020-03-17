@@ -167,7 +167,7 @@ function cleanup_images() {
 	# Delete any old images for our target_repo on localhost.
 	for image in $(docker images | grep -e 'adoptopenjdk' | awk -v OFS=':' '{ print $1, $2 }');
 	do
-		docker rmi -f "${image}"; 2>/dev/null
+		docker rmi -f "${image}";
 	done
 
 	# Remove any dangling images
