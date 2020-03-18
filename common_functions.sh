@@ -123,10 +123,10 @@ function get_arches() {
 	# corresponding build combination does not exist.
 	# Eg. jdk_openj9_10_releases_sums does not exist as we do not have any
 	# release builds for version 10 (Only nightly builds).
-	if [ -z "${1+x}" ]; then
-	  return;
+	if ! declare -p "$1" 2>/dev/null; then
+		return;
 	fi
-	archsums="$(declare -p $1)";
+	archsums="$(declare -p "$1")";
 	eval "declare -A sums=""${archsums#*=}";
 	for arch in "${!sums[@]}";
 	do
