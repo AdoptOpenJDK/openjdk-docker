@@ -41,10 +41,11 @@ do
 
 			err=$?
 			if [ ${err} != 0 ]; then
+				echo "#############################################"
 				echo
 				echo "ERROR: Docker test for version ${ver} failed."
 				echo
-				exit 1;
+				echo "#############################################"
 			fi
 		done
 	done

@@ -38,10 +38,11 @@ do
 
 			err=$?
 			if [ ${err} != 0 ] || [ ! -f ./manifest_commands.sh ]; then
+				echo "#############################################"
 				echo
 				echo "ERROR: Docker Build for version ${ver} failed."
 				echo
-				exit 1;
+				echo "#############################################"
 			fi
 			echo
 			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"

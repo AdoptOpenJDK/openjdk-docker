@@ -40,8 +40,8 @@ all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 all_packages="jdk jre"
 
 # Current JVM versions supported
-export supported_versions="8 11 13"
-export latest_version="13"
+export supported_versions="8 11 13 14"
+export latest_version="14"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -49,7 +49,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10|11|12|13)
+	8|9|10|11|12|13|14)
 		;;
 	*)
 		echo "ERROR: Invalid version"
@@ -123,8 +123,8 @@ function get_arches() {
 	# corresponding build combination does not exist.
 	# Eg. jdk_openj9_10_releases_sums does not exist as we do not have any
 	# release builds for version 10 (Only nightly builds).
-	if [ -z "${1+x}" ]; then
-	  return;
+	if ! declare -p "$1" 2>/dev/null; then
+		return;
 	fi
 	archsums="$(declare -p "$1")";
 	eval "declare -A sums=""${archsums#*=}";

@@ -158,10 +158,6 @@ do
 		fi
 		for btype in ${btypes}
 		do
-			# Do not build anything built by Official Docker builds.
-			if [ "${os}" == "ubuntu" ] && [ "${build}" == "releases" ] && [ "${btype}" == "full" ]; then
-				continue;
-			fi
 			echo -n "INFO: Building tag list for [${vm}]-[${package}]-[${os}]-[${build}]-[${btype}]..."
 			# Get the relevant tags for this vm / os / build / type combo from the tags.config file
 			raw_tags=$(parse_tag_entry "${os}" "${package}" "${build}" "${btype}")

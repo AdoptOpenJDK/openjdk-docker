@@ -45,8 +45,9 @@ function test_java_version() {
 	echo "TEST: Running java -version test on image: ${img}..."
 	# Don't use "-it" flags as the jenkins job doesn't have a tty
 	if ! docker run --rm "${img}" java -version; then
-		printf "ERROR: Docker Image %s failed the java -version test\n" "${img}"
-		exit 1
+		printf "\n##############################################\n"
+		printf "\nERROR: Docker Image %s failed the java -version test\n" "${img}"
+		printf "\n##############################################\n"
 	fi
 	echo
 }
@@ -71,8 +72,9 @@ function test_aliases() {
 		echo -n "INFO: Pulling image: ${target_repo}:${arch_tag}..."
 		ret=$(check_image "${target_repo}":"${arch_tag}")
 		if [ "${ret}" != 0 ]; then
-			printf "Error: Docker Image %s not found on hub.docker\n" "${img}"
-			exit 1
+			printf "\n##############################################\n"
+			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
+			printf "\n##############################################\n"
 		fi
 	done
 
@@ -82,8 +84,9 @@ function test_aliases() {
 		echo -n "INFO: Pulling image: ${target_repo}:${tag_alias}..."
 		ret=$(check_image "${target_repo}":"${tag_alias}")
 		if [ "${ret}" != 0 ]; then
-			printf "Error: Docker Image %s not found on hub.docker\n" "${img}"
-			exit 1
+			printf "\n##############################################\n"
+			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
+			printf "\n##############################################\n"
 		fi
 		run_tests "${target_repo}":"${tag_alias}"
 	done
@@ -105,8 +108,9 @@ function test_tags() {
 		echo -n "INFO: Pulling image: ${target_repo}:${arch_tag}..."
 		ret=$(check_image "${target_repo}":"${arch_tag}")
 		if [ "${ret}" != 0 ]; then
-			printf "Error: Docker Image %s not found on hub.docker\n" "${img}"
-			exit 1
+			printf "\n##############################################\n"
+			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
+			printf "\n##############################################\n"
 		fi
 		run_tests "${target_repo}":"${arch_tag}"
 	done
