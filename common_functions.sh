@@ -126,7 +126,7 @@ function get_arches() {
 	if [ -z "${1+x}" ]; then
 	  return;
 	fi
-	archsums="$(declare -p "$1")";
+	archsums="$(declare -p $1)";
 	eval "declare -A sums=""${archsums#*=}";
 	for arch in "${!sums[@]}";
 	do
