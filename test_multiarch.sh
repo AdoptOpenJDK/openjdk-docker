@@ -53,16 +53,6 @@ function test_java_version() {
 	echo
 }
 
-#function test_version_match() {
-#	local img=$1
-#	local rel=$2
-#
-#	docker run --rm "${img}" java -version 2>&1 | tee ver.log
-#	img_ver=$(grep -e 'build' ver.log | grep 'OpenJDK' | awk '{ print substr($5, 1, length($5)-2) }')
-#
-#	# TODO add hotspot and openj9 checks
-#}
-
 # Run all test buckets for the given image.
 function run_tests() {
 	local img=$1

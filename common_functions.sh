@@ -337,7 +337,7 @@ function get_v2_url() {
 }
 
 # Get the binary github link for a release given a V2 API URL
-function get_binary_url() {
+function get_v2_binary_url() {
 	local v2_url=$1
 	local info_file=/tmp/info_$$.json
 
@@ -350,7 +350,7 @@ function get_binary_url() {
 }
 
 # Get the installer github link for a release given a V2 API URL
-function get_installer_url() {
+function get_v2_installer_url() {
 	local v2_url=$1
 	local info_file=/tmp/info_$$.json
 
