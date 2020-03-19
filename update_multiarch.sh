@@ -16,7 +16,7 @@ set -o pipefail
 
 # Dockerfiles to be generated
 version="9"
-root_dir="$PWD"
+export root_dir="$PWD"
 
 source ./common_functions.sh
 source ./dockerfile_functions.sh

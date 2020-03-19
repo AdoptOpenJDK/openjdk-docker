@@ -189,7 +189,7 @@ EOI
 print_alpine_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apk add --no-cache --virtual .build-deps curl binutils \
-    && GLIBC_VER="2.30-r0" \
+    && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
@@ -226,7 +226,7 @@ EOI
 print_ubi_pkg() {
 	cat >> "$1" <<'EOI'
 RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && dnf update; dnf clean all
+    && dnf update -y; dnf clean all
 EOI
 }
 
@@ -234,8 +234,8 @@ EOI
 # Select the ubi OS packages.
 print_ubi-minimal_pkg() {
 	cat >> "$1" <<'EOI'
-RUN microdnf install openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && microdnf update; microdnf clean all
+RUN microdnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+    && microdnf update -y; microdnf clean all
 EOI
 }
 
@@ -243,7 +243,7 @@ EOI
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
 RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
-    && yum update; yum clean all
+    && yum update -y; yum clean all
 EOI
 }
 
@@ -295,43 +295,43 @@ print_java_install_pre() {
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
-			JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest aarch64);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" aarch64);
 			cat >> "$1" <<-EOI
        aarch64|arm64) \\
          ESUM='$(sarray="${shasums}[aarch64]"; eval esum=\${$sarray}; echo "${esum}")'; \\
-         BINARY_URL='$(get_binary_url "${JAVA_URL}")'; \\
+         BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 	elif [ "${sarch}" == "armv7l" ]; then
-			JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest arm);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" arm);
 			cat >> "$1" <<-EOI
        armhf|armv7l) \\
          ESUM='$(sarray="${shasums}[armv7l]"; eval esum=\${$sarray}; echo "${esum}")'; \\
-         BINARY_URL='$(get_binary_url "${JAVA_URL}")'; \\
+         BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
-			JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest ppc64le);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" ppc64le);
 			cat >> "$1" <<-EOI
        ppc64el|ppc64le) \\
          ESUM='$(sarray="${shasums}[ppc64le]"; eval esum=\${$sarray}; echo "${esum}")'; \\
-         BINARY_URL='$(get_binary_url "${JAVA_URL}")'; \\
+         BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
-			JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest s390x);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" s390x);
 			cat >> "$1" <<-EOI
        s390x) \\
          ESUM='$(sarray="${shasums}[s390x]"; eval esum=\${$sarray}; echo "${esum}")'; \\
-         BINARY_URL='$(get_binary_url "${JAVA_URL}")'; \\
+         BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
-			JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest x64);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" x64);
 			cat >> "$1" <<-EOI
        amd64|x86_64) \\
          ESUM='$(sarray="${shasums}[x86_64]"; eval esum=\${$sarray}; echo "${esum}")'; \\
-         BINARY_URL='$(get_binary_url "${JAVA_URL}")'; \\
+         BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		fi
@@ -422,9 +422,9 @@ print_windows_java_install() {
 	servertype=$(echo "$file" | cut -f4 -d"/" | cut -f1 -d"-")
 	version=$(echo "$file" | cut -f1 -d "/")
 	if [ "$servertype" == "windowsservercore" ]; then
-		JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest windows-amd);
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" latest windows-amd);
 		ESUM=$(sarray="${shasums}[windows-amd]"; eval esum=\${$sarray}; echo "${esum}");
-		BINARY_URL=$(get_instaler_url "${JAVA_URL}");
+		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
@@ -446,10 +446,10 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         Remove-Item -Path C:\temp -Recurse | Out-Null;
 EOI
 	else
-		JAVA_URL=$(get_v2_url info "${bld}" "${vm}" "${pkg}" latest windows-nano);
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" latest windows-nano);
     # shellcheck disable=SC1083
 		ESUM=$(sarray="${shasums}[windows-nano]"; eval esum=\${"$sarray"}; echo "${esum}");
-		BINARY_URL=$(get_binary_url "${JAVA_URL}");
+		BINARY_URL=$(get_v3_binary_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
 USER ContainerAdministrator

@@ -14,7 +14,7 @@
 #
 set -o pipefail
 
-root_dir="$PWD"
+export root_dir="$PWD"
 source_prefix="adoptopenjdk"
 source_repo="openjdk"
 version="9"
@@ -39,7 +39,8 @@ package=$3
 
 # Run a java -version test for a given docker image.
 function test_java_version() {
-	img="$1"
+	local img=$1
+	local rel=$2
 
 	echo
 	echo "TEST: Running java -version test on image: ${img}..."
@@ -52,19 +53,32 @@ function test_java_version() {
 	echo
 }
 
+#function test_version_match() {
+#	local img=$1
+#	local rel=$2
+#
+#	docker run --rm "${img}" java -version 2>&1 | tee ver.log
+#	img_ver=$(grep -e 'build' ver.log | grep 'OpenJDK' | awk '{ print substr($5, 1, length($5)-2) }')
+#
+#	# TODO add hotspot and openj9 checks
+#}
+
 # Run all test buckets for the given image.
 function run_tests() {
-	img=$1
-  grep -v '^#' < "${test_buckets_file}" | while IFS= read -r test_case
+	local img=$1
+	local rel=$2
+
+	grep -v '^#' < "${test_buckets_file}" | while IFS= read -r test_case
 	do
-		${test_case} "${img}"
+		${test_case} "${img}" "${rel}"
 	done
 }
 
 # Run tests on all the alias docker tags.
 function test_aliases() {
-	repo=$1
-	target_repo=${source_prefix}/${repo}
+	local repo=$1 
+	local rel=$2
+	local target_repo=${source_prefix}/${repo}
 
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
@@ -88,15 +102,16 @@ function test_aliases() {
 			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
 			printf "\n##############################################\n"
 		fi
-		run_tests "${target_repo}":"${tag_alias}"
+		run_tests "${target_repo}":"${tag_alias}" "${rel}"
 	done
 }
 
 # Check each of the images in the global variable arch_tags exist
 # and run tests on them
 function test_tags() {
-	repo=$1
-	target_repo=${source_prefix}/${repo}
+	local repo=$1
+	local rel=$2
+	local target_repo=${source_prefix}/${repo}
 
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
@@ -112,18 +127,19 @@ function test_tags() {
 			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
 			printf "\n##############################################\n"
 		fi
-		run_tests "${target_repo}":"${arch_tag}"
+		run_tests "${target_repo}":"${arch_tag}" "${rel}"
 	done
 }
 
 # Run tests for each of the test image types
 # Currently image types = test_tags and test_aliases.
 function test_image_types() {
-	srepo=$1
+	local srepo=$1
+	local rel=$2
 
-  grep -v '^#' < "${test_image_types_file}" | while IFS= read -r test_image
+	grep -v '^#' "${test_image_types_file}" | while IFS= read -r test_image
 	do
-		${test_image} "${srepo}"
+		${test_image} "${srepo}" "${rel}"
 	done
 }
 
@@ -136,12 +152,12 @@ set_arch_os
 # Source the hotspot and openj9 shasums scripts
 available_jvms=""
 if [ "${vm}" == "hotspot" ] && [ -f hotspot_shasums_latest.sh ]; then
-  # shellcheck disable=SC1091
+	# shellcheck disable=SC1091
 	source ./hotspot_shasums_latest.sh
 	available_jvms="hotspot"
 fi
 if [ "${vm}" == "openj9" ] && [ -f openj9_shasums_latest.sh ]; then
-  # shellcheck disable=SC1091
+	# shellcheck disable=SC1091
 	source ./openj9_shasums_latest.sh
 	available_jvms="${available_jvms} openj9"
 fi
@@ -159,14 +175,14 @@ do
 	do
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 		jverinfo="${shasums}[version]"
-		eval jrel="\${$jverinfo}"
-		#  shellcheck disable=SC2154
+		# shellcheck disable=SC1083,SC2086
+		eval jrel=\${$jverinfo}
+		# shellcheck disable=SC2154
 		if [[ -z "${jrel}" ]]; then
 			continue;
 		fi
 		# Docker image tags cannot have "+" in them, replace it with "_" instead.
-		#  shellcheck disable=SC2001
-		rel=$(echo "${jrel}" | sed 's/+/_/g')
+		rel=${jrel//+/_/}
 
 		srepo=${source_repo}${version}
 		if [ "${vm}" != "hotspot" ]; then
@@ -181,7 +197,7 @@ do
 			build_tags "${vm}" "${version}" "${package}" "${rel}" "${os}" "${build}" "${raw_tags}"
 			echo "done"
 			# Test both the arch specific tags and the tag aliases.
-			test_image_types "${srepo}"
+			test_image_types "${srepo}" "${rel}"
 		done
 	done
 done

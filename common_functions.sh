@@ -35,7 +35,7 @@ all_jvms="hotspot openj9"
 # All supported arches
 all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 
-# All supported packges
+# All supported packages
 # shellcheck disable=SC2034 # used externally
 all_packages="jdk jre"
 
@@ -145,8 +145,8 @@ function get_arches() {
 # Check if the given VM is supported on the current architecture.
 # This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
 function vm_supported_onarch() {
-	vm=$1
-	sums=$2
+	local vm=$1
+	local sums=$2
 
 	if [ -n "$3" ]; then
 		test_arch=$3;
@@ -183,7 +183,7 @@ function cleanup_manifest() {
 # Check if a given docker image exists on the server.
 # This script errors out if the image does not exist.
 function check_image() {
-	img=$1
+	local img=$1
 
 	docker pull "${img}" >/dev/null
 	ret=$?
@@ -244,14 +244,14 @@ function check_manifest_tool() {
 
 # Build valid image tags using the tags.config file as the base
 function build_tags() {
-	vm=$1; shift
-	ver=$1; shift;
-	pkg=$1; shift;
-	rel=$1; shift;
-	os=$1; shift;
-	build=$1; shift;
-	rawtags=$*
-	tmpfile=raw_arch_tags.$$.tmp
+	local vm=$1; shift
+	local ver=$1; shift;
+	local pkg=$1; shift;
+	local rel=$1; shift;
+	local os=$1; shift;
+	local build=$1; shift;
+	local rawtags=$*
+	local tmpfile=raw_arch_tags.$$.tmp
 
 	# For jre builds, replace the version tag to distinguish it from the jdk
 	if [ "${pkg}" == "jre" ]; then
@@ -276,7 +276,7 @@ function build_tags() {
 		printf("tag_aliases: "); for (key in natags) { printf"%s ", natags[key] }; printf"\n";
 	}' > ${tmpfile}
 
-  # shellcheck disable=SC2034 # used externally
+	# shellcheck disable=SC2034 # used externally
 	tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
 	raw_arch_tags=$( < "${tmpfile}" grep "^arch_tags:" | sed "s/arch_tags: //")
 	arch_tags=""
@@ -311,14 +311,14 @@ function build_tags() {
 # url_pkg  = jdk / jre
 # url_rel  = latest / ${version}
 function get_v2_url() {
-	request_type=$1
-	release_type=$2
-	url_impl=$3
-	url_pkg=$4
-	url_rel=$5
-	url_arch=$6
-	url_heapsize=normal
-	url_version=openjdk${version}
+	local request_type=$1
+	local release_type=$2
+	local url_impl=$3
+	local url_pkg=$4
+	local url_rel=$5
+	local url_arch=$6
+	local url_heapsize=normal
+	local url_version=openjdk${version}
 
 	baseurl="https://api.adoptopenjdk.net/v2/${request_type}/${release_type}/${url_version}"
 	specifiers="openjdk_impl=${url_impl}&type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
@@ -336,29 +336,55 @@ function get_v2_url() {
 	echo "${baseurl}?${specifiers}"
 }
 
+# Get the binary github link for a release given a V2 API URL
+function get_binary_url() {
+	local v2_url=$1
+	local info_file=/tmp/info_$$.json
+
+	if ! curl -Lso ${info_file} "${v2_url}" || [ ! -s ${info_file} ]; then
+		rm -f ${info_file}
+		return;
+	fi
+	< ${info_file} grep "binary_link" | awk -F '"' '{ print $4 }'
+	rm -f ${info_file}
+}
+
+# Get the installer github link for a release given a V2 API URL
+function get_installer_url() {
+	local v2_url=$1
+	local info_file=/tmp/info_$$.json
+
+	if ! curl -Lso ${info_file} "${v2_url}" || [ ! -s ${info_file} ]; then
+		rm -f ${info_file}
+		return;
+	fi
+	< ${info_file} grep "installer_link" | awk -F '"' '{ print $4 }'
+	rm -f ${info_file}
+}
+
 # Build the URL using adoptopenjdk.net v3 api based on the given parameters
 # request_type = feature_releases
 # release_type = ga / ea
 # url_impl = hotspot / openj9
 # url_arch = aarch64 / ppc64le / s390x / x64
 # url_pkg  = jdk / jre
-# url_rel  = latest / ${version}
 # https://api.adoptopenjdk.net/v3/assets/feature_releases/11/ga?page=0&page_size=1&release_type=ga&sort_order=DESC&vendor=adoptopenjdk&jvm_impl=openj9&heap_size=normal&architecture=x64&os=linux&image_type=jdk
 function get_v3_url() {
-	request_type=$1
-	release_type=$2
-	url_impl=$3
-	url_pkg=$4
-	url_rel=$5
-	url_arch=$6
-	url_heapsize="normal"
-	url_version="openjdk${version}"
-  # shellcheck disable=2034
-	url_vendor="adoptopenjdk"
+	local request_type=$1
+	local release_type=$2
+	local url_impl=$3
+	local url_pkg=$4
+	local url_arch=$5
+	local url_heapsize="normal"
 
-	baseurl="https://api.adoptopenjdk.net/v3/assets/${request_type}/${version}/${release_type}"
+	if [ "${release_type}" == "releases" ]; then
+		rel_type="ga"
+	else
+		rel_type="ea"
+	fi
+	baseurl="https://api.adoptopenjdk.net/v3/assets/${request_type}/${version}/${rel_type}"
 	specifiers="page=0&page_size=1&sort_order=DESC&vendor=adoptopenjdk"
-	specifiers="${specifiers}&jvm_impl=${url_impl}&image_type=${url_pkg}&release=${url_rel}&heap_size=${url_heapsize}"
+	specifiers="${specifiers}&jvm_impl=${url_impl}&image_type=${url_pkg}&heap_size=${url_heapsize}"
 	windows_pat="windows.*"
 	if [ -n "${url_arch}" ]; then
 		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
@@ -373,43 +399,42 @@ function get_v3_url() {
 	echo "${baseurl}?${specifiers}"
 }
 
-# Get the binary github link for a release given a V2 API URL
-function get_binary_url() {
-	v2_url=$1
-	info_file=/tmp/info_$$.json
+# Get the binary github link for a release given a V3 API URL
+function get_v3_binary_url() {
+	local v3_url=$1
+	local info_file=/tmp/info_$$.json
 
-	if ! curl -Lso ${info_file} "${v2_url}" || [ ! -s ${info_file} ]; then
+	if ! curl -Lso ${info_file} "${v3_url}" || [ ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
 	fi
-	# shellcheck disable=SC2005
-	echo "$( < "${info_file}"  grep "binary_link" | awk -F '"' '{ print $4 }')"
-	rm -f "${info_file}"
+	python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['link'])" < "${info_file}"
+	rm -f ${info_file}
 }
 
-# Get the installer github link for a release given a V2 API URL
-function get_instaler_url() {
-	v2_url=$1
-	info_file=/tmp/info_$$.json
+# Get the installer github link for a release given a V3 API URL
+function get_v3_installer_url() {
+	local v3_url=$1
+	local info_file=/tmp/info_$$.json
 
-	if ! curl -Lso "${info_file}" "${v2_url}" || [ ! -s ${info_file} ]; then
+	if ! curl -Lso "${info_file}" "${v3_url}" || [ ! -s ${info_file} ]; then
 		rm -f ${info_file}
 		return;
 	fi
-	< ${info_file} grep "installer_link" | awk -F '"' '{ print $4 }'
+	python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['link'])" < "${info_file}"
 	rm -f ${info_file}
 }
 
 # Get the short build version from the full version for this specific arch
 # $1 = full version
 function get_nightly_short_version() {
-	arch_build=$1
-	arch_full_version=$2
+	local arch_build=$1
+	local arch_full_version=$2
 	if [ "${arch_build}" = "nightly" ]; then
 		# Remove date and time at the end of full_version for nightly builds.
 		# Handle both the old and new date-time formats used by the Adopt build system.
 		# Older date-time format - 201809270034
-    # shellcheck disable=SC2001
+		# shellcheck disable=SC2001
 		arch_version=$(echo "${arch_full_version}" | sed 's/-[0-9]\{4\}[0-9]\{2\}[0-9]\{2\}[0-9]\{4\}$//')
 		# New date-time format   - 2018-09-27-00-34
 		# shellcheck disable=SC2001
@@ -422,39 +447,38 @@ function get_nightly_short_version() {
 
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
-  # shellcheck disable=SC2034 # TODO check where it is used
-	gsba_ver=$1
-	gsba_vm=$2
-	gsba_pkg=$3
-	gsba_build=$4
-	gsba_arch=$5
+	local ver=$1
+	local vm=$2
+	local pkg=$3
+	local build=$4
+	local arch=$5
 
-	case ${gsba_arch} in
+	case ${arch} in
 		armv7l)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest arm);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" arm);
 			;;
 		aarch64)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest aarch64);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" aarch64);
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest ppc64le);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" ppc64le);
 			;;
 		s390x)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest s390x);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" s390x);
 			;;
 		x86_64)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest x64);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" x64);
 			;;
 		windows-amd|windows-nano)
-			LATEST_URL=$(get_v2_url info "${gsba_build}" "${gsba_vm}" "${gsba_pkg}" latest windows-amd);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" windows-amd);
 			;;
 		*)
-			echo "Unsupported arch: ${gsba_arch}"
+			echo "Unsupported arch: ${arch}"
 	esac
 
 	while :
 	do
-		shasum_file="${gsba_arch}_${gsba_build}_latest"
+		shasum_file="${arch}_${build}_latest"
 		# Bad builds cause the latest url to return an empty file or sometimes curl fails
 		if ! curl -Lso "${shasum_file}" "${LATEST_URL}" || [ ! -s "${shasum_file}" ]; then
 			echo "Latest url not available at url: ${LATEST_URL}"
@@ -465,13 +489,13 @@ function get_sums_for_build_arch() {
 		# Print the arch and the corresponding shasums to the vm output file
 		if [ -z "${availability}" ]; then
 			# If there are multiple builds for a single version, then pick the latest one.
-			if [ "$gsba_arch" == "windows-amd" ]; then
-				shasums_url=$( < "${shasum_file}" grep "installer_checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+			if [ "${arch}" == "windows-amd" ]; then
+				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['checksum_link'])" < "${shasum_file}")
 				if [ -z "$shasums_url" ]; then
-					shasums_url=$( < "${shasum_file}" grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+					shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
 				fi
 			else
-				shasums_url=$( < "${shasum_file}" grep "checksum_link" | head -1 | awk -F'"' '{ print $4 }');
+				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
 			fi
 			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
 			# Sometimes shasum files are missing, check for error and do not print on error.
@@ -481,20 +505,20 @@ function get_sums_for_build_arch() {
 				break;
 			fi
 			# Get the release version for this arch from the info file
-			arch_build_version=$( < "${shasum_file}" grep "release_name" | awk -F'"' '{ print $4 }');
+			arch_build_version=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])" < "${shasum_file}")
 			# For nightly builds get the short version without the date/time stamp
-			arch_build_version=$(get_nightly_short_version "${gsba_build}" "${arch_build_version}")
+			arch_build_version=$(get_nightly_short_version "${build}" "${arch_build_version}")
 			# If the latest for the current arch does not match with the latest for the parent arch,
 			# then skip this arch.
 			# Parent version in this case would be the "full_version" from function get_sums_for_build
 			# The parent version will automatically be the latest for all arches as returned by the v2 API
 			if [ "${arch_build_version}" != "${full_version}" ]; then
-				echo "Parent version not matching for arch ${gsba_arch}: ${arch_build_version}, ${full_version}"
+				echo "Parent version not matching for arch ${arch}: ${arch_build_version}, ${full_version}"
 				break;
 			fi
 			# Only print the entry if the shasum is not empty
 			if [ -n "${shasum}" ]; then
-				printf "\t[%s]=\"%s\"\n" "${gsba_arch}" "${shasum}" >> "${ofile}"
+				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile}"
 			fi
 		fi
 		break;
@@ -505,56 +529,54 @@ function get_sums_for_build_arch() {
 # Get shasums for the build and arch combination given
 # If no arch given, generate for all valid arches
 function get_sums_for_build() {
-	gsb_ver=$1
-	gsb_vm=$2
-	gsb_pkg=$3
-	gsb_build=$4
-	gsb_arch=$5
+	local ver=$1
+	local vm=$2
+	local pkg=$3
+	local build=$4
+	local arch=$5
 
-	info_url=$(get_v2_url info "${gsb_build}" "${gsb_vm}" "${gsb_pkg}" latest);
+	info_url=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}");
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
 	sleep 1;
 	info=$(curl -Ls "${info_url}")
 	err=$(echo "${info}" | grep -e "Error" -e "No matches" -e "Not found")
 	if [ -n "${err}" ]; then
-	  # shellcheck disable=SC2104 # TODO need to check flow here
-		continue;
+		return;
 	fi
-	full_version=$(echo "${info}" | grep "release_name" | awk -F'"' '{ print $4 }');
-	full_version=$(get_nightly_short_version "${gsb_build}" "${full_version}")
+	full_version=$(echo "${info}" | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])")
+	full_version=$(get_nightly_short_version "${build}" "${full_version}")
 	# Declare the array with the proper name and write to the vm output file.
-	printf "declare -A %s_%s_%s_%s_sums=(\n" "${gsb_pkg}" "${gsb_vm}" "${gsb_ver}" "${gsb_build}" >> "${ofile}"
+	printf "declare -A %s_%s_%s_%s_sums=(\n" "${pkg}" "${vm}" "${ver}" "${build}" >> "${ofile}"
 	# Capture the full version according to adoptopenjdk
 	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile}"
-	if [ -n "${gsb_arch}" ]; then
-		get_sums_for_build_arch "${gsb_ver}" "${gsb_vm}" "${gsb_pkg}" "${gsb_build}" "${gsb_arch}"
+	if [ -n "${arch}" ]; then
+		get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 	else
-		for gsb_arch in ${all_arches}
+		for arch in ${all_arches}
 		do
-			get_sums_for_build_arch "${gsb_ver}" "${gsb_vm}" "${gsb_pkg}" "${gsb_build}" "${gsb_arch}"
+			get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 		done
 	fi
 	printf ")\n" >> "${ofile}"
 
 	echo
-	echo "sha256sums for the version ${full_version} for build type \"${gsb_build}\" is now available in ${ofile}"
+	echo "sha256sums for the version ${full_version} for build type \"${build}\" is now available in ${ofile}"
 	echo
 }
 
 # get sha256sums for the specific builds and arches given.
 # If no build or arch specified, do it for all valid ones.
 function get_shasums() {
-	ver=$1
-	vm=$2
-	pkg=$3
-	build=$4
-	arch=$5
-	# shellcheck disable=SC2154 # declared externally
-	ofile="${root_dir}/${vm}_shasums_latest.sh"
+	local ver=$1
+	local vm=$2
+	local pkg=$3
+	local build=$4
+	local arch=$5
+	local ofile="${vm}_shasums_latest.sh"
 
 	# Dont build the shasums array it already exists for the Ver/VM/Pkg/Build combination
 	if [ -f "${ofile}" ]; then
-	  # shellcheck disable=SC1090
+		# shellcheck disable=SC1090
 		source ./"${vm}"_shasums_latest.sh
 		sums="${pkg}_${vm}_${ver}_${build}_sums"
 		# File exists, which means shasums for the VM exists.
