@@ -422,7 +422,7 @@ print_windows_java_install() {
 	servertype=$(echo "$file" | cut -f4 -d"/" | cut -f1 -d"-")
 	version=$(echo "$file" | cut -f1 -d "/")
 	if [ "$servertype" == "windowsservercore" ]; then
-		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" latest windows-amd);
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd);
 		ESUM=$(sarray="${shasums}[windows-amd]"; eval esum=\${$sarray}; echo "${esum}");
 		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
@@ -446,7 +446,7 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
         Remove-Item -Path C:\temp -Recurse | Out-Null;
 EOI
 	else
-		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" latest windows-nano);
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano);
     # shellcheck disable=SC1083
 		ESUM=$(sarray="${shasums}[windows-nano]"; eval esum=\${"$sarray"}; echo "${esum}");
 		BINARY_URL=$(get_v3_binary_url "${JAVA_URL}");
