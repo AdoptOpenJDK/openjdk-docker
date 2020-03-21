@@ -22,7 +22,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.1
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && dnf update; dnf clean all
+    && dnf update -y; dnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
@@ -38,20 +38,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='7793632137c17b3cb092c7ead18fd7df3d7de82c92d7c5a01718aba8c7a79364'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jre_aarch64_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='5bf946891147b9c5082319e8b2910d1486572074d51c1e1f1ef928fe169f7ec5'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jre_aarch64_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='768cdfb96f40f8d32c2e49b9f7c5b19f107da29cf887890e90d929bffe6b707e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jre_ppc64le_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='9063562d722ca8905d8d5799beb15818b2e0783686960b57f9ce04ffed9bbbd4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jre_ppc64le_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='dcafde751c0f8433bd31f9304578d6edd9c51735e320caf304ea14edcb772906'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jre_s390x_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='5c3a406126a92e1e1013e8343908d5ea1b97c1ea79cde4b8caf23c8cec02abd0'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jre_s390x_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='753721358d000427d09a5057f5d34201be9c31609530d6ce0baf359b3d507836'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jre_x64_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='98a4efd80c1d6a0eb6d623765f2f5f8bd3c27ab80e5628b72a440ccdd2436dfc'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jre_x64_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -22,7 +22,7 @@ FROM clefos:7
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
-    && yum update; yum clean all
+    && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk11u
 
@@ -30,20 +30,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d82e2e0be9da456b230a7a9c49563503f98c56accd11a3485324a168d1a32681'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_aarch64_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='cf1d6ed33a94bb871e65c6bfd027d54db168d6009ad955e90af1bbe72f33fefd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-20-10-40/OpenJDK11U-jre_aarch64_linux_hotspot_2020-03-20-10-40.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='b89a9361098c71445f774402436499fbb638f24a22aaef650f7fdc5e6300d6b2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_ppc64le_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='8b0f57956d19d6de57f2922690902c6e43413b2a7cfa031330f66aa9bf680f39'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-20-10-40/OpenJDK11U-jre_ppc64le_linux_hotspot_2020-03-20-10-40.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='1fae3f166330bc16607dd71814735709a3c83fec4d4d6cc73761d51ffd707506'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_s390x_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='bddf18416c5ae73c0bb9263ed3ebab072abf587509c30da4e53e52768e0ee6ce'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-20-10-40/OpenJDK11U-jre_s390x_linux_hotspot_2020-03-20-10-40.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='273b18ac143289766256bbfa9d82c089902f65a0a87fd584a3f24fdd231b010b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-03-02-28/OpenJDK11U-jre_x64_linux_hotspot_2020-02-03-02-28.tar.gz'; \
+         ESUM='29a1e76076785b952fbf51d05d3e94249f318539f730be63389d4d60607ce035'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-20-10-40/OpenJDK11U-jre_x64_linux_hotspot_2020-03-20-10-40.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

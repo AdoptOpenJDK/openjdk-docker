@@ -22,7 +22,7 @@ FROM centos:7
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
-    && yum update; yum clean all
+    && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk8u
 
@@ -32,16 +32,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='d7bef44c55d9282762749a62edd15c56fecccdf0dfd64f81345a646f59e87d00'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='12460e8083500b5705ad6e22763cb3bcab309988b7d77f8a777754d848807f9a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-21-08-01/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-03-21-08-01.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='65b090326e319562a30d7f11555b3396dc189bc5a02e4d93fd1bc4ba39c7ced6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jdk_s390x_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='2eebf75f8ccc7e3af2466ec9e9debdd77d27b95105c5263627e17c49633951b1'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-21-08-01/OpenJDK8U-jdk_s390x_linux_openj9_2020-03-21-08-01.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='0cd25bdebf5c021cde41ae5a795a5c97340d08543748aaa3fcc71598449fd60d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jdk_x64_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='c203ce56bf5b53fa6abce4ee5a0c8028bd30d8123c32dcbcd030bbb73e287b92'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-21-08-01/OpenJDK8U-jdk_x64_linux_openj9_2020-03-21-08-01.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

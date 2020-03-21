@@ -22,7 +22,7 @@ FROM centos:7
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
-    && yum update; yum clean all
+    && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk13u
 
@@ -32,24 +32,24 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d30da0a7498b465a406b389a2593a7b6c574b90713fa70c20517d1e3ccce61af'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jdk_aarch64_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='67a90aa2d9fd9e7b4f50a958126c23203272bd20a56be072ae3738e2dd0af743'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jdk_aarch64_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='184f9d4c4e88e0e27192849fe17f31bce491835ae3c5777cf49d5073ecc85d1c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jdk_arm_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='cc6b56f55e9732d48c01514d6a8b42b67d3b2147a24f8eb46c4cb3d1512c4209'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jdk_arm_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='2c4535002d35625ea57bec92209f45277de3343773cf5cd8cbaa563382d34d8f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jdk_ppc64le_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='307192b44ffdf9602cd2b876610236a58daf037f865a279f87e15c08b428bbb4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jdk_ppc64le_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='bab28e66325a60c029dceaede0459b8df187a60a28e06b5fdfc87f83e6cde81d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jdk_s390x_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='dd13b7bc2ad570dfa1a733942ee0ef2718d972e357bb4e980f224be11a42d69b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jdk_s390x_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='2fc6fe10b476f890fb2aace238cc302910db7edcb44d92f159423b286d647bda'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-02-25-07-29/OpenJDK13U-jdk_x64_linux_hotspot_2020-02-25-07-29.tar.gz'; \
+         ESUM='047578d9cae494f971402f24bb0fea75e45de17c4596e68c14f8e1c2446a845c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk13u-2020-03-08-05-00/OpenJDK13U-jdk_x64_linux_hotspot_2020-03-08-05-00.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

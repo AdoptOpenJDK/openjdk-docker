@@ -21,8 +21,8 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN microdnf install openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && microdnf update; microdnf clean all
+RUN microdnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+    && microdnf update -y; microdnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
