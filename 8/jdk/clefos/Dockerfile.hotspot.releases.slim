@@ -22,7 +22,7 @@ FROM clefos:7
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
-    && yum update; yum clean all
+    && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk8u242-b08
 
@@ -34,6 +34,10 @@ RUN set -eux; \
        aarch64|arm64) \
          ESUM='a2314de7f0120c9bdc69aec2198428a2deeb9ad977fc6801f89d0ec8382d65a5'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_aarch64_linux_hotspot_jdk8u242-b08.tar.gz'; \
+         ;; \
+       armhf|armv7l) \
+         ESUM='ea5f784e70f7c07713dd06214e3c993763857bd31f6de3904971e3032d77388e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_arm_linux_hotspot_8u242b08.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
          ESUM='72f42c2014cb29a2fcd71b1a678af3ed148358a8f9b7d741a5da88cb178d9c53'; \

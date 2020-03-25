@@ -22,7 +22,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.1
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && dnf update; dnf clean all
+    && dnf update -y; dnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
@@ -40,6 +40,10 @@ RUN set -eux; \
        aarch64|arm64) \
          ESUM='178b0b18ed8ca7552ee26848b417f0ef5ceababc56823aaf522e78c19579d751'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jre_aarch64_linux_hotspot_jdk8u242-b08.tar.gz'; \
+         ;; \
+       armhf|armv7l) \
+         ESUM='33131c84240c64b5d733607f0fc81a55020a305ff4365e77a16df511c506435f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jre_arm_linux_hotspot_8u242b08.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
          ESUM='0b34b855a205d7c00b6625075884b48f6b9fafe3288397116896c39a39220b74'; \

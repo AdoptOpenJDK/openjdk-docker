@@ -22,7 +22,7 @@ FROM alpine:3.11
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apk add --no-cache --virtual .build-deps curl binutils \
-    && GLIBC_VER="2.30-r0" \
+    && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
     && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
@@ -60,20 +60,24 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d82e2e0be9da456b230a7a9c49563503f98c56accd11a3485324a168d1a32681'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_aarch64_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='dc1e613251dfebf993180a6fd54e7a254c7d0d2b8c45a40a589d79d632c13e99'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-25-15-10/OpenJDK11U-jre_aarch64_linux_hotspot_2020-03-25-15-10.tar.gz'; \
+         ;; \
+       armhf|armv7l) \
+         ESUM='0c1a06e6f0687d5a236e6d67a62ae89d469f4291ef5e68d0411b5bf80c6b5f87'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-25-15-10/OpenJDK11U-jre_arm_linux_hotspot_2020-03-25-15-10.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='b89a9361098c71445f774402436499fbb638f24a22aaef650f7fdc5e6300d6b2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_ppc64le_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='5b5f46f231e65a84a736327530ef979dc8fe45ee17aac44c4a86453b656932a4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-25-15-10/OpenJDK11U-jre_ppc64le_linux_hotspot_2020-03-25-15-10.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='1fae3f166330bc16607dd71814735709a3c83fec4d4d6cc73761d51ffd707506'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-07-02-19/OpenJDK11U-jre_s390x_linux_hotspot_2020-02-07-02-19.tar.gz'; \
+         ESUM='89b54cff13ccf111646d6e76fff5276382bf969d9135df99ddc95ae94cf82c8b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-25-15-10/OpenJDK11U-jre_s390x_linux_hotspot_2020-03-25-15-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='273b18ac143289766256bbfa9d82c089902f65a0a87fd584a3f24fdd231b010b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-02-03-02-28/OpenJDK11U-jre_x64_linux_hotspot_2020-02-03-02-28.tar.gz'; \
+         ESUM='7f60e08b4beb69ee31d2abe551d04a7ebbb4b03f0bb5c1a83ce4b7a547434220'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-03-25-15-10/OpenJDK11U-jre_x64_linux_hotspot_2020-03-25-15-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

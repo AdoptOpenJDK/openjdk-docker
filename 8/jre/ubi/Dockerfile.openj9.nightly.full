@@ -22,7 +22,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.1
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
-    && dnf update; dnf clean all
+    && dnf update -y; dnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
@@ -38,16 +38,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='d8c3be0d64be619a75a79f5ce60bc57251a7ad1e54369eb6e5c8d8cbb415c87a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jre_ppc64le_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='f0fed8b50795971d5fb44881d4c8bae54e4ef88e1d4382d45157f8dc33915cb6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-25-13-14/OpenJDK8U-jre_ppc64le_linux_openj9_2020-03-25-13-14.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c98b825803e13900eab8b291a4e2fcb62553305e1aed8db0dcaed9fd28150f88'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jre_s390x_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='ac28576a4e32ccf1ce9d688a7f0e41d1745b43a0a00d995ed3cfa0196a481b5c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-25-13-14/OpenJDK8U-jre_s390x_linux_openj9_2020-03-25-13-14.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b0d993803248e41a8ef082b8a160a8e850dc5b31d1f5555dd356da7e67055eb1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-02-24-12-06/OpenJDK8U-jre_x64_linux_openj9_2020-02-24-12-06.tar.gz'; \
+         ESUM='0e3bffc444f49e9fc13eaaa5ee6f26d4b66e382d6d800de7bf60b1b4ff68ab4a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-03-25-13-14/OpenJDK8U-jre_x64_linux_openj9_2020-03-25-13-14.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
