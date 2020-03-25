@@ -60,24 +60,24 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='35947b37d90d7f67c6302ffde057d2d1a07a8857792d9d3e85b8dd8f5c851a96'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-09-48/OpenJDK14U-jdk_aarch64_linux_hotspot_2020-03-20-09-48.tar.gz'; \
+         ESUM='65ac23e47bed7ca71a1a297e7df12c63d148ace9580084db60e27f4d2be754d6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_aarch64_linux_hotspot_2020-03-24-23-36.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='f67d15440ea529c553fce58a858aebd2c76d000bd4a0a1934a408e15e20460bf'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-09-48/OpenJDK14U-jdk_arm_linux_hotspot_2020-03-20-09-48.tar.gz'; \
+         ESUM='1dc8dcffe45ab0a36ea128bb83f2940162615d1b1a78f67f78ddbcdbef0ae006'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_arm_linux_hotspot_2020-03-24-23-36.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='28604d255c35339e2d486bdb73a8994a4726d16c8b8751b4317d10d8f8918910'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-09-48/OpenJDK14U-jdk_ppc64le_linux_hotspot_2020-03-20-09-48.tar.gz'; \
+         ESUM='7e1ef62734476229c48233d52d9535da5cbaf79f2db5b812245a8820c953b911'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_ppc64le_linux_hotspot_2020-03-24-23-36.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='9daeea9a0d1dc688bbbb526afa5573c9c3172d02131e2abc36b19ea953f232f5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-15-00/OpenJDK14U-jdk_s390x_linux_hotspot_2020-03-20-15-00.tar.gz'; \
+         ESUM='a4ecbd8eca95d04350106a0108aba3c332baab5b8eb3ff780d050a87a788845e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_s390x_linux_hotspot_2020-03-24-23-36.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='19b1604409f7fb433ffb7c5dfc436a73de91e048ab59f8a7558bd092ab0f5a0e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-15-00/OpenJDK14U-jdk_x64_linux_hotspot_2020-03-20-15-00.tar.gz'; \
+         ESUM='584f6ab5d2bd7f04bd23cd36f9552f833cff0bbe09162d282d2aaceac56d483d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_x64_linux_hotspot_2020-03-24-23-36.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

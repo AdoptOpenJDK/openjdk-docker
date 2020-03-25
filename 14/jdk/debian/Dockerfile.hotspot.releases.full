@@ -42,7 +42,7 @@ RUN set -eux; \
          ;; \
        ppc64el|ppc64le) \
          ESUM='1439630557d2045727708d838325a54c8423cb13eb8837315f2cc8f084b07f03'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jdk_ppc64le_linux_hotspot_14_36.tar.gz'; \
+         BINARY_URL=''; \
          ;; \
        s390x) \
          ESUM='b000a725e10293841e49183902f73b91f475f2f0876a26084b7983224c0a8dc6'; \

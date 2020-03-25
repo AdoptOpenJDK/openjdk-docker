@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk14u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-15-00/OpenJDK14U-jdk_x64_windows_openj9_2020-03-20-15-00.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_x64_windows_openj9_2020-03-24-23-36.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-20-15-00/OpenJDK14U-jdk_x64_windows_openj9_2020-03-20-15-00.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (f781fd2b8143f522b545222c99a13fa5d0df5d74c1598219ec7169bb33772ba5) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f781fd2b8143f522b545222c99a13fa5d0df5d74c1598219ec7169bb33772ba5') { \
+        wget https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-03-24-23-36/OpenJDK14U-jdk_x64_windows_openj9_2020-03-24-23-36.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (cc2897714d05c74164a44c943eb2af756403724c6f1ae3b8cd17376c277ee575) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'cc2897714d05c74164a44c943eb2af756403724c6f1ae3b8cd17376c277ee575') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
