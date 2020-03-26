@@ -5,10 +5,10 @@ services: docker
 
 env:
   matrix:
-    - VERSION=13 VM=hotspot PACKAGE=jdk
-    - VERSION=13 VM=openj9 PACKAGE=jdk
-    - VERSION=13 VM=hotspot PACKAGE=jre
-    - VERSION=13 VM=openj9 PACKAGE=jre
+    - VERSION=14 VM=hotspot PACKAGE=jdk
+    - VERSION=14 VM=openj9 PACKAGE=jdk
+    - VERSION=14 VM=hotspot PACKAGE=jre
+    - VERSION=14 VM=openj9 PACKAGE=jre
     - VERSION=11 VM=hotspot PACKAGE=jdk
     - VERSION=11 VM=openj9 PACKAGE=jdk
     - VERSION=11 VM=hotspot PACKAGE=jre
