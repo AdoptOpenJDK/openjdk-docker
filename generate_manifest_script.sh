@@ -103,8 +103,9 @@ function print_tags() {
 # Check if the manifest tool is installed
 check_manifest_tool
 
-# Set the OSes that will be built on based on the current arch
-set_arch_os
+# Set the OSes that we will be generating manifests for
+oses="alpine centos clefos debian debianslim ubi ubi-minimal ubuntu"
+os_family="linux"
 
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh "${version}"
