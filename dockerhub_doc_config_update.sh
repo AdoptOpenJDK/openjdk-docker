@@ -26,7 +26,7 @@ set -o pipefail
 source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
-oses="alpine debian ubi-minimal ubuntu"
+oses="alpine centos clefos debian debianslim ubi ubi-minimal ubuntu"
 
 # shellcheck disable=SC2034 # used externally
 hotspot_latest_tags="hotspot, latest"
@@ -66,6 +66,7 @@ function generate_unofficial_image_info() {
 	super_tags="";
 	case ${os} in
 	ubuntu)
+		attrs=""
 		# JRE ubuntu builds have a `jre` tag
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${pkg}";
@@ -78,7 +79,7 @@ function generate_unofficial_image_info() {
 			else
 				super_tags="${super_tags}-${build}"
 			fi
-			full_version="${full_version}-${build}"
+			attrs="${build}"
 		fi
 		# Slim ubuntu builds have a `slim` tag
 		if [ "${btype}" == "slim" ]; then
@@ -87,45 +88,65 @@ function generate_unofficial_image_info() {
 			else
 				super_tags="${super_tags}-${btype}"
 			fi
-			full_version="${full_version}-${btype}"
+			if [ "${attrs}" == "" ]; then
+				attrs="${btype}"
+			else
+				attrs="${attrs}-${btype}"
+			fi
 		fi
 		# If none of the above, it has to be the `latest` build
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
 		fi
 		;;
-	alpine|debian|ubi-minimal|windows)
+	alpine|centos|clefos|debian|debianslim|ubi|ubi-minimal|windows)
 		# Non Ubuntu builds all have the `$os` tag prepended
 		super_tags="${os}";
-		full_version="${full_version}-${os}"
+		attrs=""
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
+			attrs="${build}"
 			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
 			super_tags="${super_tags}-${build}";
-			full_version="${full_version}-${build}"
+			attrs="${build}"
 		fi
 		if [ "${btype}" == "slim" ]; then
 			super_tags="${super_tags}-${btype}"
-			full_version="${full_version}-${btype}"
+			if [ "${attrs}" == "" ]; then
+				attrs="${btype}"
+			else
+				attrs="${attrs}-${btype}"
+			fi
 		fi
 		;;
 	esac
+	if [ "${attrs}" == "" ]; then
+		super_tags="${super_tags} ${full_version}-${os}"
+		vattrs="${full_version}"
+	else
+		super_tags="${super_tags} ${full_version}-${os}-${attrs}"
+		vattrs="${full_version}-${attrs}"
+	fi
 
 	# Unofficial images support x86_64, aarch64, s390x and ppc64le
 	# Remove ppc64el, amd64 and arm64
 	# Retain ppc64le, x86_64 and aarch64
 	# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063 # TODO need to rewrite this
-	arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\|amd64\|arm64\)//g' | sort | grep -v "*" | sed 's/) \\//g; s/|/ /g'))
+	arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\|amd64\|arm64\|armhf\)//g' | sort | grep -v "*" | sed 's/) \\//g; s/|/ /g'))
 	if [ "${os}" == "alpine" ]; then
 		# Alpine builds are only available for x86_64 currently
 		arches="x86_64"
+	elif [ "${os}" == "centos" ]; then
+		arches=${arches//s390x/}
+	elif [ "${os}" == "clefos" ]; then
+		arches="s390x"
 	fi
-	print_unofficial_tags "${super_tags} ${full_version}"
+	print_unofficial_tags "${super_tags}"
 	for arch in ${arches}
 	do
-		print_unofficial_tags "${arch}-${os}-${full_version}" >> "${ver}"_"${vm}".txt
+		print_unofficial_tags "${arch}-${os}-${vattrs}" >> "${ver}"_"${vm}".txt
 	done
 	# Remove the leading "./" from the file name
 	file=$(echo "${file}" | cut -c 3-)
@@ -269,7 +290,7 @@ do
 			do
 				for pkg in ${all_packages}
 				do
-					for file in $(find . -name "Dockerfile.*" | grep "/${ver}" | grep "${vm}" | grep "${build}" | grep "${os}" | grep "${pkg}")
+					for file in $(find . -name "Dockerfile.*" | grep "/${ver}" | grep "${vm}" | grep "${build}" | grep "/${os}/" | grep "${pkg}")
 					do
 						echo -n "- [" >> "${ver}"_"${vm}".txt
 						dfname=$(basename "${file}")
