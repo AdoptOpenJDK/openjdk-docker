@@ -37,6 +37,51 @@ set_version "$1"
 vm="$2"
 package="$3"
 
+# 2020-02-21T22:20:44.446608273Z
+function check_build_needed() {
+	tag=$2
+	# Get the date when the base image was created. Eg if the base OS is ubuntu, this
+	# translates as the exact date/time when the Ubuntu image was created on DockerHub
+	from_image="$(grep "FROM" "$1" | awk '{ print $2 }')"
+	# Pull the latest image locally
+	echo "INFO: Checking when the base docker image ${from_image} was built ..."
+	if ! docker pull -q "${from_image}" &>/dev/null; then
+		echo "INFO:1: build needed"
+		build_needed=1
+		return;
+	fi
+	# Check the time when the image was created
+	base_image_creation="$(docker inspect "${from_image}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	# Convert the time to seconds since 1-1-1970
+	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
+	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
+	base_image_creation_date=$(( base_image_creation_date + 86400 ))
+	
+	# Now pull the latest adopt image if it is available.
+	adopt_image_tag="${tag// -t /}"
+	echo "INFO: Checking when the adopt docker image ${adopt_image_tag} was built ..."
+	if ! docker pull -q "${adopt_image_tag}" &>/dev/null; then
+		# Adopt image not available currently, build needed
+		echo "INFO:2: build needed"
+		build_needed=1
+		return;
+	fi
+	# check when the adopt image was last built
+	adopt_image_creation="$(docker inspect "${adopt_image_tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	# Convert this to seconds since 1-1-1970
+	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
+	echo "d1: ${adopt_image_creation_date}; d2: ${base_image_creation_date}"
+	if [[ ${adopt_image_creation_date} -lt ${base_image_creation_date} ]]; then
+		# build needed
+		echo "INFO:3: build needed"
+		build_needed=1
+	else
+		# build not needed
+		echo "INFO:4: build NOT needed"
+		build_needed=0
+	fi
+}
+ 
 # Build the Docker image with the given repo, build, build type and tags.
 function build_image() {
 	repo=$1; shift;
@@ -51,6 +96,17 @@ function build_image() {
 	done
 
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
+
+	# Check if we need to build this image.
+	# Nightlies are always built.
+	# Release images are only built if the underlying OS image changes
+	if [ "${build}" != "nightly" ]; then
+		check_build_needed "${dockerfile}" "${tags}"
+		if [[ ${build_needed} -eq 0 ]]; then
+			# No build needed, we are done
+			return;
+		fi
+	fi
 
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
