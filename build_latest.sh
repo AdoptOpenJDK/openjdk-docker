@@ -37,49 +37,85 @@ set_version "$1"
 vm="$2"
 package="$3"
 
-# 2020-02-21T22:20:44.446608273Z
+# Get the image build time stored in the respective build_time array passed as arg
+function get_image_build_time() {
+	if ! declare -p "$1" &>/dev/null; then
+        return;
+    fi
+
+	local btime=$(btarray=$1[${current_arch}]; eval btarch=\${"$btarray"}; echo "${btarch}");
+
+	echo "${btime}"
+}
+
+# Check if we need to do a docker build
+# Build is needed only if one of the following criteria is met
+# 1. If no such docker image exists currently
+# 2. If the base OS docker image was recently re-built
+# 3. If a new Adopt build is found
+# 4. On any other error condition
 function check_build_needed() {
-	tag=$2
+	local tag=$2
+
+	# Pull the latest adopt image if it is available.
+	adopt_image_tag="${tag// -t /}"
+	echo "INFO: Checking when the adopt docker image ${adopt_image_tag} was built ..."
+	if ! docker pull -q "${adopt_image_tag}" &>/dev/null; then
+		# Adopt image not available currently, build needed
+		echo "INFO: AdoptOpenJDK docker image for ${adopt_image_tag} does not exist. Docker build needed"
+		build_needed=1
+		return;
+	fi
+
 	# Get the date when the base image was created. Eg if the base OS is ubuntu, this
 	# translates as the exact date/time when the Ubuntu image was created on DockerHub
 	from_image="$(grep "FROM" "$1" | awk '{ print $2 }')"
 	# Pull the latest image locally
 	echo "INFO: Checking when the base docker image ${from_image} was built ..."
 	if ! docker pull -q "${from_image}" &>/dev/null; then
-		echo "INFO:1: build needed"
+		echo "INFO: Failed to pull base docker image. Docker build needed"
 		build_needed=1
 		return;
 	fi
-	# Check the time when the image was created
+
+	adopt_last_build_date=$(get_image_build_time ${build_time})
+	if [ -z "${adopt_last_build_date}" ]; then
+		echo "INFO: Unknown last tarball build time. Docker build needed"
+		build_needed=1
+		return;
+	fi
+	# Add "one day" to it, this is to ensure that we rebuild our image if the last build date was in the past 24 hours
+	adopt_last_build_date=$(( adopt_last_build_date + 86400 ))
+
+	# check when the adopt image was last built
+	adopt_image_creation="$(docker inspect "${adopt_image_tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	# Convert this to seconds since 1-1-1970
+	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
+
+	if [[ ${adopt_image_creation_date} -lt ${adopt_last_build_date} ]]; then
+		# build needed
+		echo "INFO: Newer adopt build found. Docker build needed"
+		build_needed=1
+		return;
+	fi
+	
+	# Check the time when the base OS image was created
 	base_image_creation="$(docker inspect "${from_image}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
 	# Convert the time to seconds since 1-1-1970
 	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
 	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
 	base_image_creation_date=$(( base_image_creation_date + 86400 ))
-	
-	# Now pull the latest adopt image if it is available.
-	adopt_image_tag="${tag// -t /}"
-	echo "INFO: Checking when the adopt docker image ${adopt_image_tag} was built ..."
-	if ! docker pull -q "${adopt_image_tag}" &>/dev/null; then
-		# Adopt image not available currently, build needed
-		echo "INFO:2: build needed"
+
+	if [[ ${adopt_image_creation_date} -lt ${base_image_creation_date} ]]; then
+		# build needed
+		echo "INFO: Newer base OS docker image found. Docker build needed"
 		build_needed=1
 		return;
 	fi
-	# check when the adopt image was last built
-	adopt_image_creation="$(docker inspect "${adopt_image_tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
-	# Convert this to seconds since 1-1-1970
-	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
-	echo "d1: ${adopt_image_creation_date}; d2: ${base_image_creation_date}"
-	if [[ ${adopt_image_creation_date} -lt ${base_image_creation_date} ]]; then
-		# build needed
-		echo "INFO:3: build needed"
-		build_needed=1
-	else
-		# build not needed
-		echo "INFO:4: build NOT needed"
-		build_needed=0
-	fi
+
+	# build not needed
+	echo "INFO: Current build for ${adopt_image_tag} exists and is latest. Docker build NOT needed"
+	build_needed=0
 }
  
 # Build the Docker image with the given repo, build, build type and tags.
@@ -92,14 +128,11 @@ function build_image() {
 	for tag in "$@"
 	do
 		tags="${tags} -t ${repo}:${tag}"
-		echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
 	done
 
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
-
 	# Check if we need to build this image.
 	# Nightlies are always built.
-	# Release images are only built if the underlying OS image changes
 	if [ "${build}" != "nightly" ]; then
 		check_build_needed "${dockerfile}" "${tags}"
 		if [[ ${build_needed} -eq 0 ]]; then
@@ -108,6 +141,7 @@ function build_image() {
 		fi
 	fi
 
+	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
@@ -196,11 +230,13 @@ do
 		if [ -f "${vm}"_shasums_latest.sh ]; then
 		  # shellcheck disable=SC1090
 			source ./"${vm}"_shasums_latest.sh
+			source ./"${vm}"_build_time_latest.sh
 		else
 			continue;
 		fi
 		# Check if the VM is supported for the current arch
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
+		build_time="${package}"_"${vm}"_"${version}"_"${build}"_build_time
 		sup=$(vm_supported_onarch "${vm}" "${shasums}")
 		if [ -z "${sup}" ]; then
 			continue;
