@@ -1,6 +1,7 @@
 .idea
 .idea/vcs.xml
 *_shasums_latest.sh
+*_build_time_latest.sh
 manifest_commands.sh
 hadolint/
 shellcheck/
