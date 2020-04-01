@@ -32,18 +32,18 @@ do
 
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Building Docker Images for Version ${ver}                  "
+			echo "  $(date +%T) :    Building Docker Images for Version ${ver} ${vm} ${package}  "
 			echo "                                                                               "
 			echo "==============================================================================="
 			./build_latest.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
 			if [ ${err} != 0 ] ||  [ ! -f ./push_commands.sh ]; then
-				echo "#############################################"
+				echo "###############################################################"
 				echo
-				echo "ERROR: Docker Build for version ${ver} failed."
+				echo "ERROR: Docker Build for Version ${ver} ${vm} ${package} failed."
 				echo
-				echo "#############################################"
+				echo "###############################################################"
 			fi
 			echo
 			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
@@ -53,7 +53,7 @@ do
 			# Now push the images to hub.docker.com
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Pushing Docker Images for Version ${ver}                   "
+			echo "  $(date +%T) :    Pushing Docker Images for Version ${ver} ${vm} ${package}   "
 			echo "                                                                               "
 			echo "==============================================================================="
 			cat push_commands.sh
@@ -65,7 +65,7 @@ do
 			# Now test the images from hub.docker.com
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Testing Docker Images for Version ${ver}                   "
+			echo "  $(date +%T) :    Testing Docker Images for Version ${ver} ${vm} ${package}   "
 			echo "                                                                               "
 			echo "==============================================================================="
 			# Only test the individual docker image tags and not the aliases
