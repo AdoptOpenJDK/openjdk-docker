@@ -43,7 +43,8 @@ function get_image_build_time() {
 		return;
 	fi
 
-	local btime=$(btarray=$1[${current_arch}]; eval btarch=\${"$btarray"}; echo "${btarch}");
+	# shellcheck disable=SC2154,SC1083
+	btime=$(btarray=$1[${current_arch}]; eval btarch=\${"$btarray"}; echo "${btarch}");
 
 	echo "${btime}"
 }
@@ -78,7 +79,7 @@ function check_build_needed() {
 		return;
 	fi
 
-	adopt_last_build_date=$(get_image_build_time ${build_time})
+	adopt_last_build_date=$(get_image_build_time "${build_time}")
 	if [ -z "${adopt_last_build_date}" ]; then
 		echo "INFO: Unknown last tarball build time. Docker build needed"
 		build_needed=1
@@ -228,8 +229,9 @@ do
 		get_shasums "${version}" "${vm}" "${package}" "${build}"
 		# Source the generated shasums file to access the array
 		if [ -f "${vm}"_shasums_latest.sh ]; then
-		  # shellcheck disable=SC1090
+			# shellcheck disable=SC1090
 			source ./"${vm}"_shasums_latest.sh
+			# shellcheck disable=SC1090
 			source ./"${vm}"_build_time_latest.sh
 		else
 			continue;
