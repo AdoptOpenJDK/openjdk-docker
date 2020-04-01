@@ -40,8 +40,8 @@ package="$3"
 # Get the image build time stored in the respective build_time array passed as arg
 function get_image_build_time() {
 	if ! declare -p "$1" &>/dev/null; then
-        return;
-    fi
+		return;
+	fi
 
 	local btime=$(btarray=$1[${current_arch}]; eval btarch=\${"$btarray"}; echo "${btarch}");
 
