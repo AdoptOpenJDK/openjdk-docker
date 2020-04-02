@@ -61,7 +61,7 @@ function check_build_needed() {
 	# Pull the latest adopt image if it is available.
 	adopt_image_tag="${tag// -t /}"
 	echo "INFO: Checking when the adopt docker image ${adopt_image_tag} was built ..."
-	if ! docker pull -q "${adopt_image_tag}" &>/dev/null; then
+	if ! docker pull "${adopt_image_tag}" &>/dev/null; then
 		# Adopt image not available currently, build needed
 		echo "INFO: AdoptOpenJDK docker image for ${adopt_image_tag} does not exist. Docker build needed"
 		build_needed=1
@@ -73,7 +73,7 @@ function check_build_needed() {
 	from_image="$(grep "FROM" "$1" | awk '{ print $2 }')"
 	# Pull the latest image locally
 	echo "INFO: Checking when the base docker image ${from_image} was built ..."
-	if ! docker pull -q "${from_image}" &>/dev/null; then
+	if ! docker pull "${from_image}" &>/dev/null; then
 		echo "INFO: Failed to pull base docker image. Docker build needed"
 		build_needed=1
 		return;
