@@ -172,7 +172,7 @@ do
 			continue;
 		fi
 		# Docker image tags cannot have "+" in them, replace it with "_" instead.
-		rel=${jrel//+/_/}
+		rel=${jrel//+/_}
 
 		srepo=${source_repo}${version}
 		if [ "${vm}" != "hotspot" ]; then
