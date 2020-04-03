@@ -28,7 +28,7 @@ do
 			cleanup_manifest
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh manifest_commands.sh
 
 			# We will test all categories
 			cp ${test_image_types_all_file} ${test_image_types_file}
