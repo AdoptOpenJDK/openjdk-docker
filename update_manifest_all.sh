@@ -27,7 +27,7 @@ do
 			cleanup_manifest
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh manifest_commands.sh
 
 			echo "==============================================================================="
 			echo "                                                                               "
@@ -60,7 +60,7 @@ do
 			./manifest_commands.sh
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh manifest_commands.sh
 
 			# Now test the images from hub.docker.com
 			echo "==============================================================================="

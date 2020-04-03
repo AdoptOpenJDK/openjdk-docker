@@ -24,7 +24,7 @@ do
 	cleanup_manifest
 
 	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+	rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh
 
 	echo "==============================================================================="
 	echo "                                                                               "

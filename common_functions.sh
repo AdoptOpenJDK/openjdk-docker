@@ -408,7 +408,7 @@ function get_v3_binary_url() {
 		rm -f ${info_file}
 		return;
 	fi
-	python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['link'])" < "${info_file}"
+	python -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['link'])" < "${info_file}"
 	rm -f ${info_file}
 }
 
@@ -421,7 +421,7 @@ function get_v3_installer_url() {
 		rm -f ${info_file}
 		return;
 	fi
-	python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['link'])" < "${info_file}"
+	python -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['link'])" < "${info_file}"
 	rm -f ${info_file}
 }
 
@@ -490,12 +490,12 @@ function get_sums_for_build_arch() {
 		if [ -z "${availability}" ]; then
 			# If there are multiple builds for a single version, then pick the latest one.
 			if [ "${arch}" == "windows-amd" ]; then
-				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['checksum_link'])" < "${shasum_file}")
+				shasums_url=$(python -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['checksum_link'])" < "${shasum_file}")
 				if [ -z "$shasums_url" ]; then
-					shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
+					shasums_url=$(python -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
 				fi
 			else
-				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
+				shasums_url=$(python -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
 			fi
 			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
 			# Sometimes shasum files are missing, check for error and do not print on error.
@@ -505,7 +505,7 @@ function get_sums_for_build_arch() {
 				break;
 			fi
 			# Get the release version for this arch from the info file
-			arch_build_version=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])" < "${shasum_file}")
+			arch_build_version=$(python -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])" < "${shasum_file}")
 			# For nightly builds get the short version without the date/time stamp
 			arch_build_version=$(get_nightly_short_version "${build}" "${arch_build_version}")
 			# If the latest for the current arch does not match with the latest for the parent arch,
@@ -516,9 +516,14 @@ function get_sums_for_build_arch() {
 				echo "Parent version not matching for arch ${arch}: ${arch_build_version}, ${full_version}"
 				break;
 			fi
+			# Get the build date for this arch tarball
+			arch_last_build_date="$(curl -Lv "${shasums_url}" 2>&1 | grep "Last-Modified" | sed 's/< Last-Modified: //')"
+			# Convert to time since 1-1-1970
+			arch_last_build_time="$(date --date "${arch_last_build_date}" +%s)"
 			# Only print the entry if the shasum is not empty
 			if [ -n "${shasum}" ]; then
-				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile}"
+				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile_sums}"
+				printf "\t[%s]=\"%s\"\n" "${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
 			fi
 		fi
 		break;
@@ -543,12 +548,15 @@ function get_sums_for_build() {
 	if [ -n "${err}" ]; then
 		return;
 	fi
-	full_version=$(echo "${info}" | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])")
+	full_version=$(echo "${info}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])")
 	full_version=$(get_nightly_short_version "${build}" "${full_version}")
-	# Declare the array with the proper name and write to the vm output file.
-	printf "declare -A %s_%s_%s_%s_sums=(\n" "${pkg}" "${vm}" "${ver}" "${build}" >> "${ofile}"
+	# Declare the array with the proper name for shasums and write to the vm output file.
+	printf "declare -A %s_%s_%s_%s_sums=(\n" "${pkg}" "${vm}" "${ver}" "${build}" >> "${ofile_sums}"
+	# We have another array for storing the last build time for each arch
+	printf "declare -A %s_%s_%s_%s_build_time=(\n" "${pkg}" "${vm}" "${ver}" "${build}" >> "${ofile_build_time}"
 	# Capture the full version according to adoptopenjdk
-	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile}"
+	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile_sums}"
+	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile_build_time}"
 	if [ -n "${arch}" ]; then
 		get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 	else
@@ -557,10 +565,11 @@ function get_sums_for_build() {
 			get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 		done
 	fi
-	printf ")\n" >> "${ofile}"
+	printf ")\n" >> "${ofile_sums}"
+	printf ")\n" >> "${ofile_build_time}"
 
 	echo
-	echo "sha256sums for the version ${full_version} for build type \"${build}\" is now available in ${ofile}"
+	echo "sha256sums for the version ${full_version} for build type \"${build}\" is now available in ${ofile_sums}"
 	echo
 }
 
@@ -572,10 +581,11 @@ function get_shasums() {
 	local pkg=$3
 	local build=$4
 	local arch=$5
-	local ofile="${vm}_shasums_latest.sh"
+	local ofile_sums="${vm}_shasums_latest.sh"
+	local ofile_build_time="${vm}_build_time_latest.sh"
 
 	# Dont build the shasums array it already exists for the Ver/VM/Pkg/Build combination
-	if [ -f "${ofile}" ]; then
+	if [ -f "${ofile_sums}" ]; then
 		# shellcheck disable=SC1090
 		source ./"${vm}"_shasums_latest.sh
 		sums="${pkg}_${vm}_${ver}_${build}_sums"
@@ -595,5 +605,5 @@ function get_shasums() {
 			get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 		done
 	fi
-	chmod +x "${ofile}"
+	chmod +x "${ofile_sums}" "${ofile_build_time}"
 }
