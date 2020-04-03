@@ -37,7 +37,8 @@ set_version "$1"
 vm="$2"
 package="$3"
 
-# Get the image build time stored in the respective build_time array passed as arg
+# Get the image build time stored in the "build_time" array for the current arch
+# Build time is stored as the time since 1-1-1970
 function get_image_build_time() {
 	if ! declare -p "$1" &>/dev/null; then
 		return;
@@ -49,25 +50,22 @@ function get_image_build_time() {
 	echo "${btime}"
 }
 
-# Check if we need to do a docker build
-# Build is needed only if one of the following criteria is met
-# 1. If no such docker image exists currently
-# 2. If the base OS docker image was recently re-built
-# 3. If a new Adopt build is found
-# 4. On any other error condition
-function check_build_needed() {
-	local tag=$2
+# Check if the adopt image is available, if not need to build it.
+function check_adopt_image_available() {
+	local tag=$1
 
-	# Pull the latest adopt image if it is available.
-	adopt_image_tag="${tag// -t /}"
-	echo "INFO: Checking when the adopt docker image ${adopt_image_tag} was built ..."
-	if ! docker pull "${adopt_image_tag}" &>/dev/null; then
+	echo "INFO: Checking when the adopt docker image ${tag} was built ..."
+	if ! docker pull "${tag}" &>/dev/null; then
 		# Adopt image not available currently, build needed
-		echo "INFO: AdoptOpenJDK docker image for ${adopt_image_tag} does not exist. Docker build needed"
+		echo "INFO: AdoptOpenJDK docker image for ${tag} does not exist. Docker build needed"
 		build_needed=1
 		return;
 	fi
+}
 
+# Check if we have a newer base OS docker image
+# If a new base OS docker image was built in the last 24 hrs, then we need to rebuild the adopt docker image
+function check_new_os_image_available() {
 	# Get the date when the base image was created. Eg if the base OS is ubuntu, this
 	# translates as the exact date/time when the Ubuntu image was created on DockerHub
 	from_image="$(grep "FROM" "$1" | awk '{ print $2 }')"
@@ -79,6 +77,25 @@ function check_build_needed() {
 		return;
 	fi
 
+	# Check the time when the base OS image was created
+	base_image_creation="$(docker inspect "${from_image}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	# Convert the time to seconds since 1-1-1970
+	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
+	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
+	base_image_creation_date=$(( base_image_creation_date + 86400 ))
+	current_date="$(date +%s)"
+
+	if [[ ${current_date} -le ${base_image_creation_date} ]]; then
+		build_needed=1
+		return;
+	fi
+}
+
+# Check if we have a newer adopt build tarball
+function check_new_adopt_build_available() {
+	local tag=$1
+
+	# Get the last build date for the current arch from the "build_time" array
 	adopt_last_build_date=$(get_image_build_time "${build_time}")
 	if [ -z "${adopt_last_build_date}" ]; then
 		echo "INFO: Unknown last tarball build time. Docker build needed"
@@ -89,34 +106,50 @@ function check_build_needed() {
 	adopt_last_build_date=$(( adopt_last_build_date + 86400 ))
 
 	# check when the adopt image was last built
-	adopt_image_creation="$(docker inspect "${adopt_image_tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	adopt_image_creation="$(docker inspect "${tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
 	# Convert this to seconds since 1-1-1970
 	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
 
-	if [[ ${adopt_image_creation_date} -lt ${adopt_last_build_date} ]]; then
+	if [[ ${adopt_image_creation_date} -le ${adopt_last_build_date} ]]; then
 		# build needed
 		echo "INFO: Newer adopt build found. Docker build needed"
 		build_needed=1
 		return;
 	fi
-	
-	# Check the time when the base OS image was created
-	base_image_creation="$(docker inspect "${from_image}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
-	# Convert the time to seconds since 1-1-1970
-	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
-	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
-	base_image_creation_date=$(( base_image_creation_date + 86400 ))
+}
 
-	if [[ ${adopt_image_creation_date} -lt ${base_image_creation_date} ]]; then
-		# build needed
-		echo "INFO: Newer base OS docker image found. Docker build needed"
-		build_needed=1
+# Check if we need to do a docker build
+# Build is needed only if one of the following criteria is met
+# 1. If no such docker image exists currently
+# 2. If the base OS docker image was recently re-built
+# 3. If a new Adopt build is found
+# 4. On any other error condition
+function check_build_needed() {
+	local tag=$2
+
+	build_needed=0
+
+	adopt_image_tag="${tag// -t /}"
+	# Check if the adopt image is available, if not need to build it.
+	check_adopt_image_available "${adopt_image_tag}"
+	if [[ ${build_needed} -eq 1 ]]; then
+		return;
+	fi
+
+	# Check if we have a newer base OS Image
+	check_new_os_image_available "$1"
+	if [[ ${build_needed} -eq 1 ]]; then
+		return;
+	fi
+
+	# Check if we have a newer adopt build tarball
+	check_new_adopt_build_available "${adopt_image_tag}"
+	if [[ ${build_needed} -eq 1 ]]; then
 		return;
 	fi
 
 	# build not needed
 	echo "INFO: Current build for ${adopt_image_tag} exists and is latest. Docker build NOT needed"
-	build_needed=0
 }
  
 # Build the Docker image with the given repo, build, build type and tags.
