@@ -78,7 +78,7 @@ function check_new_os_image_available() {
 	fi
 
 	# Check the time when the base OS image was created
-	base_image_creation="$(docker inspect "${from_image}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	base_image_creation="$(docker inspect "${from_image}" | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
 	# Convert the time to seconds since 1-1-1970
 	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
 	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
@@ -106,7 +106,7 @@ function check_new_adopt_build_available() {
 	adopt_last_build_date=$(( adopt_last_build_date + 86400 ))
 
 	# check when the adopt image was last built
-	adopt_image_creation="$(docker inspect "${tag}" | python -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
+	adopt_image_creation="$(docker inspect "${tag}" | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
 	# Convert this to seconds since 1-1-1970
 	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
 
