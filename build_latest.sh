@@ -85,6 +85,8 @@ function check_new_os_image_available() {
 	base_image_creation_date=$(( base_image_creation_date + 86400 ))
 	current_date="$(date +%s)"
 
+	echo "INFO: Current date: $(date --date="@${current_date}")"
+	echo "INFO: Base docker image for ${adopt_image_tag} build date: $(date --date="@${base_image_creation_date}")"
 	if [[ ${current_date} -le ${base_image_creation_date} ]]; then
 		build_needed=1
 		return;
@@ -110,6 +112,8 @@ function check_new_adopt_build_available() {
 	# Convert this to seconds since 1-1-1970
 	adopt_image_creation_date="$(date --date="${adopt_image_creation}" +%s)"
 
+	echo "INFO: Current docker image for ${tag} build date: $(date --date="@${adopt_image_creation_date}")"
+	echo "INFO: Current adopt build tarball related to ${tag} build date: $(date --date="@${adopt_last_build_date}")"
 	if [[ ${adopt_image_creation_date} -le ${adopt_last_build_date} ]]; then
 		# build needed
 		echo "INFO: Newer adopt build found. Docker build needed"
@@ -149,7 +153,7 @@ function check_build_needed() {
 	fi
 
 	# build not needed
-	echo "INFO: Current build for ${adopt_image_tag} exists and is latest. Docker build NOT needed"
+	echo "INFO: Docker image for ${adopt_image_tag} exists and is latest. Docker build NOT needed"
 }
  
 # Build the Docker image with the given repo, build, build type and tags.
