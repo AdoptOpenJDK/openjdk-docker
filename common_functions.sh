@@ -445,6 +445,48 @@ function get_nightly_short_version() {
 	echo "${arch_version}"
 }
 
+# Parse the info file and get the field from the object specified
+# The field is either the checksum link or the checksum itself
+function get_field_from_object() {
+	local objtype=$1
+	local objfield=$2
+	local shasum_file=$3
+
+	sum_info=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['${objtype}']['${objfield}'])" < "${shasum_file}");
+
+	echo "${sum_info}"
+}
+
+# Get shasums for a specific arch
+function get_sum_for_arch() {
+	local arch=$1
+	local shasum_file=$2
+
+	if [ "${arch}" == "windows-amd" ]; then
+		# On windows amd, some times the installer object has the checksum link
+		shasums_url="$(get_field_from_object "installer" "checksum_link" "${shasum_file}")"
+		if [ -z "${shasums_url}" ]; then
+			# installer object didnt' have it, check the package object instead
+			shasums_url="$(get_field_from_object "package" "checksum_link" "${shasum_file}")"
+		fi
+		if [ -z "${shasums_url}" ]; then
+			# No checksum link found, check if the checksum itself is available instead
+			shasum="$(get_field_from_object "package" "checksum" "${shasum_file}")"
+		else
+			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+		fi
+	else
+		# On Linux, the package object should have the checksum link
+		shasums_url="$(get_field_from_object "package" "checksum_link" "${shasum_file}")"
+		if [ -z "${shasums_url}" ]; then
+			# No checksum link found, check if the checksum itself is available instead
+			shasum="$(get_field_from_object "package" "checksum" "${shasum_file}")"
+		else
+			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+		fi
+	fi
+}
+
 # Get the shasums for the given specific build and arch combination.
 function get_sums_for_build_arch() {
 	local ver=$1
@@ -488,20 +530,11 @@ function get_sums_for_build_arch() {
 		availability=$(grep -e "No matches" -e "Not found" "${shasum_file}");
 		# Print the arch and the corresponding shasums to the vm output file
 		if [ -z "${availability}" ]; then
-			# If there are multiple builds for a single version, then pick the latest one.
-			if [ "${arch}" == "windows-amd" ]; then
-				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['installer']['checksum_link'])" < "${shasum_file}")
-				if [ -z "$shasums_url" ]; then
-					shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
-				fi
-			else
-				shasums_url=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['binaries'][0]['package']['checksum_link'])" < "${shasum_file}")
-			fi
-			shasum=$(curl -Ls "${shasums_url}" | sed -e 's/<[^>]*>//g' | awk '{ print $1 }');
+			get_sum_for_arch "${arch}" "${shasum_file}"
 			# Sometimes shasum files are missing, check for error and do not print on error.
 			shasum_available=$(echo "${shasum}" | grep -e "No" -e "Not");
 			if [ -n "${shasum_available}" ]; then
-				echo "shasum file not available at url: ${shasums_url}"
+				echo "shasum not available for ${arch}"
 				break;
 			fi
 			# Get the release version for this arch from the info file
@@ -516,14 +549,16 @@ function get_sums_for_build_arch() {
 				echo "Parent version not matching for arch ${arch}: ${arch_build_version}, ${full_version}"
 				break;
 			fi
-			# Get the build date for this arch tarball
-			arch_last_build_date="$(curl -Lv "${shasums_url}" 2>&1 | grep "Last-Modified" | sed 's/< Last-Modified: //')"
-			# Convert to time since 1-1-1970
-			arch_last_build_time="$(date --date "${arch_last_build_date}" +%s)"
 			# Only print the entry if the shasum is not empty
 			if [ -n "${shasum}" ]; then
 				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile_sums}"
-				printf "\t[%s]=\"%s\"\n" "${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
+				# Get the build date for this arch tarball
+				if [ -n "${shasums_url}" ]; then
+					arch_last_build_date="$(curl -Lv "${shasums_url}" 2>&1 | grep "Last-Modified" | sed 's/< Last-Modified: //')"
+					# Convert to time since 1-1-1970
+					arch_last_build_time="$(date --date "${arch_last_build_date}" +%s)"
+					printf "\t[%s]=\"%s\"\n" "${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
+				fi
 			fi
 		fi
 		break;
