@@ -17,16 +17,56 @@ set -o pipefail
 # Parse arguments
 argc=$#
 if [ ${argc} != 1 ]; then
-  message=$(basename "$0")
+	message=$(basename "$0")
 	echo " Usage: ${message} Full-JDK-path"
 	exit 1
 fi
 
+# Which major java version
+function get_java_version() {
+	verstring="$(java -version 2>&1 | grep "^OpenJDK Runtime" | sed -n -e 's/^.*build //p')"
+	case "${verstring}" in
+	1.8.0*)
+		java_major_version="8";
+		;;
+	9.*)
+		java_major_version="9";
+		;;
+	10*)
+		java_major_version="10";
+		;;
+	11*)
+		java_major_version="11";
+		;;
+	12*)
+		java_major_version="12";
+		;;
+	13*)
+		java_major_version="13";
+		;;
+	14*)
+		java_major_version="14";
+		;;
+	*)
+		echo "ERROR: Unknown Java Version";
+		exit 1;
+		;;
+	esac
+}
+
+# Set the java major version that we are on right now.
+get_java_version
+
 # Validate prerequisites(tools) necessary for making a slim build
-tools="jar jarsigner pack200 strip"
+if [ ${java_major_version} -ge 14 ]; then
+	tools="jar jarsigner strip"
+else
+	tools="jar jarsigner pack200 strip"
+fi
+
 for tool in ${tools};
 do
-  command -v "${tool}" >/dev/null 2>&1 || { echo >&2 "${tool} not found, please add ${tool} into PATH"; exit 1; }
+	command -v "${tool}" >/dev/null 2>&1 || { echo >&2 "${tool} not found, please add ${tool} into PATH"; exit 1; }
 done
 
 # Set input of this script
@@ -190,6 +230,10 @@ function rt_jar_classes() {
 
 # Strip the debug info from all jar files
 function strip_jar() {
+	# pack200 is not available from Java 14 onwards
+	if [ ${java_major_version} -ge 14 ]; then
+		return;
+	fi
 	# Using pack200 to strip debug info in jars
 	echo "INFO: Strip debug info from jar files"
 	list=$(find . -name "*.jar")
