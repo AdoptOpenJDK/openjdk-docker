@@ -53,27 +53,31 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-14+36
+ENV JAVA_VERSION jdk-14.0.1+7
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='22d76b788680fb6e46bbab420b0610439581dea6c06f082614c9822f9c4df445'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jre_aarch64_linux_hotspot_14_36.tar.gz'; \
+         ESUM='bf038c351337982082074ab818a6bd385c7ad31d23654a2db8cd05805fe48058'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jre_aarch64_linux_hotspot_14.0.1_7.tar.gz'; \
+         ;; \
+       armhf|armv7l) \
+         ESUM='277ae66d1db7613a7f02b1cbfc9acd8f5f6208eac0e61828d40d5a513b40e406'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jre_arm_linux_hotspot_14.0.1_7.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='2c98021ac5cdc66581202741d81ca0d1e3e6737727e42939be763825598822c2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jre_ppc64le_linux_hotspot_14_36.tar.gz'; \
+         ESUM='8af51efdd25d93b120ee9ef22e2584cf8bf9441108fa0396a0ac9c5de86ec119'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jre_ppc64le_linux_hotspot_14.0.1_7.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='55e96cf4ca82f26864a06372dab50e7e8c39ca93adcb3a2ec733536da1862ff3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jre_s390x_linux_hotspot_14_36.tar.gz'; \
+         ESUM='97b15611f4238a20fde975cba5144477f06bb8416964ae79e2109778c25fa654'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jre_s390x_linux_hotspot_14.0.1_7.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='2103fc385b738bc7dd64ccbf53d9c35353033f49fce98f3ed2e3a41ff8a57190'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14%2B36/OpenJDK14U-jre_x64_linux_hotspot_14_36.tar.gz'; \
+         ESUM='3f8a4d5939a66cadf9846bbae6392644165f75063ae31998764916da13810fca'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jre_x64_linux_hotspot_14.0.1_7.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
