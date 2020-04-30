@@ -70,7 +70,7 @@ print_debianslim_ver() {
 }
 
 print_ubi_ver() {
-	os_version="8.1"
+	os_version="8.2"
 
 	cat >> "$1" <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi:${os_version}
@@ -79,7 +79,7 @@ print_ubi_ver() {
 }
 
 print_ubi-minimal_ver() {
-	os_version="8.1"
+	os_version="8.2"
 
 	cat >> "$1" <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi-minimal:${os_version}
