@@ -105,12 +105,14 @@ EOF
 	for ssum in ${base_os_sha_arr}
 	do
 		if ! echo "${adopt_sha_arr}" | grep -q "${ssum}" ; then
-			echo "Base OS layer ${ssum} not found in Adopt Image"
+			echo "Base OS layer ${ssum} not found in Adopt Image: ${tag}"
 			# Layer missing in the current Adopt Image, rebuild needed
 			build_needed=1
 			break;
 		fi
 	done
+	# Remove tmp files
+	rm -f base_os_image.info adopt_image.info
 }
 
 # Check if we have a newer adopt build tarball
