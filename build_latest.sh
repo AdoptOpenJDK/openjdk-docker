@@ -66,6 +66,8 @@ function check_adopt_image_available() {
 # Check if we have a newer base OS docker image
 # If a new base OS docker image was built in the last 24 hrs, then we need to rebuild the adopt docker image
 function check_new_os_image_available() {
+	local tag=$2
+
 	# Get the date when the base image was created. Eg if the base OS is ubuntu, this
 	# translates as the exact date/time when the Ubuntu image was created on DockerHub
 	from_image="$(grep "FROM" "$1" | awk '{ print $2 }')"
@@ -77,20 +79,40 @@ function check_new_os_image_available() {
 		return;
 	fi
 
-	# Check the time when the base OS image was created
-	base_image_creation="$(docker inspect "${from_image}" | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['Created'])")"
-	# Convert the time to seconds since 1-1-1970
-	base_image_creation_date="$(date --date="${base_image_creation}" +%s)"
-	# Add "one day" to it, this is to ensure that we rebuild our image if the base image was created in the past 24 hours
-	base_image_creation_date=$(( base_image_creation_date + 86400 ))
-	current_date="$(date +%s)"
+	# Get the shasums of the base OS image layers
+	docker inspect "${from_image}" > base_os_image.info
+	base_os_sha_arr="$(python3 <<EOF
+import sys, json;
+input_file = open ('base_os_image.info');
+sha_arr = json.load(input_file)[0]['RootFS']['Layers'];
+for ssum in sha_arr:
+    print(ssum);
+EOF
+	)"
 
-	echo "INFO: Current date: $(date --date="@${current_date}")"
-	echo "INFO: Base docker image for ${adopt_image_tag} build date: $(date --date="@${base_image_creation_date}")"
-	if [[ ${current_date} -le ${base_image_creation_date} ]]; then
-		build_needed=1
-		return;
-	fi
+	# Get the shasums of the current Adopt Image layers
+	docker inspect "${tag}" > adopt_image.info
+	adopt_sha_arr="$(python3 <<EOF
+import sys, json;
+input_file = open ('adopt_image.info');
+sha_arr = json.load(input_file)[0]['RootFS']['Layers'];
+for ssum in sha_arr:
+    print(ssum);
+EOF
+    )"
+
+	# Check if each of the latest base os image layer is present in the Adopt Image
+	for ssum in ${base_os_sha_arr}
+	do
+		if ! echo "${adopt_sha_arr}" | grep -q "${ssum}" ; then
+			echo "Base OS layer ${ssum} not found in Adopt Image: ${tag}"
+			# Layer missing in the current Adopt Image, rebuild needed
+			build_needed=1
+			break;
+		fi
+	done
+	# Remove tmp files
+	rm -f base_os_image.info adopt_image.info
 }
 
 # Check if we have a newer adopt build tarball
@@ -134,6 +156,16 @@ function check_build_needed() {
 	build_needed=0
 
 	adopt_image_tag="${tag// -t /}"
+
+	# For nightly images, check if a newer adopt nightly build is available.
+	if [ "${build}" == "nightly" ]; then
+		# Check if we have a newer adopt build tarball
+		check_new_adopt_build_available "${adopt_image_tag}"
+		if [[ ${build_needed} -eq 1 ]]; then
+			return;
+		fi
+	fi
+
 	# Check if the adopt image is available, if not need to build it.
 	check_adopt_image_available "${adopt_image_tag}"
 	if [[ ${build_needed} -eq 1 ]]; then
@@ -141,7 +173,7 @@ function check_build_needed() {
 	fi
 
 	# Check if we have a newer base OS Image
-	check_new_os_image_available "$1"
+	check_new_os_image_available "$1" "${adopt_image_tag}"
 	if [[ ${build_needed} -eq 1 ]]; then
 		return;
 	fi
@@ -170,13 +202,10 @@ function build_image() {
 
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 	# Check if we need to build this image.
-	# Nightlies are always built.
-	if [ "${build}" != "nightly" ]; then
-		check_build_needed "${dockerfile}" "${tags}"
-		if [[ ${build_needed} -eq 0 ]]; then
-			# No build needed, we are done
-			return;
-		fi
+	check_build_needed "${dockerfile}" "${tags}"
+	if [[ ${build_needed} -eq 0 ]]; then
+		# No build needed, we are done
+		return;
 	fi
 
 	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
