@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi:8.1
+FROM registry.access.redhat.com/ubi8/ubi:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -38,16 +38,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='6160ae4301d179b74425c232177eed7970e6a50ace09e87c462b4f4184b1ed4f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-04-19-22-41.tar.gz'; \
+         ESUM='0ac26459ee42df1c5930b4be68a6b87ee297c8443f4285e41751fd690a1db160'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-05-06-00-10.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='7640b758fae25fbe395964027136e9450c1f2fff47c0f8b0674551aa359967d2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jdk_s390x_linux_openj9_2020-04-19-22-41.tar.gz'; \
+         ESUM='8dfc63d8af2753eeaaa1196f4dd49c78d35c961f67c34147c986407ebff4d408'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jdk_s390x_linux_openj9_2020-05-06-00-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='82d67cef492fa3a61e9bcb2585fa04923126ebdc08172034a1b02edf3b08b13d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jdk_x64_linux_openj9_2020-04-19-22-41.tar.gz'; \
+         ESUM='2afcbb32dcdbd84790b94b3b4a157dc6c21fecd952cadc2d23ca9b393d7c6155'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jdk_x64_linux_openj9_2020-05-06-00-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi:8.1
+FROM registry.access.redhat.com/ubi8/ubi:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -38,16 +38,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='de67ebae9db3b918f06e47e2fb4b55e48005ae5e8face8af5da72e0e94c5a32c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_ppc64le_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='5c6329714c5e0cf898c038fba38b88e9ee998aa9902f19d97951d90141e0d9c3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-05-06-04-31/OpenJDK14U-jre_ppc64le_linux_openj9_2020-05-06-04-31.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f54e1e1f5c31c90a2e0ca8ade7f2a641fac54d030d86051f03d1cd4b039a5259'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_s390x_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='49d474e6c07f88fbdbb5c24a627e62638885307c1e82de138c4692710b06ae45'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-05-06-04-31/OpenJDK14U-jre_s390x_linux_openj9_2020-05-06-04-31.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='696f204b6dd3b8d20599826faecdf599152ca6cd7e5c4781ccd2b96056121667'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_x64_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='f1b742aef3e823efe8a3628aae2a4a447967572f7dfe6cd8ba3e9bf363d18ce2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-05-06-04-31/OpenJDK14U-jre_x64_linux_openj9_2020-05-06-04-31.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

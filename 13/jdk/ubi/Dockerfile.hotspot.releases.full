@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi:8.1
+FROM registry.access.redhat.com/ubi8/ubi:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -44,10 +44,6 @@ RUN set -eux; \
        armhf|armv7l) \
          ESUM='9beec080f2b2a7f6883b024272f4e8d5a0b027325e83647be318215781af1d1a'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jdk_arm_linux_hotspot_13.0.2_8.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='fb3362e34aac091a4682394d20dcdc3daea51995d369d62c28424573e0fc04aa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jdk_ppc64le_linux_hotspot_13.0.2_8.tar.gz'; \
          ;; \
        s390x) \
          ESUM='1b9e7cd7fdde10fe3534988ef58c36f132b12f814503a034461c95735057467f'; \
