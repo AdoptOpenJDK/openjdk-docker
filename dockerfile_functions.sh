@@ -604,6 +604,23 @@ print_cmd() {
 	fi
 }
 
+copy_scc_script() {
+    if [ "${vm}" == "openj9" ]; then
+        cat >> "$1" <<-EOI
+COPY generate_openj9_scc.sh /scripts/
+EOI
+    fi
+}
+
+run_scc_gen() {
+    if [ "${vm}" == "openj9" ]; then
+        cat >> "$1" <<-EOI
+        RUN /scripts/generate_openj9_scc.sh
+        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+EOI
+    fi
+}
+
 # Generate the dockerfile for a given build, build_type and OS
 generate_dockerfile() {
 	file=$1
@@ -633,6 +650,8 @@ generate_dockerfile() {
 	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}";
 	print_java_env "${file}" "${bld}" "${btype}" "${os_family}";
 	print_java_options "${file}" "${bld}" "${btype}";
+	copy_scc_script "${file}";
+	run_scc_gen "${file}";
 	print_cmd "${file}";
 	echo "done"
 	echo
