@@ -109,7 +109,7 @@ function generate_unofficial_image_info() {
 		attrs=""
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
-			attrs="${jre}"
+			attrs="${pkg}"
 			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
@@ -150,6 +150,7 @@ function generate_unofficial_image_info() {
 	elif [[ "${os}" =~ "ubi" ]]; then
 		arches=${arches//armv7l/}
 	fi
+	# shellcheck disable=SC2086
 	print_unofficial_tags ${super_tags}
 	for arch in ${arches}
 	do
