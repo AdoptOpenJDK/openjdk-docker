@@ -98,6 +98,10 @@ function generate_unofficial_image_info() {
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
 		fi
+		super_tags="${super_tags} ${full_version}";
+		if [ "${attrs}" == "" ]; then
+			vattrs="${full_version}"
+		fi
 		;;
 	alpine|centos|clefos|debian|debianslim|ubi|ubi-minimal|windows)
 		# Non Ubuntu builds all have the `$os` tag prepended
@@ -105,7 +109,7 @@ function generate_unofficial_image_info() {
 		attrs=""
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
-			attrs="${build}"
+			attrs="${jre}"
 			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
@@ -120,12 +124,13 @@ function generate_unofficial_image_info() {
 				attrs="${attrs}-${btype}"
 			fi
 		fi
+		if [ "${attrs}" == "" ]; then
+			super_tags="${super_tags} ${full_version}-${os}"
+			vattrs="${full_version}"
+		fi
 		;;
 	esac
-	if [ "${attrs}" == "" ]; then
-		super_tags="${super_tags} ${full_version}-${os}"
-		vattrs="${full_version}"
-	else
+	if [ -n "${attrs}" ]; then
 		super_tags="${super_tags} ${full_version}-${os}-${attrs}"
 		vattrs="${full_version}-${attrs}"
 	fi
@@ -142,8 +147,10 @@ function generate_unofficial_image_info() {
 		arches=${arches//s390x/}
 	elif [ "${os}" == "clefos" ]; then
 		arches="s390x"
+	elif [[ "${os}" =~ "ubi" ]]; then
+		arches=${arches//armv7l/}
 	fi
-	print_unofficial_tags "${super_tags}"
+	print_unofficial_tags ${super_tags}
 	for arch in ${arches}
 	do
 		print_unofficial_tags "${arch}-${os}-${vattrs}" >> "${ver}"_"${vm}".txt
