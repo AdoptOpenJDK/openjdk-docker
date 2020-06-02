@@ -14,6 +14,7 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 for ver in ${supported_versions}
@@ -27,7 +28,7 @@ do
 			cleanup_manifest
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh manifest_commands.sh
 
 			# We will test all categories
 			cp ${test_image_types_all_file} ${test_image_types_file}
@@ -36,14 +37,15 @@ do
 			echo "                    Testing Docker Images for Version ${ver}                   "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
 			if [ ${err} != 0 ]; then
+				echo "#############################################"
 				echo
 				echo "ERROR: Docker test for version ${ver} failed."
 				echo
-				exit 1;
+				echo "#############################################"
 			fi
 		done
 	done

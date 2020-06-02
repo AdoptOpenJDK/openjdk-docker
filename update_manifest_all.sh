@@ -27,21 +27,22 @@ do
 			cleanup_manifest
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh manifest_commands.sh
 
 			echo "==============================================================================="
 			echo "                                                                               "
 			echo "                 Generating Manifest Entries for Version ${ver}                "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./generate_manifest_script.sh ${ver} ${vm} ${package}
+			./generate_manifest_script.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
-			if [ ${err} != 0 -o ! -f ./manifest_commands.sh ]; then
+			if [ ${err} != 0 ] || [ ! -f ./manifest_commands.sh ]; then
+				echo "#############################################"
 				echo
 				echo "ERROR: Docker Build for version ${ver} failed."
 				echo
-				exit 1;
+				echo "#############################################"
 			fi
 			echo
 			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
@@ -59,7 +60,7 @@ do
 			./manifest_commands.sh
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh manifest_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh manifest_commands.sh
 
 			# Now test the images from hub.docker.com
 			echo "==============================================================================="
@@ -68,8 +69,8 @@ do
 			echo "                                                                               "
 			echo "==============================================================================="
 			# We will test all image types
-			cp ${test_image_types_all_file} ${test_image_types_file}
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			cp "${test_image_types_all_file}" "${test_image_types_file}"
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 		done
 	done
 done

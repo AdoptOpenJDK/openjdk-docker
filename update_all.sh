@@ -14,6 +14,7 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 for ver in ${supported_versions}
@@ -23,7 +24,7 @@ do
 	cleanup_manifest
 
 	# Remove any temporary files
-	rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+	rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh
 
 	echo "==============================================================================="
 	echo "                                                                               "
@@ -31,7 +32,7 @@ do
 	echo "                                                                               "
 	echo "==============================================================================="
 	# Generate the Dockerfiles for the unofficial images.
-	./update_multiarch.sh ${ver}
+	./update_multiarch.sh "${ver}"
 
 	# hotspot.config and openj9.config now only contain the unofficial image list.
 	# hotspot-official.config and openj9-official.config contain the officially supported list.
@@ -40,7 +41,7 @@ do
 	cp config/openj9-official.config config/openj9.config
 
 	# Now generate the Dockerfiles for the official images.
-	./update_multiarch.sh ${ver}
+	./update_multiarch.sh "${ver}"
 
 	# Restore the original files.
 	git checkout config/hotspot.config config/openj9.config

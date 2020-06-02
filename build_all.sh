@@ -14,6 +14,7 @@
 #
 set -o pipefail
 
+# shellcheck source=common_functions.sh
 source ./common_functions.sh
 
 for ver in ${supported_versions}
@@ -27,21 +28,22 @@ do
 			cleanup_manifest
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh
 
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Building Docker Images for Version ${ver}                  "
+			echo "  $(date +%T) :    Building Docker Images for Version ${ver} ${vm} ${package}  "
 			echo "                                                                               "
 			echo "==============================================================================="
-			./build_latest.sh ${ver} ${vm} ${package}
+			./build_latest.sh "${ver}" "${vm}" "${package}"
 
 			err=$?
-			if [ ${err} != 0 -o ! -f ./push_commands.sh ]; then
+			if [ ${err} != 0 ] ||  [ ! -f ./push_commands.sh ]; then
+				echo "###############################################################"
 				echo
-				echo "ERROR: Docker Build for version ${ver} failed."
+				echo "ERROR: Docker Build for Version ${ver} ${vm} ${package} failed."
 				echo
-				exit 1;
+				echo "###############################################################"
 			fi
 			echo
 			echo "WARNING: Pushing to AdoptOpenJDK repo on hub.docker.com"
@@ -51,25 +53,25 @@ do
 			# Now push the images to hub.docker.com
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Pushing Docker Images for Version ${ver}                   "
+			echo "  $(date +%T) :    Pushing Docker Images for Version ${ver} ${vm} ${package}   "
 			echo "                                                                               "
 			echo "==============================================================================="
 			cat push_commands.sh
 			./push_commands.sh
 
 			# Remove any temporary files
-			rm -f hotspot_shasums_latest.sh openj9_shasums_latest.sh push_commands.sh
+			rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh
 
 			# Now test the images from hub.docker.com
 			echo "==============================================================================="
 			echo "                                                                               "
-			echo "                    Testing Docker Images for Version ${ver}                   "
+			echo "  $(date +%T) :    Testing Docker Images for Version ${ver} ${vm} ${package}   "
 			echo "                                                                               "
 			echo "==============================================================================="
 			# Only test the individual docker image tags and not the aliases
 			# as the aliases are not created yet.
 			echo "test_tags" > ${test_image_types_file}
-			./test_multiarch.sh ${ver} ${vm} ${package}
+			./test_multiarch.sh "${ver}" "${vm}" "${package}"
 		done
 	done
 done

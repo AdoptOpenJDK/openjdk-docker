@@ -1,0 +1,65 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM clefos:7
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+    && yum update -y; yum clean all
+
+ENV JAVA_VERSION jdk14u
+
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='c8ca380ae94b7a437e06cdbb38d84b3face8001803400f11e2e4c83b7ab53c80'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_aarch64_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ;; \
+       armhf|armv7l) \
+         ESUM='decd292fc4a3dd317d988f9a65e4b8962692372050e89a545829ca3f898ac410'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_arm_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='568201c1b6613bff58ab112afc177a5b787d17d58241c8cff65f54cbb2db0bb2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_ppc64le_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='4a2d3c67042ceef741420e6ecb824dba2e8a72927429af780dfc8f7f0fc34ca4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_s390x_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='b6ae6f5bc312328e2e2c2d1cec9b12b0ac5658ba2e9200f682379ff9a0e11916'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_x64_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"

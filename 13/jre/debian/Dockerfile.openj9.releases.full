@@ -27,22 +27,22 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-13.0.1+9_openj9-0.17.0
+ENV JAVA_VERSION jdk-13.0.2+8_openj9-0.18.0
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='a28fd459bf5f9e6c04ad6577d1b93b3aaa76a22547a4f1b680ccb67c0a214720'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jre_ppc64le_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='7bf8dc4c3b95e87b154f7bc2f9388a6539413fe76d49b362bba878217ccb7ed7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jre_ppc64le_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b4119b73db66d4af8d2b6412567ef482055ef8591ee4288fe6ac47b18789ffae'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jre_s390x_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='d3051351ead072a19225427b83f71b5efe8ceb1133bbdff6c19ec7a380b70cbc'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jre_s390x_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b0c2b650311c7963e8d2f50a85b4430ba66319b710d14570f5fcf788a13942ff'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.1%2B9_openj9-0.17.0/OpenJDK13U-jre_x64_linux_openj9_13.0.1_9_openj9-0.17.0.tar.gz'; \
+         ESUM='a0ab38607811e282f64082edc68a2dea3fa6a5113391efb124a6d7d02883110a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8_openj9-0.18.0/OpenJDK13U-jre_x64_linux_openj9_13.0.2_8_openj9-0.18.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
