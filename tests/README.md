@@ -35,6 +35,8 @@ After building the Docker image you can run and utilize the tool by issuing this
 docker run adoptopenjdk:scanner
 ```
 
+This will run the tool with out the required parameter, `--verify`, which should output error.
+
 Please note if you care about the log file that is generated you will need to mount a Docker volume or some kind of 
 persistent storage. 
 
@@ -51,8 +53,10 @@ outlined below in further detail.
 `--verify` allows you to select what kind of verification you want. The verification options are as follows:
 - `images` allows you to verify if all the images exist in DockerHub. 
 - `manifests` will identify any issues with the published manifests in DockerHub. 
-- `tiemdelta` allows you to confirm that all images have been updated in X amount of hours.
+- `timedelta` allows you to confirm that all images have been updated in X amount of hours.
 - `all` will verify all the above tests and produce a list of images that "need" to be tested. 
+
+Please note this is the only required parameter. You **must** pass in what you want to verify in order to run the script.
 
 
 ### Image Options
@@ -66,8 +70,9 @@ There are a couple of image options to limit your set of images that you will be
 - `--archs` - Sets the architectures. The default are all the architectures AdoptOpenJDK builds for. That this time they would be `armv7l`, `aarch64`, `ppc64le`, `s390x`, and `x86_64`.
 - `--builds` - Sets the builds. The default are both `slim` and `full`.
 
-Please to run the tool none of these images options are required. If not passed in they will use the defaults stated above.
-This will be how most users will utilize the tool. 
+Please to note to run the tool none of these images options are required. If not passed in they will use the defaults stated above.
+This will be how most users will utilize the tool. You still need to pass in `--verify` as this is the **only** required parameter.
+Please see the [verify](#Verify) section for more information. 
 
 
 ### Delta Hours
