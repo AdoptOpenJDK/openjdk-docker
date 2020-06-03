@@ -26,6 +26,7 @@ set -eu
 hadolintDir="hadolint"
 shellcheckDir="shellcheck"
 hadolintVersion="1.17.4"
+shellcheckVersion="stable"
 hadolintCmd="${hadolintDir}/hadolint"
 shellcheckCmd="${shellcheckDir}/shellcheck"
 
@@ -44,7 +45,7 @@ install_shellcheck()
   echo "Installing shellcheck"
   mkdir -p "${shellcheckDir}"
 
-  wget -O- "https://storage.googleapis.com/shellcheck/shellcheck-stable.linux.x86_64.tar.xz" | tar xvfJ - -C ${shellcheckDir} --strip-components=1
+  wget -O- "https://github.com/koalaman/shellcheck/releases/download/${shellcheckVersion}/shellcheck-stable.linux.x86_64.tar.xz" | tar xvfJ - -C ${shellcheckDir} --strip-components=1
   chmod +x "${shellcheckCmd}"
   "${shellcheckCmd}" --version
 }
