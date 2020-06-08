@@ -132,6 +132,26 @@ def docker_arch_names(arch):
         raise ValueError("{arch} is an unsupport architecture!".format(arch=arch))
 
 
+def convert_timedelta(duration):
+    """
+    Takes in Timedelta and converts it to days, hours, minutes and seconds
+    :param duration: Timedelta Timestamp
+    :return: Days, Hours, Minutes and Seconds
+    """
+    days, seconds = duration.days, duration.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = (seconds % 60)
+
+    # Make sure if negative numbers are rounded up to 0
+    days = max(0, days)
+    hours = max(0, hours)
+    minutes = max(0, minutes)
+    seconds = max(0, seconds)
+
+    return days, hours, minutes, seconds
+
+
 def enrich_list_with_image_json(image_list, docker_org="adoptopenjdk"):
     """
     Enriches an image list with the image json data from docker api
@@ -652,100 +672,164 @@ def verify(image_list, dict_images_template, docker_org="adoptopenjdk", filter_b
     return dict_images_template
 
 
-def output_package_and_build(image_list):
+def output_package_and_build(image_dict, json_output):
     """
     Outputs a list of images that failed the package and build filter
-    :param image_list: List of images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
     :return: None
     """
-    LOGGER.info("\nPackage and Build Image Issues({number}):".format(number=str(len(image_list))))
-    for image in image_list:
-        image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
-        LOGGER.info("Package & Build Check Failed with {package} and {build} for image: {image_name}".format(package=image["package"], build=image["build"], image_name=image_name))
+    LOGGER.info("\nPackage and Build Image Issues({number}):".format(number=str(len(image_dict["package_and_build"]))))
+    for image in image_dict["package_and_build"]:
+        if json_output is False:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            LOGGER.info("Package & Build Check Failed with {package} and {build} for image: {image_name}".format(package=image["package"], build=image["build"], image_name=image_name))
+        else:
+            LOGGER.info(json.dumps(image))
 
 
-def output_os_and_arch(image_list):
+def output_os_and_arch(image_dict, json_output):
     """
     Outputs a list of images that failed the os and arch filter
-    :param image_list: List of images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
     :return: None
     """
-    LOGGER.info("\nOS and Image Image Issues({number}):".format(number=str(len(image_list))))
-    for image in image_list:
-        image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
-        LOGGER.info("OS Check Failed with {os} and {arch} for image: {image_name}".format(os=image["os"], arch=image["arch"], image_name=image_name))
+    LOGGER.info("\nOS and Image Image Issues({number}):".format(number=str(len(image_dict["os_and_arch"]))))
+    for image in image_dict["os_and_arch"]:
+        if json_output is False:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            LOGGER.info("OS Check Failed with {os} and {arch} for image: {image_name}".format(os=image["os"], arch=image["arch"], image_name=image_name))
+        else:
+            LOGGER.info(json.dumps(image))
 
 
-def output_jvm_and_arch(image_list):
+def output_jvm_and_arch(image_dict, json_output):
     """
     Outputs a list of images that failed the jvm and arch filter
-    :param image_list: List of images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
     :return: None
     """
-    LOGGER.info("\nJVM and Architecture Image Issues({number}):".format(number=str(len(image_list))))
-    for image in image_list:
-        image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
-        LOGGER.info("JVM Check Failed with {jvm} and {arch} for image: {image_name}".format(jvm=image["jvm"], arch=image["arch"], image_name=image_name))
+    LOGGER.info("\nJVM and Architecture Image Issues({number}):".format(number=str(len(image_dict["jvm_and_arch"]))))
+    for image in image_dict["jvm_and_arch"]:
+        if json_output is False:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            LOGGER.info("JVM Check Failed with {jvm} and {arch} for image: {image_name}".format(jvm=image["jvm"], arch=image["arch"], image_name=image_name))
+        else:
+            LOGGER.info(json.dumps(image))
 
 
-def output_bad_requests(image_list):
+def output_bad_requests(image_dict, json_output, valid_images):
     """
-    Outputs a list of images that do not exist in DockerHub/generated a bad request
-    :param image_list: List of images
+    Outputs a list of images that do not exist in DockerHub/generated a bad request. Also can out print "valid" images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
+    :param valid_images: Boolean for if Valid images should be shown
     :return: None
     """
-    manifest_list = get_manifest_list(image_list=image_list)
+    manifest_list = get_manifest_list(image_list=image_dict["bad_requests"])
 
     LOGGER.info("\nNonexistent(Bad Requests) Image Issues({number}):".format(number=str(len(manifest_list))))
     for image in manifest_list:
-        image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
-        LOGGER.info("Got a bad request for image: {image_name}".format(image_name=image_name))
+        if json_output is False:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            LOGGER.info("Got a bad request for image: {image_name}".format(image_name=image_name))
+        else:
+            LOGGER.info(json.dumps(image))
+
+    if valid_images is True:
+        valid_manifest_list = get_manifest_list(image_list=image_dict["filtered_images"])
+        LOGGER.info("\nExistent(Good Requests) Images({number}):".format(number=str(len(valid_manifest_list))))
+        for image in valid_manifest_list:
+            if json_output is False:
+                image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+                LOGGER.info("Got a good request for image: {image_name}".format(image_name=image_name))
+            else:
+                LOGGER.info(json.dumps(image))
 
 
-def output_old_images(image_list, delta_hours):
+def output_old_images(image_dict, json_output, valid_images, delta_hours):
     """
-    Outputs a list of images that are deemed "old" by a given time delta
-    :param image_list: List of images
+    Outputs a list of images that are deemed "old" by a given time delta. Also can out print "valid" images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
+    :param valid_images: Boolean for if Valid images should be shown
     :param delta_hours: An integer of hours to deem an image "old"
     :return: None
     """
-    image_name_and_last_updated = get_unique_image_name_and_last_updated(enriched_image_list=image_list)
+    if json_output is False:
+        image_name_and_last_updated = get_unique_image_name_and_last_updated(enriched_image_list=image_dict["old_images"])
 
-    LOGGER.info("\nDelta Time(Old) Image Issues({number}):".format(number=str(len(image_name_and_last_updated))))
-    for image_name, timestamp in image_name_and_last_updated:
-        age_of_image = datetime.utcnow() - timestamp
-        LOGGER.info("Failed delta time check of {delta_hours} hours with the age of {age} for image: {image_name}".format(delta_hours=delta_hours, age=age_of_image, image_name=image_name))
+        LOGGER.info("\nDelta Time(Old) Image Issues({number}):".format(number=str(len(image_name_and_last_updated))))
+        for image_name, timestamp in image_name_and_last_updated:
+                age_of_image = datetime.utcnow() - timestamp
+                days, hours, minutes, seconds = convert_timedelta(age_of_image)
+                LOGGER.info("Failed delta time check of {delta_hours} hours with the age of {days} days, {hours:02d}:{minutes:02d}.{seconds:02d} for image: {image_name}".format(delta_hours=delta_hours, days=days, hours=hours, minutes=minutes, seconds=seconds, image_name=image_name))
+
+        if valid_images is True:
+            image_name_and_last_updated = get_unique_image_name_and_last_updated(enriched_image_list=image_dict["filtered_images"])
+
+            LOGGER.info("\nDelta Time(NEW) Images({number}):".format(number=str(len(image_name_and_last_updated))))
+            for image_name, timestamp in image_name_and_last_updated:
+                age_of_image = timestamp - datetime.utcnow()
+                days, hours, minutes, seconds = convert_timedelta(age_of_image)
+                LOGGER.info("Passed delta time check of {delta_hours} hours with the age of {days} days, {hours:02d}:{minutes:02d}.{seconds:02d}  for image: {image_name}".format(delta_hours=delta_hours, days=days, hours=hours, minutes=minutes, seconds=seconds, image_name=image_name))
+    else:
+        LOGGER.info("\nDelta Time(Old) RAW Image Issues({number}):".format(number=str(len(image_dict["old_images"]))))
+        for image in image_dict["old_images"]:
+            LOGGER.info(json.dumps(image))
+
+        if valid_images is True:
+            LOGGER.info("\nDelta Time(NEW) RAW Images({number}):".format(number=str(len(image_dict["filtered_images"]))))
+            for image in image_dict["filtered_images"]:
+                LOGGER.info(json.dumps(image))
 
 
-def output_bad_manifests(image_list):
+def output_bad_manifests(image_dict, json_output):
     """
     Outputs of a list of images that have manifest issues
-    :param image_list: List of images
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
     :return: None
     """
-    manifest_dict = {}
 
-    for image in image_list:
-        image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
-        if image_name in manifest_dict:
-            manifest_dict[image_name] = manifest_dict[image_name] + ", " + image["arch"]
-        else:
-            manifest_dict[image_name] = image["arch"]
+    if json_output is False:
+        manifest_dict = {}
 
-    LOGGER.info("\nManifest Image Issues({number}):".format(number=str(len(image_list))))
-    for key, value in manifest_dict.items():
-        LOGGER.info(key + " : " + value)
+        for image in image_dict["bad_manifests"]:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            if image_name in manifest_dict:
+                manifest_dict[image_name] = manifest_dict[image_name] + ", " + image["arch"]
+            else:
+                manifest_dict[image_name] = image["arch"]
+
+        LOGGER.info("\nManifest Image Issues({number}):".format(number=str(len(image_dict["bad_manifests"]))))
+        for key, value in manifest_dict.items():
+            LOGGER.info(key + " : " + value)
+    else:
+        LOGGER.info("\nManifest RAW Image Issues({number}):".format(number=str(len(image_dict["bad_manifests"]))))
+        for image in image_dict["bad_manifests"]:
+            LOGGER.info(json.dumps(image))
 
 
-def output_filtered_images(image_list):
+def output_filtered_images(image_dict, json_output):
     """
-    Outputs a list of images that need to be tested. This outputs raw json for easy processing
-    :param image_list: List of images
+    Outputs a list of images that need to be tested
+    :param image_dict: Dictionary of images
+    :param json_output: Boolean for Json output verse printed
     :return: None
     """
-    LOGGER.info("Valid(Filtered) Images({number}):".format(number=str(len(image_list))))
-    for image in image_list:
-        LOGGER.info(json.dumps(image))
+    if json_output is False:
+        manifest_list = get_manifest_list(image_list=image_dict["filtered_images"])
+        LOGGER.info("Valid(Filtered) Images({number}):".format(number=str(len(manifest_list))))
+        for image in manifest_list:
+            image_name = "adoptopenjdk/openjdk{version}{jvm}:{tag}".format(version=image["version"], jvm=sanitize_jvm(image["jvm"]), tag=image["tag"])
+            LOGGER.info("All attributes have been verified for image: {image_name}".format(image_name=image_name))
+    else:
+        LOGGER.info("Valid(Filtered) RAW Images({number}):".format(number=str(len(image_dict["filtered_images"]))))
+        for image in image_dict["filtered_images"]:
+            LOGGER.info(json.dumps(image))
 
 
 def get_args():
@@ -753,9 +837,9 @@ def get_args():
     Processes and handles command line arguments
     :return: Dict of command line arguments
     """
-    parser = argparse.ArgumentParser(description="Options for AdoptOpenJDK Scanner")
+    parser = argparse.ArgumentParser(description="AdoptOpenJDK Scanner allows a user to verify attributes about images")
     parser.add_argument("--verify",
-                        help="Name of the object you want to confirm",
+                        help="Name of the attribute you want to verify",
                         type=str,
                         choices=["all", "timedelta", "manifests", "images"],
                         default=None,
@@ -816,6 +900,14 @@ def get_args():
                         help="Path to where the log file will be generated",
                         type=str,
                         default=None)
+    parser.add_argument("--json",
+                        help="Prints JSON output for results instead of formatted strings",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("--show-valid",
+                        help="Prints valid objects in addition to the problematic objects. Only works for certain verify values",
+                        action="store_true",
+                        default=False)
 
     return vars(parser.parse_args())
 
@@ -855,22 +947,23 @@ def run(parsed_args):
     if parsed_args["verify"] == "all":
         processed_dict = verify(image_list=all_images, dict_images_template=images_template, docker_org=docker_organization, filter_bad_manifests=parsed_args["filter_bad_manifests"], delta_hours=parsed_args["delta_hours"], force_old_images=parsed_args["force_old_images"])
         if parsed_args["debug"]:
-            output_package_and_build(processed_dict["package_and_build"])
-            output_os_and_arch(processed_dict["os_and_arch"])
-            output_jvm_and_arch(processed_dict["jvm_and_arch"])
-            output_bad_requests(processed_dict["bad_requests"])
-            output_bad_manifests(processed_dict["bad_manifests"])
-            output_old_images(processed_dict["old_images"], parsed_args["delta_hours"])
-        output_filtered_images(processed_dict["filtered_images"])
+            output_package_and_build(image_dict=processed_dict, json_output=parsed_args["json"])
+            output_os_and_arch(image_dict=processed_dict, json_output=parsed_args["json"])
+            output_jvm_and_arch(image_dict=processed_dict, json_output=parsed_args["json"])
+            output_bad_requests(image_dict=processed_dict, json_output=parsed_args["json"], valid_images=parsed_args["show_valid"])
+            output_bad_manifests(image_dict=processed_dict, json_output=parsed_args["json"])
+            output_old_images(image_dict=processed_dict, json_output=parsed_args["json"], valid_images=parsed_args["show_valid"], delta_hours=parsed_args["delta_hours"])
+
+        output_filtered_images(image_dict=processed_dict, json_output=parsed_args["json"])
     elif parsed_args["verify"] == "timedelta":
         processed_dict = verify_timedelta(image_list=all_images, dict_images_template=images_template, docker_org=docker_organization, filter_bad_manifests=parsed_args["filter_bad_manifests"], delta_hours=parsed_args["delta_hours"], force_old_images=parsed_args["force_old_images"])
-        output_old_images(processed_dict["old_images"], parsed_args["delta_hours"])
+        output_old_images(image_dict=processed_dict, json_output=parsed_args["json"], valid_images=parsed_args["show_valid"], delta_hours=parsed_args["delta_hours"])
     elif parsed_args["verify"] == "manifests":
         processed_dict = verify_manifests(image_list=all_images, dict_images_template=images_template, docker_org=docker_organization, filter_bad_manifests=parsed_args["filter_bad_manifests"])
-        output_bad_manifests(processed_dict["bad_manifests"])
+        output_bad_manifests(image_dict=processed_dict, json_output=parsed_args["json"])
     elif parsed_args["verify"] == "images":
         processed_dict = verify_images(image_list=all_images, dict_images_template=images_template, docker_org=docker_organization)
-        output_bad_requests(processed_dict["bad_requests"])
+        output_bad_requests(image_dict=processed_dict, json_output=parsed_args["json"],  valid_images=parsed_args["show_valid"])
 
 
 if __name__ == "__main__":
