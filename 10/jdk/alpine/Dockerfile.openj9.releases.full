@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM alpine:3.8
+FROM alpine:3.12
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 

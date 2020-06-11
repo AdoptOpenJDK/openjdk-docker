@@ -16,7 +16,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
     - Windows Server Core (ltsc2016 and 1809): Release
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
   - Linux
-    - Alpine (3.10): Release, Nightly and Slim
+    - Alpine (3.12): Release, Nightly and Slim
     - Debian (Buster): Release, Nightly and Slim
     - UBI (8): Release, Nightly and Slim
     - UBI-Minimal (8): Release, Nightly and Slim
