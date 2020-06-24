@@ -24,11 +24,11 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-23-09-19/OpenJDK8U-jre_x64_windows_hotspot_2020-04-23-09-19.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-06-24-03-57/OpenJDK8U-jre_x64_windows_hotspot_2020-06-24-03-57.msi ...'); \
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-23-09-19/OpenJDK8U-jre_x64_windows_hotspot_2020-04-23-09-19.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (0c72a5c60b71a5dea19431e66d2ef859283aeb46c1719a6691b4b561a2eedb47) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '0c72a5c60b71a5dea19431e66d2ef859283aeb46c1719a6691b4b561a2eedb47') { \
+        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-06-24-03-57/OpenJDK8U-jre_x64_windows_hotspot_2020-06-24-03-57.msi -O 'openjdk.msi'; \
+        Write-Host ('Verifying sha256 (3c560d40a2ed3a7dd1de71f7e31be75505270805c76932200c7d24c71d92f38a) ...'); \
+        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '3c560d40a2ed3a7dd1de71f7e31be75505270805c76932200c7d24c71d92f38a') { \
                 Write-Host 'FAILED!'; \
                 exit 1; \
         }; \
