@@ -21,7 +21,7 @@ FROM alpine:3.12
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN apk add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache --virtual tzdata .build-deps curl binutils \
     && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
@@ -56,7 +56,7 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 ENV JAVA_VERSION jdk13u
 
 RUN set -eux; \
-    apk add --no-cache --virtual .fetch-deps curl; \
+    apk add --no-cache --virtual tzdata .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
