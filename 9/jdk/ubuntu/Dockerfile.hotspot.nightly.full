@@ -22,7 +22,7 @@ FROM ubuntu:18.04
 LABEL maintainer="dinakar.g@in.ibm.com"
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends tzdata curl ca-certificates \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_VERSION jdk9u

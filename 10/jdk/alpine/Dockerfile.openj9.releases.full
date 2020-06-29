@@ -21,7 +21,7 @@ FROM alpine:3.12
 
 LABEL maintainer="dinakar.g@in.ibm.com"
 
-RUN apk --update add --no-cache --virtual tzdata .build-deps curl binutils \
+RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && GLIBC_VER="2.28-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-8.2.1%2B20180831-1-x86_64.pkg.tar.xz" \
@@ -48,7 +48,7 @@ RUN apk --update add --no-cache --virtual tzdata .build-deps curl binutils \
 ENV JAVA_VERSION jdk-10.0.2+13_openj9-0.9.0
 
 RUN set -eux; \
-    apk add --virtual tzdata .fetch-deps curl; \
+    apk add --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
