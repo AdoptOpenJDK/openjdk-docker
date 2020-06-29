@@ -153,7 +153,7 @@ print_lang_locale() {
 print_ubuntu_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -188,7 +188,7 @@ EOI
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
 	cat >> "$1" <<'EOI'
-RUN apk add --no-cache --virtual .build-deps curl binutils zstd \
+RUN apk add --no-cache --virtual tzdata .build-deps curl binutils zstd \
     && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
@@ -226,7 +226,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> "$1" <<'EOI'
-RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update -y; dnf clean all
 EOI
 }
@@ -235,7 +235,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi-minimal_pkg() {
 	cat >> "$1" <<'EOI'
-RUN microdnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && microdnf update -y; microdnf clean all
 EOI
 }
@@ -243,7 +243,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
-RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 EOI
 }
