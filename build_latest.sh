@@ -226,7 +226,11 @@ function build_image() {
 function build_dockerfile {
 	vm=$1; pkg=$2; os=$3; build=$4; btype=$5;
 
-	jverinfo="${shasums}[version]"
+	if [ -z "${current_arch}" ]; then
+		jverinfo="${shasums}[version]"
+	else
+		jverinfo="${shasums}[version-${current_arch}]"
+	fi
 	# shellcheck disable=SC1083,SC2086
 	eval jrel=\${$jverinfo}
 	# Docker image tags cannot have "+" in them, replace it with "_" instead.
