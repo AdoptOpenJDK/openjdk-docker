@@ -261,7 +261,11 @@ function build_dockerfile {
 	if [ "${btype}" == "slim" ]; then
 		tag=${tag}-slim
 		# Copy the script to generate slim builds.
-		cp slim-java* config/slim-java* "${dir}"/
+		if [ "${os}" == "windows" ]; then
+		    cp slim-java.ps1 config/slim-java* "${dir}"/
+		else
+		    cp slim-java.sh config/slim-java* "${dir}"/
+		fi
 	fi
 	echo "INFO: Building ${trepo} ${tag} from $file ..."
 	pushd "${dir}" >/dev/null || return
