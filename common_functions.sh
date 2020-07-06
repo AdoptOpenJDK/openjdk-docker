@@ -130,7 +130,7 @@ function get_arches() {
 	eval "declare -A sums=""${archsums#*=}";
 	for arch in "${!sums[@]}";
 	do
-		if [ "${arch}" == "version" ]; then
+		if [[ "${arch}" == version* ]] ; then
 			continue;
 		fi
 		# Arch is supported only if the shasum is not empty !
@@ -470,7 +470,7 @@ function get_sums_for_build_arch() {
 			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" x64);
 			;;
 		windows-amd|windows-nano)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" windows-amd);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" windows);
 			;;
 		*)
 			echo "Unsupported arch: ${arch}"
@@ -508,11 +508,16 @@ function get_sums_for_build_arch() {
 			arch_build_version=$(python3 -c "import sys, json; print(json.load(sys.stdin)[0]['release_name'])" < "${shasum_file}")
 			# For nightly builds get the short version without the date/time stamp
 			arch_build_version=$(get_nightly_short_version "${build}" "${arch_build_version}")
+			# We compare the JDK version info separately from the VM type info because we may have dot releases
+			arch_build_base_version=$(echo "${arch_build_version}" | cut -d_ -f1)
+			arch_build_vm_type=$(echo "${arch_build_version}" | cut -s -d_ -f2)
+			full_version_base_version=$(echo "${full_version}" | cut -d_ -f1)
+			full_version_vm_type=$(echo "${full_version}" | cut -s -d_ -f2)
 			# If the latest for the current arch does not match with the latest for the parent arch,
 			# then skip this arch.
 			# Parent version in this case would be the "full_version" from function get_sums_for_build
 			# The parent version will automatically be the latest for all arches as returned by the v2 API
-			if [ "${arch_build_version}" != "${full_version}" ]; then
+			if [[ "${arch_build_base_version}" != "${full_version_base_version}"* || "${arch_build_vm_type}" != "${full_version_vm_type}" ]]; then
 				echo "Parent version not matching for arch ${arch}: ${arch_build_version}, ${full_version}"
 				break;
 			fi
@@ -522,6 +527,8 @@ function get_sums_for_build_arch() {
 			arch_last_build_time="$(date --date "${arch_last_build_date}" +%s)"
 			# Only print the entry if the shasum is not empty
 			if [ -n "${shasum}" ]; then
+				printf "\t[version-%s]=\"%s\"\n" "${arch}" "${arch_build_version}" >> "${ofile_sums}"
+				printf "\t[version-%s]=\"%s\"\n" "${arch}" "${arch_build_version}" >> "${ofile_build_time}"
 				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile_sums}"
 				printf "\t[%s]=\"%s\"\n" "${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
 			fi

@@ -258,7 +258,11 @@ print_clefos_pkg() {
 print_env() {
   # shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-	jverinfo="${shasums}[version]"
+	if [ -z "${arch}" ]; then
+		jverinfo="${shasums}[version]"
+	else
+		jverinfo="${shasums}[version-${arch}]"
+	fi
   # shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
   jver="${jver}" # to satifsy shellcheck SC2154
