@@ -26,23 +26,24 @@ ENV JAVA_VERSION jdk-11.0.7+10
 
 USER ContainerAdministrator
 RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip ...'); \
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip -O 'openjdk.zip'; \
-        Write-Host ('Verifying sha256 () ...'); \
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '') { \
-                Write-Host 'FAILED!'; \
-                exit 1; \
-        }; \
-        \
-        Write-Host 'Expanding Zip ...'; \
-        Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
-        Write-Host 'Removing openjdk.zip ...'; \
-        Remove-Item openjdk.zip -Force; \
-        $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-        Move-Item -Path $jdkDirectory C:\openjdk-11;
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.7%2B10.2/OpenJDK11U-jdk_x64_windows_hotspot_11.0.7_10.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '61e99ff902e02c83b6c48172968593ee05ae183a39e5ef13a44bd4bf7eb2ce8b') { \
+            Write-Host 'FAILED!'; \
+            exit 1; \
+    }; \
+    \
+    Write-Host 'Expanding Zip ...'; \
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
+    Move-Item -Path $jdkDirectory C:\openjdk-11; \
+    Write-Host 'Removing openjdk.zip ...'; \
+    Remove-Item openjdk.zip -Force
+
 USER ContainerUser
 ENV JAVA_HOME=C:\\openjdk-11 \
-ProgramFiles="C:\\Program Files" \
-WindowsPATH="C:\\Windows\\system32;C:\\Windows"
+    ProgramFiles="C:\\Program Files" \
+    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
 ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
 CMD ["jshell"]

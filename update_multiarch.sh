@@ -43,6 +43,7 @@ do
 			btypes=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Type:")
 			dir=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Directory:")
 
+
 			for build in ${builds}
 			do
 				echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
@@ -67,7 +68,11 @@ do
 					generate_dockerfile "${file}" "${package}" "${build}" "${btype}" "${os}"
 					# Copy the script to generate slim builds.
 					if [ "${btype}" = "slim" ]; then
-						cp slim-java* config/slim-java* "${dir}"
+						if [ "${os}" == "windows" ]; then
+							cp slim-java.ps1 config/slim-java* "${dir}"
+						else
+							cp slim-java.sh config/slim-java* "${dir}"
+						fi
 					fi
 				done
 			done

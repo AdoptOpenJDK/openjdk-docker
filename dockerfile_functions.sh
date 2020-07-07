@@ -110,6 +110,8 @@ print_clefos_ver() {
 print_windows_ver() {
 	os=$4
 	case $os in
+		*ltsc2019) os_version="ltsc2019" ;;
+		*1909) os_version="1909" ;;
 		*ltsc2016) os_version="ltsc2016" ;;
 		*1809) os_version="1809" ;;
 	esac
@@ -258,7 +260,11 @@ print_clefos_pkg() {
 print_env() {
   # shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-	jverinfo="${shasums}[version]"
+	if [ -z "${arch}" ]; then
+		jverinfo="${shasums}[version]"
+	else
+		jverinfo="${shasums}[version-${arch}]"
+	fi
   # shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
   jver="${jver}" # to satifsy shellcheck SC2154
@@ -376,6 +382,19 @@ print_debianslim_package() {
   print_ubuntu_slim_package "$1"
 }
 
+# Call the script to create the slim package for Windows
+print_windowsservercore_slim_package() {
+	cat >> "$1" <<-EOI
+    & C:/ProgramData/Java/slim-java.ps1 (Get-ChildItem -Path 'C:\\Program Files\\AdoptOpenJDK')[0].FullName; \\
+EOI
+}
+
+print_nanoserver_slim_package() {
+	cat >> "$1" <<-EOI
+    & C:/ProgramData/Java/slim-java.ps1 C:\\openjdk-$2; \\
+EOI
+}
+
 # Call the script to create the slim package for Alpine
 # Install binutils for this phase as we need the "strip" command
 # Uninstall once done
@@ -414,37 +433,52 @@ print_debianslim_java_install() {
   print_ubuntu_java_install "$1" "$2" "$3" "$4"
 }
 
+print_windows_java_install_post() {
+	servertype="$2"
+	if [ "${servertype}" == "windowsservercore" ]; then
+		cat >> "$1" <<-EOI
+    Write-Host 'Removing openjdk.msi ...'; \\
+    Remove-Item openjdk.msi -Force
+EOI
+	else
+		cat >> "$1" <<-EOI
+    Write-Host 'Removing openjdk.zip ...'; \\
+    Remove-Item openjdk.zip -Force
+
+USER ContainerUser
+EOI
+	fi
+}
+
 # Print the main RUN command that installs Java on ubuntu.
 print_windows_java_install() {
 	pkg=$2
 	bld=$3
 	btype=$4
 
-	servertype=$(echo "$file" | cut -f4 -d"/" | cut -f1 -d"-")
-	version=$(echo "$file" | cut -f1 -d "/")
-	if [ "$servertype" == "windowsservercore" ]; then
+	servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
+	version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
+	if [ "${servertype}" == "windowsservercore" ]; then
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd);
 		ESUM=$(sarray="${shasums}[windows-amd]"; eval esum=\${$sarray}; echo "${esum}");
 		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        wget ${BINARY_URL} -O 'openjdk.msi'; \\
-        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
-                Write-Host 'FAILED!'; \\
-                exit 1; \\
-        }; \\
-        \\
-        New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
-        \\
-        Write-Host 'Installing using MSI ...'; \\
-        Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
-        '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
-        Write-Host 'Removing openjdk.msi ...'; \\
-        Remove-Item openjdk.msi -Force; \\
-        Remove-Item -Path C:\temp -Recurse | Out-Null;
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+    wget ${BINARY_URL} -O 'openjdk.msi'; \\
+    Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
+            Write-Host 'FAILED!'; \\
+            exit 1; \\
+    }; \\
+    \\
+    New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
+    \\
+    Write-Host 'Installing using MSI ...'; \\
+    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
+    '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
+    Remove-Item -Path C:\temp -Recurse | Out-Null; \\
 EOI
 	else
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano);
@@ -455,23 +489,26 @@ EOI
 		cat >> "$1" <<-EOI
 USER ContainerAdministrator
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
-        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
-                Write-Host 'FAILED!'; \\
-                exit 1; \\
-        }; \\
-        \\
-        Write-Host 'Expanding Zip ...'; \\
-        Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
-        Write-Host 'Removing openjdk.zip ...'; \\
-        Remove-Item openjdk.zip -Force; \\
-        \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
-        Move-Item -Path \$jdkDirectory C:\\openjdk-${version};
-USER ContainerUser
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+    Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
+    Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
+            Write-Host 'FAILED!'; \\
+            exit 1; \\
+    }; \\
+    \\
+    Write-Host 'Expanding Zip ...'; \\
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
+    \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
+    Move-Item -Path \$jdkDirectory C:\\openjdk-${version}; \\
 EOI
 	fi
+
+	if [ "${btype}" == "slim" ]; then
+		print_"${servertype}"_slim_package "$1" "${version}"
+	fi
+
+	print_windows_java_install_post "$1" "${servertype}"
 }
 
 # Print the main RUN command that installs Java on alpine.
@@ -547,13 +584,13 @@ ENV JAVA_HOME=${jhome} \\
     PATH="${jhome}/bin:\$PATH"
 EOI
 	else
-		servertype=$(echo "$file" | cut -f4 -d"/")
+		servertype=$(echo "$file" | cut -f4 -d"/" | head -qn1)
 		nanoserver_pat="nanoserver.*"
 		if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 			cat >> "$1" <<-EOI
 ENV JAVA_HOME=C:\\\\openjdk-${version} \\
-	ProgramFiles="C:\\\\Program Files" \\
-	WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
+    ProgramFiles="C:\\\\Program Files" \\
+    WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
 ENV PATH="\${WindowsPATH};\${ProgramFiles}\\\\PowerShell;\${JAVA_HOME}\\\\bin"
 EOI
 		fi
@@ -588,10 +625,17 @@ EOI
 # For slim builds copy the slim script and related config files.
 copy_slim_script() {
 	if [ "${btype}" == "slim" ]; then
-		cat >> "$1" <<-EOI
+		if [ "${os}" == "windows" ]; then
+			cat >> "$1" <<-EOI
+COPY slim-java* C:/ProgramData/Java/
+
+EOI
+		else
+			cat >> "$1" <<-EOI
 COPY slim-java* /usr/local/bin/
 
 EOI
+		fi
 	fi
 }
 

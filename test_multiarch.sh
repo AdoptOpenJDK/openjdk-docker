@@ -164,7 +164,11 @@ do
 	for build in ${builds}
 	do
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-		jverinfo="${shasums}[version]"
+		if [ -z "${arch}" ]; then
+			jverinfo="${shasums}[version]"
+		else
+			jverinfo="${shasums}[version-${arch}]"
+		fi
 		# shellcheck disable=SC1083,SC2086
 		eval jrel=\${$jverinfo}
 		# shellcheck disable=SC2154
