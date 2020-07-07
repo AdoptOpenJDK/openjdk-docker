@@ -98,7 +98,7 @@ function set_arch_os() {
 				#  windowsservercore-1809 windowsservercore-1803 are not included as Adopt can't build them
 				oses="windowsservercore-ltsc2016"
 				# this variable will only be set when running under GitHub Actions
-				if [ ! -z "${BUILD_OS}" ]; then
+				if [ -n "${BUILD_OS}" ]; then
 					case ${BUILD_OS} in
 					windows-2019)
 						oses="windowsservercore-1809 nanoserver-1809 windowsservercore-1909 nanoserver-1909 windowsservercore-ltsc2019"
