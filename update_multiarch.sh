@@ -67,7 +67,11 @@ do
 					generate_dockerfile "${file}" "${package}" "${build}" "${btype}" "${os}"
 					# Copy the script to generate slim builds.
 					if [ "${btype}" = "slim" ]; then
-						cp slim-java* config/slim-java* "${dir}"
+						if [ "${os}" == "windows" ]; then
+							cp slim-java.ps1 config/slim-java* "${dir}"
+						else
+							cp slim-java.sh config/slim-java* "${dir}"
+						fi
 					fi
 				done
 			done
