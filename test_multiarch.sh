@@ -15,7 +15,7 @@
 set -o pipefail
 
 export root_dir="$PWD"
-source_prefix="adoptopenjdk"
+source_prefix=${ADOPTOPENJDK_TARGET_REGISTRY:-adoptopenjdk}
 source_repo="openjdk"
 version="9"
 tag_aliases=""
@@ -66,7 +66,7 @@ function run_tests() {
 
 # Run tests on all the alias docker tags.
 function test_aliases() {
-	local repo=$1 
+	local repo=$1
 	local rel=$2
 	local target_repo=${source_prefix}/${repo}
 
