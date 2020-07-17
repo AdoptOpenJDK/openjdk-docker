@@ -22,7 +22,7 @@ FROM debian:buster-slim
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='818d3c81a096b2bfb8a28e336d2c95874e355361e10fa022ea2b941b271ea27d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-06-24-03-57/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-06-24-03-57.tar.gz'; \
+         ESUM='11669a9574dc241cc4c540d0f8e2db9a4218044ec91351d309fd1b400a96efe6'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-07-14-04-55.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='fca2f862449cd0b8eaddc21d61405e0e1aac45df8cd365e9eb9cc7dde0178b8f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-06-24-03-57/OpenJDK8U-jdk_s390x_linux_openj9_2020-06-24-03-57.tar.gz'; \
+         ESUM='28c2a044d5553d6edab08245136a33e32184ca6625dbc077070f16461ccc49bb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jdk_s390x_linux_openj9_2020-07-14-04-55.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='132cf7fbfd2642d2cbf71615779e40eef73b746a3f0f083239b25afdcf858d9a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-06-24-03-57/OpenJDK8U-jdk_x64_linux_openj9_2020-06-24-03-57.tar.gz'; \
+         ESUM='ce8776662c17b3ee891574636de804f81ec7cd1857a5c9a24a7ae22be238fd10'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jdk_x64_linux_openj9_2020-07-14-04-55.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

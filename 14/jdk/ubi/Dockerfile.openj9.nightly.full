@@ -21,7 +21,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update -y; dnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
@@ -38,16 +38,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='ea2690d9f44f2fc631d4f0fe51c17a990ea9bf97e8a091244a601efc0ca4f945'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='d531fbb844bb9d0ce1f9acec92a5b49a79595e0715a88b351d4b46a6a2b939b7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-15-08-34/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-07-15-08-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='32d97b59bec07132870b45e17914ebf85ba3e8621b83cde667a8ec76ff67c4a9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_s390x_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='b57a30262ee90339d6f78c60148c252df3305da7e844b7cb1fde82227b9db851'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-15-08-34/OpenJDK14U-jdk_s390x_linux_openj9_2020-07-15-08-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b3421efa1b2b85c0cae43a3e480999a5086ab1e4de7af0c6699e1765149a8955'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_x64_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='46c687d732d20379bfd9fe16ee6691cfd49186ed9ea4f6599e258fbce8e30442'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-15-08-34/OpenJDK14U-jdk_x64_linux_openj9_2020-07-15-08-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
