@@ -184,37 +184,6 @@ function Trim-JREFiles() {
   Write-Host "done"
 }
 
-# # Exclude the zOS specific charsets
-# function Trim-CharSetFiles() {
-
-#   # 2.3 Special treat for removing ZOS specific charsets
-#   echo -n "INFO: Trimming charsets..."
-#   mkdir -p "${root}"/charsets_class
-#   pushd "${root}"/charsets_class >/dev/null || return
-#     jar -xf "${root}"/jre/lib/charsets.jar
-#     ibmEbcdic="290 300 833 834 838 918 930 933 935 937 939 1025 1026 1046 1047 1097 1112 1122 1123 1364"
-
-#     # Generate sfj-excludes-charsets list as well. (OpenJ9 expects the file to be named sfj-excludes-charsets).
-#     [ ! -e "${root}"/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets ] || rm -rf "${root}"/jre/lib/sfj/sun/nio/cs/ext/sfj-excludes-charsets
-#     exclude_charsets=""
-
-#     for charset in ${ibmEbcdic};
-#     do
-#       rm -f sun/nio/cs/ext/IBM"${charset}".class
-#       rm -f sun/nio/cs/ext/IBM"${charset}"\$*.class
-
-#       exclude_charsets="${exclude_charsets} IBM${charset}"
-#     done
-#     mkdir -p "${root}"/jre/lib/slim/sun/nio/cs/ext
-#     echo "${exclude_charsets}" > "${root}"/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets
-#     cp "${root}"/jre/lib/slim/sun/nio/cs/ext/sfj-excludes-charsets sun/nio/cs/ext/
-
-#     jar -cfm "${root}"/jre/lib/charsets.jar META-INF/MANIFEST.MF ./*
-#   popd >/dev/null || return
-#   rm -rf "${root}"/charsets_class
-#   echo "done"
-# }
-
 # Trim the rt.jar classes. The classes deleted are as per slim-java_rtjar_del.list
 function Trim-RTJarClasses() {
   # 2.4 Remove classes in rt.jar
@@ -230,8 +199,6 @@ function Trim-RTJarClasses() {
         if(Test-Path "${_}.class") {
           Copy-Item -Path "${_}.class" -Recurse -Destination (Join-Path $root "rt_keep_class")
         }
-        #cp --parents "${class}".class "${root}"/rt_keep_class/ >null 2>&1
-        #cp --parents "${class}"\$*.class "${root}"/rt_keep_class/ >null 2>&1
       }
     }
 
@@ -370,12 +337,6 @@ try{
 
     # Trim file in jre/lib dir.
 	  Trim-JRELibFiles
-
-    # Remove IBM zOS charset files.
-    # This needs extra code in sun/nio/cs/ext/ExtendedCharsets.class to
-    # ignore the charset files that are removed. Disabling for now until
-    # this gets added in the upstream openjdk project.
-    # charset_files
 
     # Trim unneeded rt.jar classes.
     Trim-RTJarClasses
