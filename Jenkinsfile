@@ -49,6 +49,9 @@ pipeline {
             agent {
                 label "dockerBuild&&linux&&x64"
             }
+            environment {
+               DOCKER_CLI_EXPERIMENTAL = "enabled"
+            }
             steps {
                 dockerManifest()
             }
