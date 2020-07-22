@@ -16,6 +16,11 @@ set -o pipefail
 
 source ./common_functions.sh
 
+if [ ! -z "$1" ]; then
+	echo "overiding supported_versions to $1"
+	supported_versions="$1"
+fi
+
 for ver in ${supported_versions}
 do
 	for vm in ${all_jvms}
