@@ -216,6 +216,7 @@ function build_image() {
 		echo "using a buildx environment"
 		export DOCKER_CLI_EXPERIMENTAL="enabled"
 		sudo apt-get -y install qemu-user || true
+		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 		docker buildx create --name mbuilder
 		docker buildx use mbuilder
 		docker buildx inspect --bootstrap
