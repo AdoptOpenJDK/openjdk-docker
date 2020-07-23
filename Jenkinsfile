@@ -28,6 +28,9 @@ pipeline {
                         TARGET_ARCHITECTURE = "linux/arm/v7" // defined in buildx https://www.docker.com/blog/multi-platform-docker-builds/
                     }
                     steps {
+                        // Setup docker for multiarch builds
+                        sh label: 'qemu-user', script: 'sudo apt-get -y install qemu-user'
+                        sh label: 'docker-qemu', script: 'docker run --rm --privileged multiarch/qemu-user-static --reset -p yes'
                         dockerBuild()
                     }
                 }
