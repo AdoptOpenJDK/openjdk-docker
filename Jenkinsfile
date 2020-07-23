@@ -21,7 +21,11 @@ pipeline {
                 }
                 stage('Linux armv7l') {
                     agent {
-                        label "docker&&linux&&armv7l"
+                        label "dockerBuild&&linux&&x64"
+                    }
+                    environment {
+                        DOCKER_CLI_EXPERIMENTAL = "enabled"
+                        TARGET_ARCHITECTURE = "linux/arm/v7" // defined in buildx https://www.docker.com/blog/multi-platform-docker-builds/
                     }
                     steps {
                         dockerBuild()

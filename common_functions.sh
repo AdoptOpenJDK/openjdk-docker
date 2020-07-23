@@ -69,9 +69,15 @@ function set_version() {
 
 # Set the valid OSes for the current architecure.
 function set_arch_os() {
-	machine=$(uname -m)
+	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
+		# Use buildx environment for build https://www.docker.com/blog/multi-platform-docker-builds/
+		echo "overiding machine to $TARGET_ARCHITECTURE"
+		machine="$TARGET_ARCHITECTURE"
+	else
+		machine=$(uname -m)
+	fi
 	case ${machine} in
-	armv7l)
+	armv7l|linux/arm/v7)
 		current_arch="armv7l"
 		oses="ubuntu debian debianslim centos"
 		os_family="linux"
