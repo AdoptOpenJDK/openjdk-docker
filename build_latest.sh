@@ -214,6 +214,7 @@ function build_image() {
 	echo "#####################################################"
 	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
 		echo "using a buildx environment"
+		export DOCKER_CLI_EXPERIMENTAL="enabled"
 		docker buildx create --name mbuilder
 		docker buildx use mbuilder
 		docker buildx inspect --bootstrap
