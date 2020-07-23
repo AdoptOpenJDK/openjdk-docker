@@ -215,6 +215,7 @@ function build_image() {
 	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
 		echo "using a buildx environment"
 		export DOCKER_CLI_EXPERIMENTAL="enabled"
+		sudo apt-get -y install qemu-user || true
 		docker buildx create --name mbuilder
 		docker buildx use mbuilder
 		docker buildx inspect --bootstrap
@@ -226,6 +227,7 @@ function build_image() {
 			echo
 			echo "#############################################"
 		fi
+		docker buildx rm mbuilder
 	else
 		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
 		if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
