@@ -8,7 +8,7 @@ pipeline {
                         label "dockerBuild&&linux&&x64"
                     }
                     steps {
-                        dockerBuild()
+                        dockerBuild(null)
                     }
                 }
                 stage('Linux aarch64') {
@@ -16,7 +16,7 @@ pipeline {
                         label "dockerBuild&&linux&&aarch64"
                     }
                     steps {
-                        dockerBuild()
+                        dockerBuild(null)
                     }
                 }
                 stage('Linux armv7l 8') {
@@ -69,7 +69,7 @@ pipeline {
                         label "docker&&linux&&ppc64le"
                     }
                     steps {
-                        dockerBuild()
+                        dockerBuild(null)
                     }
                 }
                 stage('Linux s390x') {
@@ -77,7 +77,7 @@ pipeline {
                         label "docker&&linux&&s390x"
                     }
                     steps {
-                        dockerBuild()
+                        dockerBuild(null)
                     }
                 }
             }
@@ -126,7 +126,11 @@ def dockerBuild(version) {
     // dockerhub is the ID of the credentials stored in Jenkins
     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
         git poll: false, url: 'https://github.com/AdoptOpenJDK/openjdk-docker.git'
-        sh label: '', script: "./build_all.sh ${version}"
+        if (version){
+            sh label: '', script: "./build_all.sh ${version}"
+        } else {
+            sh label: '', script: "./build_all.sh"
+        }
     }
 }
 
