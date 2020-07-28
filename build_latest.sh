@@ -212,13 +212,30 @@ function build_image() {
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
-		echo "#############################################"
-		echo
-		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
-		echo
-		echo "#############################################"
+	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
+		echo "using a buildx environment"
+		export DOCKER_CLI_EXPERIMENTAL="enabled"
+		docker buildx create --name mbuilder
+		docker buildx use mbuilder
+		docker buildx inspect --bootstrap
+		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
+		if ! docker buildx build --platform "$TARGET_ARCHITECTURE" --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+			echo "#############################################"
+			echo
+			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo
+			echo "#############################################"
+		fi
+		docker buildx rm mbuilder
+	else
+		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
+		if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+			echo "#############################################"
+			echo
+			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo
+			echo "#############################################"
+		fi
 	fi
 }
 
