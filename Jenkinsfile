@@ -126,7 +126,7 @@ def dockerBuild(version) {
     // dockerhub is the ID of the credentials stored in Jenkins
     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
         git poll: false, url: 'https://github.com/AdoptOpenJDK/openjdk-docker.git'
-        sh script: "./build_all.sh ${version}"
+        sh label: '', script: "./build_all.sh ${version}"
     }
 }
 
@@ -134,6 +134,6 @@ def dockerManifest(version) {
     // dockerhub is the ID of the credentials stored in Jenkins
     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
         git poll: false, url: 'https://github.com/AdoptOpenJDK/openjdk-docker.git'
-        sh script: "./update_manifest_all.sh ${version}"
+        sh label: '', script: "./update_manifest_all.sh ${version}"
     }
 }
