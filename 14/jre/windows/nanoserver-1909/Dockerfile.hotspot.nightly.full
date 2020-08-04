@@ -25,11 +25,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk14u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-15-08-34/OpenJDK14U-jre_x64_windows_hotspot_2020-07-15-08-34.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_x64_windows_hotspot_2020-07-28-07-34.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-15-08-34/OpenJDK14U-jre_x64_windows_hotspot_2020-07-15-08-34.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (6340fb70c49155fe8559f7befbc4e62e5138c788382ed3783f7e7140ea29b71c) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '6340fb70c49155fe8559f7befbc4e62e5138c788382ed3783f7e7140ea29b71c') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_x64_windows_hotspot_2020-07-28-07-34.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (2605803f910b1165d348d6d166808679763fe0b3da68dd979f439c83473de618) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '2605803f910b1165d348d6d166808679763fe0b3da68dd979f439c83473de618') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
