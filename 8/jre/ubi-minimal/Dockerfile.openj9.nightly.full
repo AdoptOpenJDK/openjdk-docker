@@ -37,17 +37,21 @@ ENV JAVA_VERSION jdk8u
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='4b43fa61b088cabfc298885b187d1d3f594c749db165f7f548259f35a9614154'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_aarch64_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
-         ESUM='19e6b0ef59aee79b615266af66c691b45bd7f9ac7d918597ea7dd49a64343f19'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jre_ppc64le_linux_openj9_2020-07-14-04-55.tar.gz'; \
+         ESUM='b5b9d0a297d858011ea6cb58217f6be52010d225e9637cf07a18a1689dca54e4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_ppc64le_linux_openj9_2020-08-04-03-59.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='b8faf6475a2a4fcf05d1ed9528c244a1866cfa38cea6f982f13d2f43d0455644'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jre_s390x_linux_openj9_2020-07-14-04-55.tar.gz'; \
+         ESUM='f692edeafcdc9f878b49392f7a978726a72cf987074696cdf9ba811055de931b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_s390x_linux_openj9_2020-08-04-03-59.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='2937e9622333d0e3967cef68545b818bfd88fd0bf5076265b73f27a2c59903d8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jre_x64_linux_openj9_2020-07-14-04-55.tar.gz'; \
+         ESUM='9bfa6e8a5d39fcf29781e84593ea6e2b3c8a948fd6d2071cec4444c85b6c5e4c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_x64_linux_openj9_2020-08-04-03-59.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

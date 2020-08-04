@@ -27,11 +27,11 @@ ENV JAVA_VERSION jdk14u
 COPY slim-java* C:/ProgramData/Java/
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-13-04-52/OpenJDK14U-jdk_x64_windows_openj9_2020-07-13-04-52.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_x64_windows_openj9_2020-07-28-07-34.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-13-04-52/OpenJDK14U-jdk_x64_windows_openj9_2020-07-13-04-52.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (2f2ca6e52c0db2d1b47e7f313a106b9bea84b470c44a5d58aee6fdb8f8f0deaf) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '2f2ca6e52c0db2d1b47e7f313a106b9bea84b470c44a5d58aee6fdb8f8f0deaf') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_x64_windows_openj9_2020-07-28-07-34.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (5a3be6947c145f19705e0698c4d50ea1d3d85059e0a58c0da570bda503631d90) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '5a3be6947c145f19705e0698c4d50ea1d3d85059e0a58c0da570bda503631d90') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \

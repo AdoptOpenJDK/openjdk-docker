@@ -25,11 +25,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk8u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jre_x64_windows_openj9_2020-07-14-04-55.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-01-03-04/OpenJDK8U-jre_x64_windows_openj9_2020-08-01-03-04.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-14-04-55/OpenJDK8U-jre_x64_windows_openj9_2020-07-14-04-55.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (1f7322da6eb4dd9fe2fb2924795af57e0f12296e321b16b384598451b8e787f0) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '1f7322da6eb4dd9fe2fb2924795af57e0f12296e321b16b384598451b8e787f0') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-01-03-04/OpenJDK8U-jre_x64_windows_openj9_2020-08-01-03-04.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (3faaf673a03fa765df5bebbd1f5b94efcc2d9698a790df6449927294f5ebc4b7) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '3faaf673a03fa765df5bebbd1f5b94efcc2d9698a790df6449927294f5ebc4b7') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
