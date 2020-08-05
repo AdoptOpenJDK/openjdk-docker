@@ -34,16 +34,16 @@ RUN set -eux; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_aarch64_linux_openj9_2020-08-04-03-59.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='b5b9d0a297d858011ea6cb58217f6be52010d225e9637cf07a18a1689dca54e4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_ppc64le_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ESUM='99014e51e892fbd6e1a434b23ad89245f3a481f1ebcc78cd89eb6f0b6b30774f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_ppc64le_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f692edeafcdc9f878b49392f7a978726a72cf987074696cdf9ba811055de931b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_s390x_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ESUM='c12775bafb76909076865f693990353cec2b215072434c6494b0150b34f9da12'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_s390x_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='9bfa6e8a5d39fcf29781e84593ea6e2b3c8a948fd6d2071cec4444c85b6c5e4c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_x64_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ESUM='eb170bb365cc8c0ec12fb4d6ac30b06d3e33675fe87fb029f31be7e2f2173d1a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_x64_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
