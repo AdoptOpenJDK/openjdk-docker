@@ -6,3 +6,6 @@ manifest_commands.sh
 hadolint/
 shellcheck/
 push_commands.sh
+adoptopenjdk
+*hotspot.txt
+*openj9.txt

@@ -27,8 +27,6 @@ source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
 oses="alpine centos clefos debian debianslim ubi ubi-minimal ubuntu"
-official_ubuntu_arches="amd64, arm32v7, arm64v8, ppc64le, s390x"
-official_windows_arches="windows-amd64"
 
 # shellcheck disable=SC2034 # used externally
 hotspot_latest_tags="hotspot, latest"
@@ -213,8 +211,13 @@ function generate_official_image_tags() {
 	shared_tags=$(echo ${all_tags} | sed "s/-$distro//g")
 	if [ $os == "windows" ]; then
 		windows_version=$(echo $distro | awk -F '-' '{ print $1 }' )
+		windows_version_number=$(echo $distro | awk -F '-' '{ print $2 }' )
 		windows_shared_tags=$(echo ${all_tags} | sed "s/$distro/$windows_version/g")
 		all_shared_tags="${windows_shared_tags}, ${shared_tags}${extra_shared_tags}"
+		case $distro in
+			nanoserver*) constraints="${distro}, windowsservercore-${windows_version_number}" ;;
+			*) constraints="${distro}" ;;
+		esac
 	else
 	all_shared_tags="${shared_tags}${extra_shared_tags}"
 	fi
@@ -222,27 +225,29 @@ function generate_official_image_tags() {
 
 function generate_official_image_arches() {
 	# Generate the supported arches for the above tags.
-	# Official images supports amd64, arm64vX, s390x and ppc64le
-	# Remove ppc64el, x86_64 and aarch64
-	# Retain ppc64le, amd64 and arm64
-	# armhf is arm32v7 and arm64 is arm64v8 for docker builds
-	# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063 # TODO need to rewrite this
-	arches_definition="official_${os}_arches"
-	# shellcheck disable=SC1083,SC2086
-	eval arches=\${$arches_definition}
+	# Official images supports amd64, arm64vX, s390x, ppc64le amd windows-amd64
+	if [ $os == "windows" ]; then
+		arches="windows-amd64"
+	else
+		# Remove ppc64el, x86_64, armv7l and aarch64
+		# Retain ppc64le, amd64 and arm64
+		# armhf is arm32v7 and arm64 is arm64v8 for docker builds
+		# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063
+		arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\)//;s/\(x86_64\)//;s/\(armv7l\)//;s/\(armhf\)/arm32v7/;s/\(aarch64\)//;s/\(arm64\)/arm64v8/;' | grep -v "*" | sed 's/) \\//g; s/|//g' | sort) | sed 's/ /, /g')
+	fi
 }
 
 function print_official_image_file() {
 	# Print them all
 	{
 	  echo "Tags: ${all_tags}"
-	  echo "Shared Tags: ${all_shared_tags}"
+	  echo "SharedTags: ${all_shared_tags}"
 	  echo "Architectures: ${arches}"
 	  echo "GitCommit: ${gitcommit}"
 	  echo "Directory: ${dfdir}"
 	  echo "File: ${dfname}"
 	  if [ $os == "windows" ]; then
-		echo "Constraints: ${distro}"
+		echo "Constraints: ${constraints}"
 	  fi
 	  echo ""
 	} >> ${official_docker_image_file}
@@ -278,10 +283,12 @@ function generate_official_image_info() {
 # Official docker images = https://hub.docker.com/_/adoptopenjdk
 for vm in ${all_jvms}
 do
-	for ver in ${supported_versions}
+	# Official images support different versions
+	official_supported_versions="8 11 13 14"
+	for ver in ${official_supported_versions}
 	do
 		print_official_text
-		print_official_text "#------------------------------${vm} v${ver} images-------------------------------"
+		print_official_text "#-----------------------------${vm} v${ver} images---------------------------------"
 		for pkg in ${all_packages}
 		do
 			# Iterate through each of the Dockerfiles.
