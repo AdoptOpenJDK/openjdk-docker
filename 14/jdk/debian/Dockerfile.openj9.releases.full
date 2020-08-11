@@ -22,27 +22,27 @@ FROM debian:buster
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-14.0.1+7_openj9-0.20.0
+ENV JAVA_VERSION jdk-14.0.2+12_openj9-0.21.0
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='6914fe4383dd20d2f72772b5a8957e9103f7b255df8babfb063c3c9c59683959'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jdk_ppc64le_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='177fd161ae14df92203d70cd618559daf889ec0c172d6ee615859352f68a2371'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jdk_ppc64le_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='261860d6f190719e4e355db85592536b2385781087a8c7727b7a5ac4cfd812ce'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jdk_s390x_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='4757dc2009a0c31604be4631e02a5a3aac53ebe9b6a2046ae8995ec0e453dc1a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jdk_s390x_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='2350592f4b0db1439fdd48d4fa7e05b270f271dcc79b2c7f174489ee2f6b14c1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jdk_x64_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='306f7138cdb65daaf2596ec36cafbde72088144c83b2e964f0193662e6caf3be'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jdk_x64_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -17,15 +17,15 @@
 # limitations under the License.
 #
 
-FROM alpine:3.11
+FROM alpine:3.12
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN apk add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
-    && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
+    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
+    && GCC_LIBS_SHA256="f80320a03ff73e82271064e4f684cd58d7dbdb07aa06a2c4eea8e0f3c507c45c" \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
     && curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
@@ -39,10 +39,11 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && apk add --no-cache /tmp/glibc-i18n-${GLIBC_VER}.apk \
     && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
     && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
-    && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
-    && echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.xz" | sha256sum -c - \
+    && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.zst \
+    && echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.zst" | sha256sum -c - \
     && mkdir /tmp/gcc \
-    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && zstd -d /tmp/gcc-libs.tar.zst --output-dir-flat /tmp \
+    && tar -xf /tmp/gcc-libs.tar -C /tmp/gcc \
     && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
     && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
     && curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.xz \
@@ -51,25 +52,25 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps glibc-i18n \
-    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-14.0.1+7_openj9-0.20.0
+ENV JAVA_VERSION jdk-14.0.2+12_openj9-0.21.0
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='cd82f3b57412a9702e96a23b4e98d7ac6552f3cbe41213459e25519a27e1c8d1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_ppc64le_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='ad7a55a3669878c0c7d7c66faafe7c626d4341374719b6fdd81d2986c6e80945'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_ppc64le_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='095f0a9d24a78164e06ed9d8c79840435026c3daba4154dedd2eab6b191ae860'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_s390x_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='6a3c0f61873bfcd23da806f5df9267e08cbfd064ab7cf6e8b08648b4cbe2f9e2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_s390x_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='de3a93957e32f44fd0435cc5fb6edaa3ea55048701a2b95b42b79dcca1c44b24'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_x64_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='3a137146a7b0bd8b029e72beb37c5fbb09dcfb9e33a10125076fff1555227cfd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_x64_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

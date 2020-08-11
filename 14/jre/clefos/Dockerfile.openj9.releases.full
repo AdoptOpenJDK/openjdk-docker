@@ -21,25 +21,25 @@ FROM clefos:7
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk-14.0.1+7_openj9-0.20.0
+ENV JAVA_VERSION jdk-14.0.2+12_openj9-0.21.0
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='cd82f3b57412a9702e96a23b4e98d7ac6552f3cbe41213459e25519a27e1c8d1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_ppc64le_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='ad7a55a3669878c0c7d7c66faafe7c626d4341374719b6fdd81d2986c6e80945'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_ppc64le_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='095f0a9d24a78164e06ed9d8c79840435026c3daba4154dedd2eab6b191ae860'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_s390x_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='6a3c0f61873bfcd23da806f5df9267e08cbfd064ab7cf6e8b08648b4cbe2f9e2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_s390x_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='de3a93957e32f44fd0435cc5fb6edaa3ea55048701a2b95b42b79dcca1c44b24'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7_openj9-0.20.0/OpenJDK14U-jre_x64_linux_openj9_14.0.1_7_openj9-0.20.0.tar.gz'; \
+         ESUM='3a137146a7b0bd8b029e72beb37c5fbb09dcfb9e33a10125076fff1555227cfd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12_openj9-0.21.0/OpenJDK14U-jre_x64_linux_openj9_14.0.2_12_openj9-0.21.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

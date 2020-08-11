@@ -22,7 +22,7 @@ FROM debian:buster
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -33,24 +33,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='427786b7795d28019c286e932ed4d6eb048caa4b8e0b498b0cd27d2b8a740c3c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jre_aarch64_linux_hotspot_2020-04-19-22-41.tar.gz'; \
+         ESUM='48d5653c817a211f99ee031e08302cebcd09b7f20c104eeb267ecba7016cc569'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_aarch64_linux_hotspot_2020-08-05-08-20.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='e36404da2a1f335b086bb8077d319a411863159e6e937231bcda8285c5483f48'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jre_arm_linux_hotspot_2020-04-19-22-41.tar.gz'; \
+         ESUM='f5ce6abc06a668e3531ad5ae7ce2c71aeab9feaef274a53c26561a541d1b8f4c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-07-31-04-43/OpenJDK8U-jre_arm_linux_hotspot_2020-07-31-04-43.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='f86fe9f9821bd5af0c1698b41f46c13137370a867e890993fc66f052217bda90'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jre_ppc64le_linux_hotspot_2020-04-19-22-41.tar.gz'; \
+         ESUM='875da2005e77cbd9d55f8a9c00d676dfbfe2fbf632fbaf1b3733089807c7aae2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_ppc64le_linux_hotspot_2020-08-05-08-20.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='5f4000fa7e2f6c9637f09f01f5e43a675fd0dbc278c34ab578aee78bce802632'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jre_s390x_linux_hotspot_2020-04-19-22-41.tar.gz'; \
+         ESUM='055bcc938cae12fe50c5497bfc5ef9d4ac77cec24f8b2a4dc822f97ad6b00946'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_s390x_linux_hotspot_2020-08-05-08-20.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='5c81da2c37f3e09d63f8d98026f309862bb122942106ecc40d3ee4454e40b06e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-19-22-41/OpenJDK8U-jre_x64_linux_hotspot_2020-04-19-22-41.tar.gz'; \
+         ESUM='33435662bf8a620e8c67e1fe5c2d7d9f0b843a248f2c04f89e45cc84b48f5d53'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_x64_linux_hotspot_2020-08-05-08-20.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

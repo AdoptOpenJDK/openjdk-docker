@@ -212,13 +212,30 @@ function build_image() {
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
 	echo "#####################################################"
-	# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-	if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
-		echo "#############################################"
-		echo
-		echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
-		echo
-		echo "#############################################"
+	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
+		echo "using a buildx environment"
+		export DOCKER_CLI_EXPERIMENTAL="enabled"
+		docker buildx create --name mbuilder
+		docker buildx use mbuilder
+		docker buildx inspect --bootstrap
+		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
+		if ! docker buildx build --platform "$TARGET_ARCHITECTURE" --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+			echo "#############################################"
+			echo
+			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo
+			echo "#############################################"
+		fi
+		docker buildx rm mbuilder
+	else
+		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
+		if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+			echo "#############################################"
+			echo
+			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo
+			echo "#############################################"
+		fi
 	fi
 }
 
@@ -226,7 +243,11 @@ function build_image() {
 function build_dockerfile {
 	vm=$1; pkg=$2; os=$3; build=$4; btype=$5;
 
-	jverinfo="${shasums}[version]"
+	if [ -z "${current_arch}" ]; then
+		jverinfo="${shasums}[version]"
+	else
+		jverinfo="${shasums}[version-${current_arch}]"
+	fi
 	# shellcheck disable=SC1083,SC2086
 	eval jrel=\${$jverinfo}
 	# Docker image tags cannot have "+" in them, replace it with "_" instead.
@@ -257,7 +278,11 @@ function build_dockerfile {
 	if [ "${btype}" == "slim" ]; then
 		tag=${tag}-slim
 		# Copy the script to generate slim builds.
-		cp slim-java* config/slim-java* "${dir}"/
+		if [ "${os}" == "windows" ]; then
+		    cp slim-java.ps1 config/slim-java* "${dir}"/
+		else
+		    cp slim-java.sh config/slim-java* "${dir}"/
+		fi
 	fi
 	echo "INFO: Building ${trepo} ${tag} from $file ..."
 	pushd "${dir}" >/dev/null || return

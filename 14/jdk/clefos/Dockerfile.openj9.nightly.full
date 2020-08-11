@@ -21,7 +21,7 @@ FROM clefos:7
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk14u
@@ -30,16 +30,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='f18e43af09d0dd5b073c712c721a4a362a8ac2bd3194ba4a85e5c0023db8c28f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='28de9560f6cf376b851ca38fc83d0f44f4aba474ba3c0cbc98342dfee2b2d5ba'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='0202c10faeef72d2efee94830b768e2bef4d61ef13b8eb8fc71cb7c6c2407df1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jdk_s390x_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='0bfbbc83f30dbd937c72edb9da5a76e3f69a4fe55b9d42af0ecf30802ecde5a7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_s390x_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='f88f6ad4e598e0a44c2b0507b3ffb593dea1938636f59f19ca46ea5eea7dac6d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jdk_x64_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='5422108afaf1dc87091d24df03ec3a2e6a1682c983adf692f87d54d5e63da849'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_x64_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -25,23 +25,24 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk11u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-04-22-07-11/OpenJDK11U-jre_x64_windows_hotspot_2020-04-22-07-11.zip ...'); \
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-04-22-07-11/OpenJDK11U-jre_x64_windows_hotspot_2020-04-22-07-11.zip -O 'openjdk.zip'; \
-        Write-Host ('Verifying sha256 (8edc71562efd97a5d8da9d3937a963766f620572276ecd4672ed01df11a38990) ...'); \
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '8edc71562efd97a5d8da9d3937a963766f620572276ecd4672ed01df11a38990') { \
-                Write-Host 'FAILED!'; \
-                exit 1; \
-        }; \
-        \
-        Write-Host 'Expanding Zip ...'; \
-        Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
-        Write-Host 'Removing openjdk.zip ...'; \
-        Remove-Item openjdk.zip -Force; \
-        $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-        Move-Item -Path $jdkDirectory C:\openjdk-11;
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-07-29-05-57/OpenJDK11U-jre_x64_windows_hotspot_2020-07-29-05-57.zip ...'); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-07-29-05-57/OpenJDK11U-jre_x64_windows_hotspot_2020-07-29-05-57.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (26793d9eb525c8226ea865b643bc82bde05511f430eb53fc29d28dfb2d6924f7) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '26793d9eb525c8226ea865b643bc82bde05511f430eb53fc29d28dfb2d6924f7') { \
+            Write-Host 'FAILED!'; \
+            exit 1; \
+    }; \
+    \
+    Write-Host 'Expanding Zip ...'; \
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
+    Move-Item -Path $jdkDirectory C:\openjdk-11; \
+    Write-Host 'Removing openjdk.zip ...'; \
+    Remove-Item openjdk.zip -Force
+
 USER ContainerUser
 ENV JAVA_HOME=C:\\openjdk-11 \
-ProgramFiles="C:\\Program Files" \
-WindowsPATH="C:\\Windows\\system32;C:\\Windows"
+    ProgramFiles="C:\\Program Files" \
+    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
 ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"

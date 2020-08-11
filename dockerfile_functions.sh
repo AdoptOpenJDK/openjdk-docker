@@ -110,6 +110,8 @@ print_clefos_ver() {
 print_windows_ver() {
 	os=$4
 	case $os in
+		*ltsc2019) os_version="ltsc2019" ;;
+		*1909) os_version="1909" ;;
 		*ltsc2016) os_version="ltsc2016" ;;
 		*1809) os_version="1809" ;;
 	esac
@@ -153,7 +155,7 @@ print_lang_locale() {
 print_ubuntu_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -188,11 +190,11 @@ EOI
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
 	cat >> "$1" <<'EOI'
-RUN apk add --no-cache --virtual .build-deps curl binutils \
+RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
-    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" \
-    && GCC_LIBS_SHA256="91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08" \
+    && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
+    && GCC_LIBS_SHA256="f80320a03ff73e82271064e4f684cd58d7dbdb07aa06a2c4eea8e0f3c507c45c" \
     && ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" \
     && ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 \
     && curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub \
@@ -206,10 +208,11 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && apk add --no-cache /tmp/glibc-i18n-${GLIBC_VER}.apk \
     && /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true \
     && echo "export LANG=$LANG" > /etc/profile.d/locale.sh \
-    && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz \
-    && echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.xz" | sha256sum -c - \
+    && curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.zst \
+    && echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.zst" | sha256sum -c - \
     && mkdir /tmp/gcc \
-    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && zstd -d /tmp/gcc-libs.tar.zst --output-dir-flat /tmp \
+    && tar -xf /tmp/gcc-libs.tar -C /tmp/gcc \
     && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
     && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
     && curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.xz \
@@ -218,14 +221,14 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps glibc-i18n \
-    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 EOI
 }
 
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> "$1" <<'EOI'
-RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update -y; dnf clean all
 EOI
 }
@@ -234,7 +237,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi-minimal_pkg() {
 	cat >> "$1" <<'EOI'
-RUN microdnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && microdnf update -y; microdnf clean all
 EOI
 }
@@ -242,7 +245,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
-RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 EOI
 }
@@ -257,7 +260,11 @@ print_clefos_pkg() {
 print_env() {
   # shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-	jverinfo="${shasums}[version]"
+	if [ -z "${arch}" ]; then
+		jverinfo="${shasums}[version]"
+	else
+		jverinfo="${shasums}[version-${arch}]"
+	fi
   # shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
   jver="${jver}" # to satifsy shellcheck SC2154
@@ -375,6 +382,19 @@ print_debianslim_package() {
   print_ubuntu_slim_package "$1"
 }
 
+# Call the script to create the slim package for Windows
+print_windowsservercore_slim_package() {
+	cat >> "$1" <<-EOI
+    & C:/ProgramData/Java/slim-java.ps1 (Get-ChildItem -Path 'C:\\Program Files\\AdoptOpenJDK')[0].FullName; \\
+EOI
+}
+
+print_nanoserver_slim_package() {
+	cat >> "$1" <<-EOI
+    & C:/ProgramData/Java/slim-java.ps1 C:\\openjdk-$2; \\
+EOI
+}
+
 # Call the script to create the slim package for Alpine
 # Install binutils for this phase as we need the "strip" command
 # Uninstall once done
@@ -413,37 +433,52 @@ print_debianslim_java_install() {
   print_ubuntu_java_install "$1" "$2" "$3" "$4"
 }
 
+print_windows_java_install_post() {
+	servertype="$2"
+	if [ "${servertype}" == "windowsservercore" ]; then
+		cat >> "$1" <<-EOI
+    Write-Host 'Removing openjdk.msi ...'; \\
+    Remove-Item openjdk.msi -Force
+EOI
+	else
+		cat >> "$1" <<-EOI
+    Write-Host 'Removing openjdk.zip ...'; \\
+    Remove-Item openjdk.zip -Force
+
+USER ContainerUser
+EOI
+	fi
+}
+
 # Print the main RUN command that installs Java on ubuntu.
 print_windows_java_install() {
 	pkg=$2
 	bld=$3
 	btype=$4
 
-	servertype=$(echo "$file" | cut -f4 -d"/" | cut -f1 -d"-")
-	version=$(echo "$file" | cut -f1 -d "/")
-	if [ "$servertype" == "windowsservercore" ]; then
+	servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
+	version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
+	if [ "${servertype}" == "windowsservercore" ]; then
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd);
 		ESUM=$(sarray="${shasums}[windows-amd]"; eval esum=\${$sarray}; echo "${esum}");
 		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        wget ${BINARY_URL} -O 'openjdk.msi'; \\
-        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
-                Write-Host 'FAILED!'; \\
-                exit 1; \\
-        }; \\
-        \\
-        New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
-        \\
-        Write-Host 'Installing using MSI ...'; \\
-        Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
-        '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
-        Write-Host 'Removing openjdk.msi ...'; \\
-        Remove-Item openjdk.msi -Force; \\
-        Remove-Item -Path C:\temp -Recurse | Out-Null;
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+    wget ${BINARY_URL} -O 'openjdk.msi'; \\
+    Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
+            Write-Host 'FAILED!'; \\
+            exit 1; \\
+    }; \\
+    \\
+    New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
+    \\
+    Write-Host 'Installing using MSI ...'; \\
+    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
+    '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
+    Remove-Item -Path C:\temp -Recurse | Out-Null; \\
 EOI
 	else
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano);
@@ -454,23 +489,26 @@ EOI
 		cat >> "$1" <<-EOI
 USER ContainerAdministrator
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-        Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
-        Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
-        if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
-                Write-Host 'FAILED!'; \\
-                exit 1; \\
-        }; \\
-        \\
-        Write-Host 'Expanding Zip ...'; \\
-        Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
-        Write-Host 'Removing openjdk.zip ...'; \\
-        Remove-Item openjdk.zip -Force; \\
-        \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
-        Move-Item -Path \$jdkDirectory C:\\openjdk-${version};
-USER ContainerUser
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
+    Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
+    Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
+            Write-Host 'FAILED!'; \\
+            exit 1; \\
+    }; \\
+    \\
+    Write-Host 'Expanding Zip ...'; \\
+    Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
+    \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
+    Move-Item -Path \$jdkDirectory C:\\openjdk-${version}; \\
 EOI
 	fi
+
+	if [ "${btype}" == "slim" ]; then
+		print_"${servertype}"_slim_package "$1" "${version}"
+	fi
+
+	print_windows_java_install_post "$1" "${servertype}"
 }
 
 # Print the main RUN command that installs Java on alpine.
@@ -546,13 +584,13 @@ ENV JAVA_HOME=${jhome} \\
     PATH="${jhome}/bin:\$PATH"
 EOI
 	else
-		servertype=$(echo "$file" | cut -f4 -d"/")
+		servertype=$(echo "$file" | cut -f4 -d"/" | head -qn1)
 		nanoserver_pat="nanoserver.*"
 		if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 			cat >> "$1" <<-EOI
 ENV JAVA_HOME=C:\\\\openjdk-${version} \\
-	ProgramFiles="C:\\\\Program Files" \\
-	WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
+    ProgramFiles="C:\\\\Program Files" \\
+    WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
 ENV PATH="\${WindowsPATH};\${ProgramFiles}\\\\PowerShell;\${JAVA_HOME}\\\\bin"
 EOI
 		fi
@@ -587,10 +625,17 @@ EOI
 # For slim builds copy the slim script and related config files.
 copy_slim_script() {
 	if [ "${btype}" == "slim" ]; then
-		cat >> "$1" <<-EOI
+		if [ "${os}" == "windows" ]; then
+			cat >> "$1" <<-EOI
+COPY slim-java* C:/ProgramData/Java/
+
+EOI
+		else
+			cat >> "$1" <<-EOI
 COPY slim-java* /usr/local/bin/
 
 EOI
+		fi
 	fi
 }
 

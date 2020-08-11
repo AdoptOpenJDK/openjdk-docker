@@ -22,7 +22,7 @@ FROM ubuntu:18.04
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='de67ebae9db3b918f06e47e2fb4b55e48005ae5e8face8af5da72e0e94c5a32c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_ppc64le_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='48f8ee2f77f4ef669d6261c7da754d5b8f021d8e73f083e7141e2aee84c45228'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_ppc64le_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='f54e1e1f5c31c90a2e0ca8ade7f2a641fac54d030d86051f03d1cd4b039a5259'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_s390x_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='fe946e6d21501195fc3d04c948756a21226998b2281728bb24fc86b0d16d0930'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_s390x_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='696f204b6dd3b8d20599826faecdf599152ca6cd7e5c4781ccd2b96056121667'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_x64_linux_openj9_2020-04-20-07-55.tar.gz'; \
+         ESUM='740296af86138bd56d8118f0366f35c4de31a86fda525478f8130ab8bdb0726b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_x64_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -21,7 +21,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN dnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update -y; dnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
@@ -38,20 +38,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='042952450afb650df13fbc71325d8c5ccc3b2401f0e82931f95e0bbe5f5d41bd'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-05-06-05-33/OpenJDK11U-jdk_aarch64_linux_openj9_2020-05-06-05-33.tar.gz'; \
+         ESUM='f36d7eaf1ad9f49ae255719d864b5b56d300cc57e280f65a6f42ef4ba929daf1'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-08-04-06-22/OpenJDK11U-jdk_aarch64_linux_openj9_2020-08-04-06-22.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='fd67bdfb19ce0f123b267e22881fb1ed379bf630e8c924d12c2dbf72f6fd6068'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-05-06-05-33/OpenJDK11U-jdk_ppc64le_linux_openj9_2020-05-06-05-33.tar.gz'; \
+         ESUM='a1865ab6eec45f5a7183f0ef442c2fc481752a5fca12f8c4b570ce1037c835e2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-08-04-06-22/OpenJDK11U-jdk_ppc64le_linux_openj9_2020-08-04-06-22.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='3e2aea010e0638371132229947853ffe0db276d8327e020803fc7970104cfcc8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-05-06-05-33/OpenJDK11U-jdk_s390x_linux_openj9_2020-05-06-05-33.tar.gz'; \
+         ESUM='fe69554583cdb8c106e2bfcf0c02799fd7c22fc41d8ad43bc62e13b729c40536'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-08-04-06-22/OpenJDK11U-jdk_s390x_linux_openj9_2020-08-04-06-22.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='64315796bb5ceb5f18e44e8adf8a67aac50c2eb06687abb3f02f1505708270b0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-05-06-05-33/OpenJDK11U-jdk_x64_linux_openj9_2020-05-06-05-33.tar.gz'; \
+         ESUM='62fcf9b4f812dcb3eae4611b4cdea58fe53e1e0da0dd6e4238f981fe7c76cc23'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-08-04-06-22/OpenJDK11U-jdk_x64_linux_openj9_2020-08-04-06-22.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -21,7 +21,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.2
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN microdnf install -y openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && microdnf update -y; microdnf clean all
 
 LABEL name="AdoptOpenJDK Java" \
@@ -37,17 +37,21 @@ ENV JAVA_VERSION jdk8u
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='4b43fa61b088cabfc298885b187d1d3f594c749db165f7f548259f35a9614154'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_aarch64_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
-         ESUM='659e453de52bfee9d739c62d4d70c368f02d1a40c123647a73f8a8e9c696618f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jre_ppc64le_linux_openj9_2020-05-06-00-10.tar.gz'; \
+         ESUM='99014e51e892fbd6e1a434b23ad89245f3a481f1ebcc78cd89eb6f0b6b30774f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_ppc64le_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='5c61474800f03d5e2c22fa5e48c40135d82d9ea38952e3ea44ed8bb8bfa8b0c6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jre_s390x_linux_openj9_2020-05-06-00-10.tar.gz'; \
+         ESUM='c12775bafb76909076865f693990353cec2b215072434c6494b0150b34f9da12'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_s390x_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='dbff092dd3ff51b12c7c6140bc3b890d3ec467c2c0b8eda04700e28eff97c622'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-05-06-00-10/OpenJDK8U-jre_x64_linux_openj9_2020-05-06-00-10.tar.gz'; \
+         ESUM='eb170bb365cc8c0ec12fb4d6ac30b06d3e33675fe87fb029f31be7e2f2173d1a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_x64_linux_openj9_2020-08-05-08-20.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -22,7 +22,7 @@ FROM debian:buster
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -33,24 +33,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='c8ca380ae94b7a437e06cdbb38d84b3face8001803400f11e2e4c83b7ab53c80'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_aarch64_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ESUM='de0c5f5c8cc7741cbcbf03085c89ec5f6ed4192c04a8243032261cb4fc3fe255'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_aarch64_linux_hotspot_2020-07-28-07-34.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='decd292fc4a3dd317d988f9a65e4b8962692372050e89a545829ca3f898ac410'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_arm_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ESUM='0badfde57b3731b741e0ab1461b0c17ffa3cfe8622eda6f9299d9c53ba5dfba2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_arm_linux_hotspot_2020-07-28-07-34.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='568201c1b6613bff58ab112afc177a5b787d17d58241c8cff65f54cbb2db0bb2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_ppc64le_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ESUM='322ad2390015e61803a47a502b8f00cc1b6148002fc64fd1c61d43c4fdb84091'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-27-03-27/OpenJDK14U-jre_ppc64le_linux_hotspot_2020-07-27-03-27.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='4a2d3c67042ceef741420e6ecb824dba2e8a72927429af780dfc8f7f0fc34ca4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_s390x_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ESUM='ef61db01f93c96c9eb25f2e3ce48086890b1e9779ceb915054acbd712aee4846'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_s390x_linux_hotspot_2020-07-28-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b6ae6f5bc312328e2e2c2d1cec9b12b0ac5658ba2e9200f682379ff9a0e11916'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-04-20-07-55/OpenJDK14U-jre_x64_linux_hotspot_2020-04-20-07-55.tar.gz'; \
+         ESUM='b2825b09891fa0931090e763c6292e1d7db160f1cc0e991d2fd366b5e27219a9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jre_x64_linux_hotspot_2020-07-28-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

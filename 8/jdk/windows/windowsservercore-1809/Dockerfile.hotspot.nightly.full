@@ -24,20 +24,20 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-23-09-19/OpenJDK8U-jdk_x64_windows_hotspot_2020-04-23-09-19.msi ...'); \
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-        wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-04-23-09-19/OpenJDK8U-jdk_x64_windows_hotspot_2020-04-23-09-19.msi -O 'openjdk.msi'; \
-        Write-Host ('Verifying sha256 (d810fbba00d2827fa872987356825f15a9ac511bd2cf4ac7b9525b28d0ecc08b) ...'); \
-        if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'd810fbba00d2827fa872987356825f15a9ac511bd2cf4ac7b9525b28d0ecc08b') { \
-                Write-Host 'FAILED!'; \
-                exit 1; \
-        }; \
-        \
-        New-Item -ItemType Directory -Path C:\temp | Out-Null; \
-        \
-        Write-Host 'Installing using MSI ...'; \
-        Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
-        '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
-        Write-Host 'Removing openjdk.msi ...'; \
-        Remove-Item openjdk.msi -Force; \
-        Remove-Item -Path C:\temp -Recurse | Out-Null;
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-01-03-04/OpenJDK8U-jdk_x64_windows_hotspot_2020-08-01-03-04.msi ...'); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-01-03-04/OpenJDK8U-jdk_x64_windows_hotspot_2020-08-01-03-04.msi -O 'openjdk.msi'; \
+    Write-Host ('Verifying sha256 (fdb5f5912b53cd5f37c00b9916701040b5a7409aa96f5a52cee6c0a8e04aeff1) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'fdb5f5912b53cd5f37c00b9916701040b5a7409aa96f5a52cee6c0a8e04aeff1') { \
+            Write-Host 'FAILED!'; \
+            exit 1; \
+    }; \
+    \
+    New-Item -ItemType Directory -Path C:\temp | Out-Null; \
+    \
+    Write-Host 'Installing using MSI ...'; \
+    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+    '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+    Remove-Item -Path C:\temp -Recurse | Out-Null; \
+    Write-Host 'Removing openjdk.msi ...'; \
+    Remove-Item openjdk.msi -Force
