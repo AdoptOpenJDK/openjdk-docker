@@ -79,22 +79,22 @@ function set_arch_os() {
 	case ${machine} in
 	armv7l|linux/arm/v7)
 		current_arch="armv7l"
-		oses="ubuntu debian debianslim centos"
+		oses="ubuntu debian debianslim centos leap tumbleweed"
 		os_family="linux"
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian debianslim ubi ubi-minimal clefos"
+		oses="ubuntu debian debianslim ubi ubi-minimal clefos tumbleweed"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -120,7 +120,7 @@ function set_arch_os() {
 			# shellcheck disable=SC2034 # used externally
 			current_arch="x86_64"
 			# shellcheck disable=SC2034 # used externally
-			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos"
+			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos leap tumbleweed"
 			# shellcheck disable=SC2034 # used externally
 			os_family="linux"
 			;;

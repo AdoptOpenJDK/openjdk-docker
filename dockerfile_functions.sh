@@ -105,6 +105,23 @@ print_clefos_ver() {
 	EOI
 }
 
+print_leap_ver() {
+	os_version="15.2"
+
+	cat >> "$1" <<-EOI
+	FROM opensuse/leap:${os_version}
+
+	EOI
+}
+
+print_tumbleweed_ver() {
+	os_version="latest"
+
+	cat >> "$1" <<-EOI
+	FROM opensuse/tumbleweed:${os_version}
+
+	EOI
+}
 
 # Print the supported Windows OS
 print_windows_ver() {
@@ -250,10 +267,22 @@ RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
 EOI
 }
 
-
 # Select the ClefOS packages.
 print_clefos_pkg() {
   print_centos_pkg "$1"
+}
+
+# Select the Leap packages.
+print_leap_pkg() {
+	cat >> "$1" <<'EOI'
+RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
+    && zypper update -y; zypper clean --all
+EOI
+}
+
+# Select the Tumbleweed packages.
+print_tumbleweed_pkg() {
+  print_leap_pkg "$1"
 }
 
 # Print the Java version that is being installed here
@@ -569,6 +598,25 @@ EOI
 # Print the main RUN command that installs Java on ClefOS
 print_clefos_java_install() {
 	print_centos_java_install "$1" "$2" "$3" "$4"
+}
+
+# Print the main RUN command that installs Java on Leap
+print_leap_java_install() {
+	pkg=$2
+	bld=$3
+	btype=$4
+	cat >> "$1" <<-EOI
+RUN set -eux; \\
+    ARCH="\$(uname -m)"; \\
+    case "\${ARCH}" in \\
+EOI
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_post "$1"
+}
+
+# Print the main RUN command that installs Java on Tumbleweed
+print_tumbleweed_java_install() {
+	print_leap_java_install "$1" "$2" "$3" "$4"
 }
 
 # Print the JAVA_HOME and PATH.
