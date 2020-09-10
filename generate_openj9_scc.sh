@@ -39,18 +39,23 @@ DOWNLOAD_PATH_TOMCAT=/tmp/tomcat
 INSTALL_PATH_ECLIPSE="${HOME}"/eclipse-home
 INSTALL_PATH_TOMCAT="${HOME}"/tomcat-home
 
+# URL's for the artifacts
+ECLIPSE_DWNLD_URL="http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/2020-06/M3/eclipse-java-2020-06-M3-linux-gtk-x86_64.tar.gz"
+TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"
+
 # Check and downlaod eclipse
 function check_to_download_eclipse() {
     if [ "${RUN_ECLIPSE}" == true ]; then
         # Creating a temporary directory for eclipse download
         mkdir -p "${DOWNLOAD_PATH_ECLIPSE}" "${INSTALL_PATH_ECLIPSE}"
 
-
         # Downloading eclipse
-        wget --directory-prefix="${DOWNLOAD_PATH_ECLIPSE}"  http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/2020-06/M3/eclipse-java-2020-06-M3-linux-gtk-x86_64.tar.gz
-
-        # Extracting eclipse
-        tar -xvzf "${DOWNLOAD_PATH_ECLIPSE}"/eclipse-java-2020-06-M3-linux-gtk-x86_64.tar.gz -C "$INSTALL_PATH_ECLIPSE"
+        if curl --fail -o "${DOWNLOAD_PATH_ECLIPSE}"/eclipse.tar.gz  "${ECLIPSE_DWNLD_URL}"; then
+            # Extracting eclipse
+            tar -xvzf "${DOWNLOAD_PATH_ECLIPSE}"/eclipse.tar.gz -C "$INSTALL_PATH_ECLIPSE" --strip-components=1
+        else
+            RUN_ECLIPSE=false
+        fi
 
         # Removing the tar file
         rm -rf "${DOWNLOAD_PATH_ECLIPSE}"
@@ -64,10 +69,12 @@ function check_to_download_tomcat() {
         mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}"
 
         # Downloading tomcat
-        wget --directory-prefix="${DOWNLOAD_PATH_TOMCAT}" https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz
-
-        # Extracting tomcat
-        tar -xvzf "${DOWNLOAD_PATH_TOMCAT}"/apache-tomcat-9.0.35.tar.gz -C "${INSTALL_PATH_TOMCAT}"
+        if curl --fail -o "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}"; then
+            # Extracting tomcat
+            tar -xvzf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1
+        else
+            RUN_TOMCAT=false
+        fi
 
         # Removing the tar file
         rm -rf "${DOWNLOAD_PATH_TOMCAT}"
@@ -243,11 +250,11 @@ function run_eclipse_and_stop() {
 # Run tomcat and stop it after the startup
 function run_tomcat_and_stop() {
     # Start tomcat wait till it comes up shut it down
-    "${INSTALL_PATH_TOMCAT}"/apache-tomcat-9.0.35/bin/startup.sh
+    "${INSTALL_PATH_TOMCAT}"/bin/startup.sh
     # wait till tomcat starts -  wait for 5 seconds
     sleep 5
     # Stop tomcat
-    "${INSTALL_PATH_TOMCAT}"/tomcat/apache-tomcat-9.0.35/bin/shutdown.sh
+    "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh
     # wait till tomcat stops -  wait for 5 seconds
     sleep 5
 }
