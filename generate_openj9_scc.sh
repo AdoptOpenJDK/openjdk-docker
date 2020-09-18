@@ -19,7 +19,7 @@ unset OPENJ9_JAVA_OPTIONS
 SCC_SIZE="50m"
 
 # Runs for generating SCC
-SCC_GEN_RUNS_COUNT=1
+SCC_GEN_RUNS_COUNT=3
 
 # is running on ubuntu or debian - package manager apt
 IS_APT_ENV=false
@@ -83,24 +83,26 @@ function check_to_download_tomcat() {
 
 # ubuntu/debian install packages required for eclipse
 function apt_install_packages() {
-    # update the repositories
-    apt update
+    if [ "${RUN_ECLIPSE}" == true ]; then
+        # update the repositories
+        apt update
 
-    # Set non-interactive frontend (to avoid `tzdata` config options selection)
-    APT_INSTALL_CMD="DEBIAN_FRONTEND=noninteractive"
-    APT_INSTALL_CMD="${APT_INSTALL_CMD} apt install -y"
+        # Set non-interactive frontend (to avoid `tzdata` config options selection)
+        APT_INSTALL_CMD="DEBIAN_FRONTEND=noninteractive"
+        APT_INSTALL_CMD="${APT_INSTALL_CMD} apt install -y"
 
-    if [ "${INSTALL_GTK}" == true ]; then
-        # install gtk+3.0
-        APT_INSTALL_CMD="${APT_INSTALL_CMD} gtk+3.0"
+        if [ "${INSTALL_GTK}" == true ]; then
+            # install gtk+3.0
+            APT_INSTALL_CMD="${APT_INSTALL_CMD} gtk+3.0"
+        fi
+
+        if [ "${INSTALL_XVFB}" == true ]; then
+            # install xvfb
+            APT_INSTALL_CMD="${APT_INSTALL_CMD} xvfb"
+        fi
+
+        eval "${APT_INSTALL_CMD}"
     fi
-
-    if [ "${INSTALL_XVFB}" == true ]; then
-        # install xvfb
-        APT_INSTALL_CMD="${APT_INSTALL_CMD} xvfb"
-    fi
-
-    eval "${APT_INSTALL_CMD}"
 }
 
 # Check if any application needs virtual screen and launch it
@@ -297,13 +299,13 @@ if [ "${OS}" == "ubuntu" ]  || [ "${OS}" = "debian" ]; then
     # Set the required packages for eclipse to `true`
     INSTALL_GTK=true
     INSTALL_XVFB=true
-
-    # Call function `install_pkgs_via_apt` to install packages
-    install_packages
 fi
 
 # Download the sample apps and install
 download_and_install_artifacts
+
+# Call function `install_pkgs_via_apt` to install packages
+install_packages
 
 # Dry run for SCC generation (To get exact size)
 dry_run
