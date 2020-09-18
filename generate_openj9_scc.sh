@@ -19,7 +19,7 @@ unset OPENJ9_JAVA_OPTIONS
 SCC_SIZE="50m"
 
 # Runs for generating SCC
-SCC_GEN_RUNS_COUNT=3
+SCC_GEN_RUNS_COUNT=1
 
 # is running on ubuntu or debian - package manager apt
 IS_APT_ENV=false
@@ -239,8 +239,8 @@ function run_eclipse_and_stop() {
     "${INSTALL_PATH_ECLIPSE}"/eclipse/eclipse &
     # Saving eclipse PID
     ECLIPSE_PID=$!
-    # Waiting for eclipse to start - Sleeping for 1 minute
-    sleep 1m
+    # Waiting for eclipse to start - Sleeping for 20 seconds
+    sleep 20s
     # Killing eclipse process
     kill -9 $ECLIPSE_PID
     # Waiting for process to be killed - Sleeping for 10 seconds
