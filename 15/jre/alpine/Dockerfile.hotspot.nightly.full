@@ -61,20 +61,24 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='c10b0df8decbc9b72994c16b9659e9ea284acefe59f0a308c63c121960d89507'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-18-03-54/OpenJDK15U-jre_aarch64_linux_hotspot_2020-09-18-03-54.tar.gz'; \
+         ESUM='49bdb646fb0354667c47e835e3306df62114acfad65be79884af85c65d0caa6c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-23-15-14/OpenJDK15U-jre_aarch64_linux_hotspot_2020-09-23-15-14.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='2199b894dcf5ab78e429989a64f04db42b0312b5dd7d5dda56d9d16dba9b89aa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-18-03-54/OpenJDK15U-jre_arm_linux_hotspot_2020-09-18-03-54.tar.gz'; \
+         ESUM='2de640876302c95b4935acfd6ffa4d7957b2e9ce15be02b8e3ad4aea666f868c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-23-15-14/OpenJDK15U-jre_arm_linux_hotspot_2020-09-23-15-14.tar.gz'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='92362c65b54ba89ffd5c36beb53febfc8053126d853680a93ee3b1d6d1635e2d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-23-15-14/OpenJDK15U-jre_ppc64le_linux_hotspot_2020-09-23-15-14.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='e7a5f729483b4880a5ed232271daa4d88339ac1ca202ebdfb92c6426ebdc9694'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-18-03-54/OpenJDK15U-jre_s390x_linux_hotspot_2020-09-18-03-54.tar.gz'; \
+         ESUM='d0dfc4b577d1ed6583f175db4a1080ab031210236941e40f6aaa7574f76abf12'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-23-15-14/OpenJDK15U-jre_s390x_linux_hotspot_2020-09-23-15-14.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='dbb15ba8fff5a37bfd49752915fbd65626aea23176036057ed72febd1955e2c9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-18-03-54/OpenJDK15U-jre_x64_linux_hotspot_2020-09-18-03-54.tar.gz'; \
+         ESUM='ef297d0078ae0a042906db124bec3c68c256892c66b092fcfddaa34bff3fb028'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-23-15-14/OpenJDK15U-jre_x64_linux_hotspot_2020-09-23-15-14.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
