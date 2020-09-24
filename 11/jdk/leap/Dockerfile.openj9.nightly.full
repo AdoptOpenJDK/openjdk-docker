@@ -1,0 +1,66 @@
+# ------------------------------------------------------------------------------
+#               NOTE: THIS DOCKERFILE IS GENERATED VIA "build_latest.sh" or "update_multiarch.sh"
+#
+#                       PLEASE DO NOT EDIT IT DIRECTLY.
+# ------------------------------------------------------------------------------
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM opensuse/leap:15.2
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
+    && zypper update -y; zypper clean --all
+
+ENV JAVA_VERSION jdk11u
+
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='8306506754bfb128a874839ee41aaa5bf6f18748fb92f050d3da29ed99ff7eb9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_aarch64_linux_openj9_2020-09-17-11-38.tar.gz'; \
+         ;; \
+       ppc64el|ppc64le) \
+         ESUM='be702c783ee9c753e93ebfebb1a9009a91095d5051af7f1ba6c5884385695a3c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_ppc64le_linux_openj9_2020-09-17-11-38.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='dfb48cdc79c4834c9de929e6832366b459826bee0c3f92c6c512ce5d6be4d394'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_s390x_linux_openj9_2020-09-17-11-38.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='0728d852e4aebe5ffd3bf2af1c882906c94fa76ad5a6b103177f7314a0535b1c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_x64_linux_openj9_2020-09-17-11-38.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -LfsSo /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    echo "${ESUM} */tmp/openjdk.tar.gz" | sha256sum -c -; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    rm -rf /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+COPY generate_openj9_scc.sh /scripts/
+        RUN /scripts/generate_openj9_scc.sh
+        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+CMD ["jshell"]

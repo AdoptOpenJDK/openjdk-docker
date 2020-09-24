@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='4b43fa61b088cabfc298885b187d1d3f594c749db165f7f548259f35a9614154'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-04-03-59/OpenJDK8U-jre_aarch64_linux_openj9_2020-08-04-03-59.tar.gz'; \
+         ESUM='ed581c453c8fce65ad21c441aa3bd96b428b33ba6dae060d53d6bb35cd25a161'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_aarch64_linux_openj9_2020-09-18-03-55.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='99014e51e892fbd6e1a434b23ad89245f3a481f1ebcc78cd89eb6f0b6b30774f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_ppc64le_linux_openj9_2020-08-05-08-20.tar.gz'; \
+         ESUM='ca0e48651b47d2fd8c52150bbc67a67fdb685b5ff91f28496aeded6d3bf6e32a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_ppc64le_linux_openj9_2020-09-18-03-55.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c12775bafb76909076865f693990353cec2b215072434c6494b0150b34f9da12'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_s390x_linux_openj9_2020-08-05-08-20.tar.gz'; \
+         ESUM='5920f72d4103133e686020c2d9199eb74e7eb2568f3392b4803f21b408448b33'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_s390x_linux_openj9_2020-09-18-03-55.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='eb170bb365cc8c0ec12fb4d6ac30b06d3e33675fe87fb029f31be7e2f2173d1a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-08-05-08-20/OpenJDK8U-jre_x64_linux_openj9_2020-08-05-08-20.tar.gz'; \
+         ESUM='c59aed8ef1b440d55578d9f0417bb18669cdde5148d631b4ee3286545126a2db'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_x64_linux_openj9_2020-09-18-03-55.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -63,3 +63,6 @@ RUN set -eux; \
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+COPY generate_openj9_scc.sh /scripts/
+        RUN /scripts/generate_openj9_scc.sh
+        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
