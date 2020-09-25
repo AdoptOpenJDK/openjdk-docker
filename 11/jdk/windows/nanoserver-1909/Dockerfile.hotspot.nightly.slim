@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/powershell:nanoserver-1909
+FROM mcr.microsoft.com/windows/nanoserver:1909
+
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -27,11 +28,11 @@ ENV JAVA_VERSION jdk11u
 COPY slim-java* C:/ProgramData/Java/
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_x64_windows_hotspot_2020-09-17-11-38.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-24-11-57/OpenJDK11U-jdk_x64_windows_hotspot_2020-09-24-11-57.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-17-11-38/OpenJDK11U-jdk_x64_windows_hotspot_2020-09-17-11-38.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (83d31876eb8d421babf59bcd7ff883d72ffe2c6254fd29b73f9dfed2dde6e398) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '83d31876eb8d421babf59bcd7ff883d72ffe2c6254fd29b73f9dfed2dde6e398') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-09-24-11-57/OpenJDK11U-jdk_x64_windows_hotspot_2020-09-24-11-57.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (69041f2dbb0cb3619304aedfe1225c0c8f5a877a5c5e124ff9629a04f5feda90) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '69041f2dbb0cb3619304aedfe1225c0c8f5a877a5c5e124ff9629a04f5feda90') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \

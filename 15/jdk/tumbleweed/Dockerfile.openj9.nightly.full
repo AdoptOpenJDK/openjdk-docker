@@ -24,26 +24,26 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
     && zypper update -y; zypper clean --all
 
-ENV JAVA_VERSION jdk-15+36_openj9-0.23.0-m1
+ENV JAVA_VERSION jdk15u
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='ff0ee2ebc1ced5809acad873b592c0ff4e326a017f04bcd6371e7dd41c602f70'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.23.0-m1/OpenJDK15U-jdk_aarch64_linux_openj9_15_36_openj9-0.23.0-m1.tar.gz'; \
+         ESUM='32b09a497575a3bfa40b7e88a79a8083dbf28aaf2992b2cebdd4b3e1a59c5091'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jdk_aarch64_linux_openj9_2020-09-25-11-08.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='b5b731e21f52c2e791a7ab7bcdc57b46be7964942f47eca746fd6167b0f0e1f3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.23.0-m1/OpenJDK15U-jdk_ppc64le_linux_openj9_15_36_openj9-0.23.0-m1.tar.gz'; \
+         ESUM='5d52c533661c0a12014a3d4daa1cbef3cf0bc9537bdbd7bdb366de06246a1870'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jdk_ppc64le_linux_openj9_2020-09-25-11-08.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='923c79f425d8836149cd628504d82c793027555db14f44a2bd8e5c69aeacbbd8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.23.0-m1/OpenJDK15U-jdk_s390x_linux_openj9_15_36_openj9-0.23.0-m1.tar.gz'; \
+         ESUM='3aaa10a74440b6382b4b3ab6235882b91ff096b286add377bb841e89e1b49e0a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jdk_s390x_linux_openj9_2020-09-25-11-08.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='57b867aaff318267e152819db149b4d5b00e1879bff579b1c75fa59f77b3bcbe'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.23.0-m1/OpenJDK15U-jdk_x64_linux_openj9_15_36_openj9-0.23.0-m1.tar.gz'; \
+         ESUM='705bfb4201be7941e6b83a028c0a2b0e58314863a42b8dbb59e104d9d4243136'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jdk_x64_linux_openj9_2020-09-25-11-08.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
