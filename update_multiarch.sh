@@ -73,6 +73,10 @@ do
 							cp slim-java.sh config/slim-java* "${dir}"
 						fi
 					fi
+					# Check if openj9 and copy scc script
+					if [ "${vm}" == "openj9" ]; then
+						cp generate_openj9_scc.sh "${dir}"
+					fi
 				done
 			done
 		done

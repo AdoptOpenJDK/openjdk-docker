@@ -137,7 +137,8 @@ print_windows_ver() {
 	nanoserver_pat="nanoserver.*"
 	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 		cat >> "$1" <<-EOI
-	FROM mcr.microsoft.com/powershell:nanoserver-${os_version}
+	FROM mcr.microsoft.com/windows/nanoserver:${os_version}
+
 
 EOI
 	else
