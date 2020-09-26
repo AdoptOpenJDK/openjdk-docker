@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/powershell:nanoserver-1809
+FROM mcr.microsoft.com/windows/nanoserver:1809
+
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -25,11 +26,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk8u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_x64_windows_openj9_2020-09-18-03-55.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-25-06-22/OpenJDK8U-jre_x64_windows_openj9_2020-09-25-06-22.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-18-03-55/OpenJDK8U-jre_x64_windows_openj9_2020-09-18-03-55.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (1900d3873a4b92257b954a2bd3686c0105c503c7e6d6d7a49cb5bd6e273b6ae9) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '1900d3873a4b92257b954a2bd3686c0105c503c7e6d6d7a49cb5bd6e273b6ae9') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-25-06-22/OpenJDK8U-jre_x64_windows_openj9_2020-09-25-06-22.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (a6af92c3200cff42bee659274db847ba96711387e599a594c672cad3e3132a8c) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'a6af92c3200cff42bee659274db847ba96711387e599a594c672cad3e3132a8c') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
