@@ -699,7 +699,7 @@ print_cmd() {
 }
 
 copy_scc_script() {
-    if [ "${vm}" == "openj9" ]; then
+    if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
         cat >> "$1" <<-EOI
 COPY generate_openj9_scc.sh /scripts/
 EOI
@@ -707,7 +707,7 @@ EOI
 }
 
 run_scc_gen() {
-    if [ "${vm}" == "openj9" ]; then
+    if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
         cat >> "$1" <<-EOI
         RUN /scripts/generate_openj9_scc.sh
         ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
