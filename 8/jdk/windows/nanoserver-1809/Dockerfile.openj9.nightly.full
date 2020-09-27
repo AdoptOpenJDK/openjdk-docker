@@ -26,11 +26,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk8u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-25-06-22/OpenJDK8U-jdk_x64_windows_openj9_2020-09-25-06-22.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-26-11-07/OpenJDK8U-jdk_x64_windows_openj9_2020-09-26-11-07.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-25-06-22/OpenJDK8U-jdk_x64_windows_openj9_2020-09-25-06-22.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (53b7822937b18dc6af440dbd34e926acfef4141ded4db8655262457b5873e8a8) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '53b7822937b18dc6af440dbd34e926acfef4141ded4db8655262457b5873e8a8') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-09-26-11-07/OpenJDK8U-jdk_x64_windows_openj9_2020-09-26-11-07.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (1bab3195fbd4a5f3645b9fecfd6f18cfac0541f72fe4efaa33eb9e1d52722062) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '1bab3195fbd4a5f3645b9fecfd6f18cfac0541f72fe4efaa33eb9e1d52722062') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
@@ -48,6 +48,3 @@ ENV JAVA_HOME=C:\\openjdk-8 \
     WindowsPATH="C:\\Windows\\system32;C:\\Windows"
 ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
-COPY generate_openj9_scc.sh /scripts/
-        RUN /scripts/generate_openj9_scc.sh
-        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"

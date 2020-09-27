@@ -26,11 +26,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk15u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jre_x64_windows_openj9_2020-09-25-11-08.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-26-10-24/OpenJDK15U-jre_x64_windows_openj9_2020-09-26-10-24.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-25-11-08/OpenJDK15U-jre_x64_windows_openj9_2020-09-25-11-08.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (c3d995ccec239f8f0293d3b25c6b707713732237decd6238b94f1c8e29bb427c) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'c3d995ccec239f8f0293d3b25c6b707713732237decd6238b94f1c8e29bb427c') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-26-10-24/OpenJDK15U-jre_x64_windows_openj9_2020-09-26-10-24.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (54b571be19a3c61be4223f7baab856c2c6ba77094a4f34da9c27e79d4eb85763) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '54b571be19a3c61be4223f7baab856c2c6ba77094a4f34da9c27e79d4eb85763') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
@@ -48,6 +48,3 @@ ENV JAVA_HOME=C:\\openjdk-15 \
     WindowsPATH="C:\\Windows\\system32;C:\\Windows"
 ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
-COPY generate_openj9_scc.sh /scripts/
-        RUN /scripts/generate_openj9_scc.sh
-        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
