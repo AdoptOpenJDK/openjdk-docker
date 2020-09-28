@@ -285,7 +285,7 @@ function build_dockerfile {
 		fi
 	fi
 	# Check if openj9 and copy scc script
-	if [ "${vm}" == "openj9" ]; then
+	if [[ "${vm}" == "openj9" && "${os}" != "windows" ]]; then
 		cp generate_openj9_scc.sh "${dir}"/
 	fi
 	echo "INFO: Building ${trepo} ${tag} from $file ..."
