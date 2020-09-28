@@ -278,6 +278,13 @@ function remove_packages() {
     fi
 }
 
+# Changing scc directory permission to 0755
+function change_permissions() {
+    if [ -d "/opt/java/.scc" ]; then
+        chmod -R 0775 /opt/java/.scc
+    fi
+}
+
 # check for OS release file
 if [ -f /etc/os-release ]; then
     # load file to get the ID (OS name)
@@ -316,3 +323,6 @@ remove_artifacts
 
 # Remove packages
 remove_packages
+
+# Change permission of `/opt/java/.scc` to be accessible for all users of the image
+change_permissions
