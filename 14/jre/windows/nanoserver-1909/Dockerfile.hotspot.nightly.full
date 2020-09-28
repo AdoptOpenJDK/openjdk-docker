@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/powershell:nanoserver-1909
+FROM mcr.microsoft.com/windows/nanoserver:1909
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
