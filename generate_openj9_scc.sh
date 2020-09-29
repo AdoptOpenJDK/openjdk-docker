@@ -278,10 +278,10 @@ function remove_packages() {
     fi
 }
 
-# Changing scc directory permission to 0755
+# Changing scc directory permission to 0777
 function change_permissions() {
     if [ -d "/opt/java/.scc" ]; then
-        chmod -R 0775 /opt/java/.scc
+        chmod -R 0777 /opt/java/.scc
     fi
 }
 
