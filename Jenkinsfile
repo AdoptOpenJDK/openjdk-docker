@@ -66,7 +66,7 @@ pipeline {
                 }
                 stage('Linux ppc64le') {
                     agent {
-                        label "docker&&linux&&ppc64le"
+                        label "dockerBuild&&linux&&ppc64le"
                     }
                     steps {
                         dockerBuild(null)
