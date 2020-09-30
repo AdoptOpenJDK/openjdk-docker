@@ -660,7 +660,7 @@ print_java_options() {
 		esac
 		;;
 	openj9)
-		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle";
+		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
 		;;
 	esac
 
