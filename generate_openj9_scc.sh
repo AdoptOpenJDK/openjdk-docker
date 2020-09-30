@@ -275,6 +275,8 @@ function remove_packages() {
         fi
 
         eval "${APT_REMOVE_CMD}"
+
+        rm -rf /var/lib/apt/lists/*
     fi
 }
 
