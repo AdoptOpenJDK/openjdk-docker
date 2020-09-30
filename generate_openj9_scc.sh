@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,8 +37,8 @@ INSTALL_PATH_TOMCAT=/opt/tomcat-home
 TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"
 
 # Check and download tomcat
-function check_to_download_tomcat() {
-    if [ "${RUN_TOMCAT}" == true ]; then
+check_to_download_tomcat() {
+    if [ "${RUN_TOMCAT}" = true ]; then
         # Creating a temporary directory for tomcat download
         mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}"
 
@@ -70,24 +70,27 @@ function check_to_download_tomcat() {
 }
 
 # Run the applications for specified iterations
-function run_apps() {
-    for ((i=0; i<SCC_GEN_RUNS_COUNT; i++))
-    do
-        # Check for app availability and run them to generate SCC
-        if [ "${RUN_TOMCAT}" == true ]; then
-            run_tomcat_and_stop
-        fi
-    done
+run_apps() {
+    if [ $SCC_GEN_RUNS_COUNT -gt 0 ]; then
+        for i in $(seq 1 $SCC_GEN_RUNS_COUNT)
+        do
+            # Check for app availability and run them to generate SCC
+            if [ "${RUN_TOMCAT}" = true ]; then
+                run_tomcat_and_stop
+            fi
+        done
+    fi
 }
 
+
 # function to download the applications
-function download_and_install_artifacts() {
+download_and_install_artifacts() {
     # check for tomcat
     check_to_download_tomcat
 }
 
 # dry run to right size the cache
-function dry_run() {
+dry_run() {
     # Creating base layer first instead of running sample programs to generate SCC directly
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version
 
@@ -101,7 +104,7 @@ function dry_run() {
 
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy || true
 
-    SCC_SIZE="${SCC_SIZE:0:-1}"
+    SCC_SIZE="$(printf '%s' "SCC_SIZE" | cut -c 1-$((${#SCC_SIZE}-1)))"
 
     SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}")
 
@@ -116,7 +119,7 @@ function dry_run() {
 }
 
 # Generate SCC by running apps
-function generate_scc() {
+generate_scc() {
     # Pointing cache for sample app runs
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"
     
@@ -130,12 +133,12 @@ function generate_scc() {
 }
 
 # Remove the downloaded sample apps
-function remove_artifacts() {
+remove_artifacts() {
     # Command to remove apps
     REMOVE_APPS="rm -rf"
 
     # check for tomcat
-    if [ "${RUN_TOMCAT}" == true ]; then
+    if [ "${RUN_TOMCAT}" = true ]; then
         REMOVE_APPS="${REMOVE_APPS} ${INSTALL_PATH_TOMCAT}"
     fi
 
@@ -143,7 +146,7 @@ function remove_artifacts() {
 }
 
 # Run tomcat and stop it after the startup
-function run_tomcat_and_stop() {
+run_tomcat_and_stop() {
     # Start tomcat wait till it comes up shut it down
     "${INSTALL_PATH_TOMCAT}"/bin/startup.sh
     # wait till tomcat starts -  wait for 5 seconds
@@ -155,7 +158,7 @@ function run_tomcat_and_stop() {
 }
 
 # Changing scc directory permission to 0777
-function change_permissions() {
+change_permissions() {
     if [ -d "/opt/java/.scc" ]; then
         chmod -R 0777 /opt/java/.scc
     fi
