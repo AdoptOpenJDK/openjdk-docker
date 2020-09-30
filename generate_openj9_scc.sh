@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ ECLIPSE_DWNLD_URL="http://www.mirrorservice.org/sites/download.eclipse.org/eclip
 TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"
 
 # Check and downlaod eclipse
-function check_to_download_eclipse() {
-    if [ "${RUN_ECLIPSE}" == true ]; then
+check_to_download_eclipse() {
+    if [ "${RUN_ECLIPSE}" = true ]; then
         # Creating a temporary directory for eclipse download
         mkdir -p "${DOWNLOAD_PATH_ECLIPSE}" "${INSTALL_PATH_ECLIPSE}"
 
@@ -63,8 +63,8 @@ function check_to_download_eclipse() {
 }
 
 # Check and download tomcat
-function check_to_download_tomcat() {
-    if [ "${RUN_TOMCAT}" == true ]; then
+check_to_download_tomcat() {
+    if [ "${RUN_TOMCAT}" = true ]; then
         # Creating a temporary directory for tomcat download
         mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}"
 
@@ -82,7 +82,7 @@ function check_to_download_tomcat() {
 }
 
 # ubuntu/debian install packages required for eclipse
-function apt_install_packages() {
+apt_install_packages() {
     # update the repositories
     apt update
 
@@ -90,12 +90,12 @@ function apt_install_packages() {
     APT_INSTALL_CMD="DEBIAN_FRONTEND=noninteractive"
     APT_INSTALL_CMD="${APT_INSTALL_CMD} apt install -y"
 
-    if [ "${INSTALL_GTK}" == true ]; then
+    if [ "${INSTALL_GTK}" = true ]; then
         # install gtk+3.0
         APT_INSTALL_CMD="${APT_INSTALL_CMD} gtk+3.0"
     fi
 
-    if [ "${INSTALL_XVFB}" == true ]; then
+    if [ "${INSTALL_XVFB}" = true ]; then
         # install xvfb
         APT_INSTALL_CMD="${APT_INSTALL_CMD} xvfb"
     fi
@@ -104,9 +104,9 @@ function apt_install_packages() {
 }
 
 # Check if any application needs virtual screen and launch it
-function check_and_start_xvfb() {
+check_and_start_xvfb() {
     # check if `xvfb` installed
-    if [ "${INSTALL_XVFB}" == true ]; then
+    if [ "${INSTALL_XVFB}" = true ]; then
         # Spawning a virtual screen for GUI apps
         Xvfb :1 -ac -screen 0 1024x768x8 &
         # Saving the PID
@@ -119,9 +119,9 @@ function check_and_start_xvfb() {
 }
 
 # Kill the created virtual screen
-function check_and_stop_xvfb() {
+check_and_stop_xvfb() {
     # check if `xvfb` installed
-    if [ "${INSTALL_XVFB}" == true ]; then
+    if [ "${INSTALL_XVFB}" = true ]; then
         # Killing `xvfb` process to remove screen
         kill -9 $XVFB_PID
         # Setting back the DISPLAY to older value
@@ -130,27 +130,29 @@ function check_and_stop_xvfb() {
 }
 
 # Run the applications for specified iterations
-function run_apps() {
-    for ((i=0; i<SCC_GEN_RUNS_COUNT; i++))
-    do
-        if [ "${RUN_ECLIPSE}" == true ]; then
-            run_eclipse_and_stop
-        fi
-        if [ "${RUN_TOMCAT}" == true ]; then
-            run_tomcat_and_stop
-        fi
-    done
+run_apps() {
+    if [ $SCC_GEN_RUNS_COUNT -gt 0 ]; then
+        for i in $(seq 1 $SCC_GEN_RUNS_COUNT)
+        do
+            if [ "${RUN_ECLIPSE}" = true ]; then
+                run_eclipse_and_stop
+            fi
+            if [ "${RUN_TOMCAT}" = true ]; then
+                run_tomcat_and_stop
+            fi
+        done
+    fi
 }
 
 # function to install packages
-function install_packages() {
-    if [ "${IS_APT_ENV}" == true ]; then
+install_packages() {
+    if [ "${IS_APT_ENV}" = true ]; then
         apt_install_packages
     fi
 }
 
 # function to download the applications
-function download_and_install_artifacts() {
+download_and_install_artifacts() {
 
     # check for eclipse
     check_to_download_eclipse
@@ -161,7 +163,7 @@ function download_and_install_artifacts() {
 }
 
 # dry run to right size the cache
-function dry_run() {
+dry_run() {
     # Creating base layer first instead of running sample programs to generate SCC directly
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version
 
@@ -181,7 +183,7 @@ function dry_run() {
 
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy || true
 
-    SCC_SIZE="${SCC_SIZE:0:-1}"
+    SCC_SIZE="$(printf '%s' "SCC_SIZE" | cut -c 1-$((${#SCC_SIZE}-1)))"
 
     SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}")
 
@@ -196,7 +198,7 @@ function dry_run() {
 }
 
 # Generate SCC by running apps
-function generate_scc() {
+generate_scc() {
     # Pointing cache for sample app runs
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"
 
@@ -216,17 +218,17 @@ function generate_scc() {
 }
 
 # Remove the downloaded sample apps
-function remove_artifacts() {
+remove_artifacts() {
     # Command to remove apps
     REMOVE_APPS="rm -rf"
 
     # check for eclipse
-    if [ "${RUN_ECLIPSE}" == true ]; then
+    if [ "${RUN_ECLIPSE}" = true ]; then
         REMOVE_APPS="${REMOVE_APPS} ${INSTALL_PATH_ECLIPSE}"
     fi
 
     # check for tomcat
-    if [ "${RUN_TOMCAT}" == true ]; then
+    if [ "${RUN_TOMCAT}" = true ]; then
         REMOVE_APPS="${REMOVE_APPS} ${INSTALL_PATH_TOMCAT}"
     fi
 
@@ -234,7 +236,7 @@ function remove_artifacts() {
 }
 
 # Run eclipse and stop it after the startup
-function run_eclipse_and_stop() {
+run_eclipse_and_stop() {
     # Starting eclipse in background
     "${INSTALL_PATH_ECLIPSE}"/eclipse/eclipse &
     # Saving eclipse PID
@@ -248,7 +250,7 @@ function run_eclipse_and_stop() {
 }
 
 # Run tomcat and stop it after the startup
-function run_tomcat_and_stop() {
+run_tomcat_and_stop() {
     # Start tomcat wait till it comes up shut it down
     "${INSTALL_PATH_TOMCAT}"/bin/startup.sh
     # wait till tomcat starts -  wait for 5 seconds
@@ -260,16 +262,16 @@ function run_tomcat_and_stop() {
 }
 
 # Remove the installed packages
-function remove_packages() {
-    if [ "${IS_APT_ENV}" == true ]; then
+remove_packages() {
+    if [ "${IS_APT_ENV}" = true ]; then
         APT_REMOVE_CMD="apt --purge -y autoremove"
 
-        if [ "${INSTALL_GTK}" == true ]; then
+        if [ "${INSTALL_GTK}" = true ]; then
             # remove gtk+3.0
             APT_REMOVE_CMD="${APT_REMOVE_CMD} gtk+3.0"
         fi
 
-        if [ "${INSTALL_XVFB}" == true ]; then
+        if [ "${INSTALL_XVFB}" = true ]; then
             # remove xvfb
             APT_REMOVE_CMD="${APT_REMOVE_CMD} xvfb"
         fi
@@ -279,7 +281,7 @@ function remove_packages() {
 }
 
 # Changing scc directory permission to 0755
-function change_permissions() {
+change_permissions() {
     if [ -d "/opt/java/.scc" ]; then
         chmod -R 0775 /opt/java/.scc
     fi
@@ -289,12 +291,12 @@ function change_permissions() {
 if [ -f /etc/os-release ]; then
     # load file to get the ID (OS name)
     # shellcheck disable=SC1091
-    source /etc/os-release
+    . /etc/os-release
     OS=$ID
 fi
 
 # Check if OS is ubuntu/debian (we can run eclipse as packages required for it are available)
-if [ "${OS}" == "ubuntu" ]  || [ "${OS}" = "debian" ]; then
+if [ "${OS}" = "ubuntu" ]  || [ "${OS}" = "debian" ]; then
     # set IS_APT_ENV true
     IS_APT_ENV=true
 
