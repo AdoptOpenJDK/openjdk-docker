@@ -708,10 +708,21 @@ EOI
 
 run_scc_gen() {
     if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
-        cat >> "$1" <<-EOI
-        RUN /scripts/generate_openj9_scc.sh
-        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+        # Alpine needs bash to be present to run the generate_openj9_scc.sh script
+        if [[ "${os_family}" == "alpine" ]]; then
+            cat >> "$1" <<-EOI
+            RUN apk add --no-cache --virtual .scc-deps bash curl; \\
+            /scripts/generate_openj9_scc.sh; \\
+            apk del --purge .scc-deps; \\
+            rm -rf /var/cache/apk/*;
+            ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 EOI
+        else
+            cat >> "$1" <<-EOI
+            RUN /scripts/generate_openj9_scc.sh
+            ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+EOI
+        fi
     fi
 }
 
