@@ -699,20 +699,35 @@ print_cmd() {
 }
 
 copy_scc_script() {
-    if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
-        cat >> "$1" <<-EOI
-COPY generate_openj9_scc.sh /scripts/
+	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
+	cat >> "$1" <<-EOI
+
+COPY generate_openj9_scc.sh /usr/local/bin/
+
 EOI
-    fi
+	fi
 }
 
 run_scc_gen() {
-    if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
-        cat >> "$1" <<-EOI
-        RUN /scripts/generate_openj9_scc.sh
-        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
+		# Alpine needs bash to be present to run the generate_openj9_scc.sh script
+		if [[ "${os_family}" == "alpine" ]]; then
+			cat >> "$1" <<-EOI
+RUN apk add --no-cache --virtual .scc-deps bash curl; \\
+    /usr/local/bin/generate_openj9_scc.sh; \\
+    apk del --purge .scc-deps; \\
+    rm -rf /var/cache/apk/*;
+
+ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 EOI
-    fi
+		else
+			cat >> "$1" <<-EOI
+RUN /usr/local/bin/generate_openj9_scc.sh
+
+ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+EOI
+		fi
+	fi
 }
 
 # Generate the dockerfile for a given build, build_type and OS
