@@ -26,7 +26,7 @@ fi
 function get_java_version() {
 	# Only version 8 has the 1.8.0 format, all others have x.y.z-nnn where x is the major version
 	jver_string="$(java -version | grep "^openjdk version" | awk '{ print $3 }')"
-	ver_string="$(echo ${jver_str} | awk -F'.' '{ print $1 }' | awk -F'"' '{ print $2 }')"
+	ver_string="$(echo "${jver_string}" | awk -F'.' '{ print $1 }' | awk -F'"' '{ print $2 }')"
 	case "${ver_string}" in
 	1)
 		java_major_version="8";
@@ -41,7 +41,7 @@ function get_java_version() {
 get_java_version
 
 # Validate prerequisites(tools) necessary for making a slim build
-if [ ${java_major_version} -ge 14 ]; then
+if [ "${java_major_version}" -ge 14 ]; then
 	tools="jar jarsigner strip"
 else
 	tools="jar jarsigner pack200 strip"
@@ -214,7 +214,7 @@ function rt_jar_classes() {
 # Strip the debug info from all jar files
 function strip_jar() {
 	# pack200 is not available from Java 14 onwards
-	if [ ${java_major_version} -ge 14 ]; then
+	if [ "${java_major_version}" -ge 14 ]; then
 		return;
 	fi
 	# Using pack200 to strip debug info in jars
