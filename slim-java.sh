@@ -25,7 +25,7 @@ fi
 # Which major java version
 function get_java_version() {
 	# Only version 8 has the 1.8.0 format, all others have x.y.z-nnn where x is the major version
-	jver_string="$(java -version | grep "^openjdk version" | awk '{ print $3 }')"
+	jver_string="$(java -version 2>&1 | grep "^openjdk version" | awk '{ print $3 }')"
 	ver_string="$(echo "${jver_string}" | awk -F'.' '{ print $1 }' | awk -F'"' '{ print $2 }')"
 	case "${ver_string}" in
 	1)
