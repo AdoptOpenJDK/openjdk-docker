@@ -41,7 +41,7 @@ print_legal() {
 
 # Print the supported Ubuntu OS
 print_ubuntu_ver() {
-	os_version="18.04"
+	os_version="20.04"
 
 	cat >> "$1" <<-EOI
 	FROM ubuntu:${os_version}

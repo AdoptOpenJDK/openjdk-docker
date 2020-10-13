@@ -11,7 +11,7 @@ Dockerfiles and build scripts for generating Docker Images based on various Adop
 AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Unofficial Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
 * [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
   - Linux
-    - Ubuntu (18.04): Release
+    - Ubuntu (20.04): Release
   - Windows
     - Windows Server Core (ltsc2016 and 1809): Release
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
@@ -20,7 +20,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
     - Debian (Buster): Release, Nightly and Slim
     - UBI (8): Release, Nightly and Slim
     - UBI-Minimal (8): Release, Nightly and Slim
-    - Ubuntu (18.04): Nightly and Slim
+    - Ubuntu (20.04): Nightly and Slim
 
 
 ## Unofficial Images: Docker Image Build Types and Associated Tags
