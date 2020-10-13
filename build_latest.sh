@@ -284,10 +284,6 @@ function build_dockerfile {
 		    cp slim-java.sh config/slim-java* "${dir}"/
 		fi
 	fi
-	# Check if openj9 and copy scc script
-	if [[ "${vm}" == "openj9" && "${os}" != "windows" ]]; then
-		cp generate_openj9_scc.sh "${dir}"/
-	fi
 	echo "INFO: Building ${trepo} ${tag} from $file ..."
 	pushd "${dir}" >/dev/null || return
 	build_image "${trepo}" "${build}" "${btype}" "${tag}"
