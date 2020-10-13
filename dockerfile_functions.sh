@@ -698,33 +698,72 @@ print_cmd() {
 	fi
 }
 
-copy_scc_script() {
+print_scc_gen() {
 	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
-	cat >> "$1" <<-EOI
-
-COPY generate_openj9_scc.sh /usr/local/bin/
-
-EOI
-	fi
-}
-
-run_scc_gen() {
-	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
-		# Alpine needs bash to be present to run the generate_openj9_scc.sh script
 		if [[ "${os_family}" == "alpine" ]]; then
 			cat >> "$1" <<-EOI
-RUN apk add --no-cache --virtual .scc-deps bash curl; \\
-    /usr/local/bin/generate_openj9_scc.sh; \\
-    apk del --purge .scc-deps; \\
-    rm -rf /var/cache/apk/*;
-
-ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+RUN apk add --no-cache --virtual .scc-deps bash curl
 EOI
-		else
-			cat >> "$1" <<-EOI
-RUN /usr/local/bin/generate_openj9_scc.sh
+		fi
+		cat >> "$1" <<'EOI'
+SHELL ["/bin/bash", "-c"]
+
+RUN set -euo pipefail \
+    && unset OPENJ9_JAVA_OPTIONS \
+    && SCC_SIZE="50m" \
+    && SCC_GEN_RUNS_COUNT=3 \
+    && DOWNLOAD_PATH_TOMCAT=/tmp/tomcat \
+    && INSTALL_PATH_TOMCAT=/opt/tomcat-home \
+    && TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98" \
+    && TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz" \
+    && mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}" \
+    && curl -LfsSo "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}" \
+    && echo "${TOMCAT_CHECKSUM} *${DOWNLOAD_PATH_TOMCAT}/tomcat.tar.gz" | sha512sum -c - \
+    && tar -xf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1 \
+    && rm -rf "${DOWNLOAD_PATH_TOMCAT}" \
+    && java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
+    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
+    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
+       do \
+           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+           sleep 5; \
+           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+           sleep 5; \
+       done \
+    \
+    && FULL=$((java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
+    && DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true) \
+    && SCC_SIZE="${SCC_SIZE:0:-1}" \
+    && SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}") \
+    && [ "${SCC_SIZE}" -eq 0 ] && SCC_SIZE=1 || true \
+    && SCC_SIZE="${SCC_SIZE}m" \
+    && java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
+    && unset OPENJ9_JAVA_OPTIONS \
+    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
+    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
+       do \
+           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+           sleep 5; \
+           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+           sleep 5; \
+       done \
+    \
+    && FULL=$((java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
+    && echo "SCC layer is $FULL% full." \
+    && rm -rf "${INSTALL_PATH_TOMCAT}" \
+    && if [ -d "/opt/java/.scc" ]; then \
+          chmod -R 0777 /opt/java/.scc; \
+       fi \
+    \
+    && echo "SCC generation phase completed"
 
 ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+
+EOI
+		if [[ "${os_family}" == "alpine" ]]; then
+			cat >> "$1" <<-EOI
+RUN apk del --purge .scc-deps; \\
+    rm -rf /var/cache/apk/*;
 EOI
 		fi
 	fi
@@ -759,8 +798,7 @@ generate_dockerfile() {
 	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}";
 	print_java_env "${file}" "${bld}" "${btype}" "${os_family}";
 	print_java_options "${file}" "${bld}" "${btype}";
-	copy_scc_script "${file}";
-	run_scc_gen "${file}";
+	print_scc_gen "${file}";
 	print_cmd "${file}";
 	echo "done"
 	echo
