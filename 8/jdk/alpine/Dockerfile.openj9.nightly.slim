@@ -63,20 +63,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d4d02280c75c604d30426d917d1de4e3e3666fad9b2c6b3548bcf44e77dfbad9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-12-04-27/OpenJDK8U-jdk_aarch64_linux_openj9_2020-10-12-04-27.tar.gz'; \
+         ESUM='a3b2797a0452f99450a216caeb005438ca28a3a811b57a8a9195842e064ac419'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-13-06-48/OpenJDK8U-jdk_aarch64_linux_openj9_2020-10-13-06-48.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='db9d70fc55207d833f37af3533cd3221ff172602cb4a9151c59d9fc773eb9b1a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-12-04-27/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-10-12-04-27.tar.gz'; \
+         ESUM='dc7bc0527f14ab4e9fef16fedef3cf1ff3132f8c592a29a62d84696eac41f4f3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-13-06-48/OpenJDK8U-jdk_ppc64le_linux_openj9_2020-10-13-06-48.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='83f7761b5e7dbcfa43cc2dab1b3e173f6d05697d06208766c2047335000f6a1a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-12-04-27/OpenJDK8U-jdk_s390x_linux_openj9_2020-10-12-04-27.tar.gz'; \
+         ESUM='3691dc2c966a3d01fea7433378e6778fd0d51ff0b46d92a636af229f63a20d77'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-13-06-48/OpenJDK8U-jdk_s390x_linux_openj9_2020-10-13-06-48.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='98b06bf42da01c3c2693989a67b0d419538e9c289d37dfcbb2820d937c29e649'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-12-04-27/OpenJDK8U-jdk_x64_linux_openj9_2020-10-12-04-27.tar.gz'; \
+         ESUM='372ffdcd43cd60a3c44d72d76ce99a7339599f06fcba381d2464af69e2b24954'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-10-13-06-48/OpenJDK8U-jdk_x64_linux_openj9_2020-10-13-06-48.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -100,12 +100,59 @@ RUN set -eux; \
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
+RUN apk add --no-cache --virtual .scc-deps bash curl
+SHELL ["/bin/bash", "-c"]
 
-COPY generate_openj9_scc.sh /usr/local/bin/
-
-RUN apk add --no-cache --virtual .scc-deps bash curl; \
-    /usr/local/bin/generate_openj9_scc.sh; \
-    apk del --purge .scc-deps; \
-    rm -rf /var/cache/apk/*;
+RUN set -euo pipefail \
+    && unset OPENJ9_JAVA_OPTIONS \
+    && SCC_SIZE="50m" \
+    && SCC_GEN_RUNS_COUNT=3 \
+    && DOWNLOAD_PATH_TOMCAT=/tmp/tomcat \
+    && INSTALL_PATH_TOMCAT=/opt/tomcat-home \
+    && TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98" \
+    && TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz" \
+    && mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}" \
+    && curl -LfsSo "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}" \
+    && echo "${TOMCAT_CHECKSUM} *${DOWNLOAD_PATH_TOMCAT}/tomcat.tar.gz" | sha512sum -c - \
+    && tar -xf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1 \
+    && rm -rf "${DOWNLOAD_PATH_TOMCAT}" \
+    && java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
+    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
+    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
+       do \
+           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+           sleep 5; \
+           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+           sleep 5; \
+       done \
+    \
+    && FULL=$((java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
+    && DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true) \
+    && SCC_SIZE="${SCC_SIZE:0:-1}" \
+    && SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}") \
+    && [ "${SCC_SIZE}" -eq 0 ] && SCC_SIZE=1 || true \
+    && SCC_SIZE="${SCC_SIZE}m" \
+    && java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
+    && unset OPENJ9_JAVA_OPTIONS \
+    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
+    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
+       do \
+           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+           sleep 5; \
+           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+           sleep 5; \
+       done \
+    \
+    && FULL=$((java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
+    && echo "SCC layer is $FULL% full." \
+    && rm -rf "${INSTALL_PATH_TOMCAT}" \
+    && if [ -d "/opt/java/.scc" ]; then \
+          chmod -R 0777 /opt/java/.scc; \
+       fi \
+    \
+    && echo "SCC generation phase completed"
 
 ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+
+RUN apk del --purge .scc-deps; \
+    rm -rf /var/cache/apk/*;
