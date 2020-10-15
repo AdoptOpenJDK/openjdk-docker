@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='b994bd188c04add992cfefae434756d726234a8eac8a63b17a7da908220911fc'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-13-05-45/OpenJDK15U-jre_aarch64_linux_openj9_2020-10-13-05-45.tar.gz'; \
+         ESUM='0dd9a300cc16472578c2162743a7dbea97b328263fabb1c162d594f514045246'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-14-13-24/OpenJDK15U-jre_aarch64_linux_openj9_2020-10-14-13-24.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='f108f6b46e50174d3de6447001be490af324294cc072800c723cab2a93e470aa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-13-05-45/OpenJDK15U-jre_ppc64le_linux_openj9_2020-10-13-05-45.tar.gz'; \
+         ESUM='f908b03202257893f4d3239c9da8550d6b4043ea7aa41554f3d9ff52e1d7c067'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-15-07-56/OpenJDK15U-jre_ppc64le_linux_openj9_2020-10-15-07-56.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='583e6ebb07d18646f0ca77d4c34737df36991de7f335d01636964621b70ebbc2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-13-05-45/OpenJDK15U-jre_s390x_linux_openj9_2020-10-13-05-45.tar.gz'; \
+         ESUM='31931761123830f61a7fe613da566cd084afddfe4e18b000a682d3f01d9d6d8f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-14-13-24/OpenJDK15U-jre_s390x_linux_openj9_2020-10-14-13-24.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='f5de9d471e491bd28f1c86ad1c43d40a6f7c12fe28588d4ad5ac1875c96046e4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-13-05-45/OpenJDK15U-jre_x64_linux_openj9_2020-10-13-05-45.tar.gz'; \
+         ESUM='7d61e97c163b2dee154254291a6fa3f555f499f16f14a4a605f683e270e80989'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-15-07-56/OpenJDK15U-jre_x64_linux_openj9_2020-10-15-07-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -70,63 +70,57 @@ ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
 # With SCC, OpenJ9 startup is improved ~50% with an increase in image size of ~14MB
 # Application classes can be create a separate cache layer with this as the base for further startup improvement
 
-# Setting shell to bash to execute a bash script
-SHELL ["/bin/bash", "-c"]
-
-RUN set -euo pipefail \
-    && unset OPENJ9_JAVA_OPTIONS \
-    && SCC_SIZE="50m" \
-    && SCC_GEN_RUNS_COUNT=3 \
-    && DOWNLOAD_PATH_TOMCAT=/tmp/tomcat \
-    && INSTALL_PATH_TOMCAT=/opt/tomcat-home \
-    && TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98" \
-    && TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz" \
+RUN set -eux; \
+    unset OPENJ9_JAVA_OPTIONS; \
+    SCC_SIZE="50m"; \
+    SCC_GEN_RUNS_COUNT=3; \
+    DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
+    INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
+    TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
+    TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"; \
     \
-    && mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}" \
-    && curl -LfsSo "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}" \
-    && echo "${TOMCAT_CHECKSUM} *${DOWNLOAD_PATH_TOMCAT}/tomcat.tar.gz" | sha512sum -c - \
-    && tar -xf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1 \
-    && rm -rf "${DOWNLOAD_PATH_TOMCAT}" \
+    mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}"; \
+    curl -LfsSo "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}"; \
+    echo "${TOMCAT_CHECKSUM} *${DOWNLOAD_PATH_TOMCAT}/tomcat.tar.gz" | sha512sum -c -; \
+    tar -xf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1; \
+    rm -rf "${DOWNLOAD_PATH_TOMCAT}"; \
     \
-    && java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
-    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
-    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
-       do \
-           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-           sleep 5; \
-           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
-           sleep 5; \
-       done \
+    java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
+    export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
+    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
+    do \
+        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+        sleep 5; \
+        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        sleep 5; \
+    done; \
     \
-    && FULL=$((java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
-    && DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true) \
-    && SCC_SIZE="${SCC_SIZE:0:-1}" \
-    && SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}") \
-    && [ "${SCC_SIZE}" -eq 0 ] && SCC_SIZE=1 || true \
-    && SCC_SIZE="${SCC_SIZE}m" \
-    && java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version \
-    && unset OPENJ9_JAVA_OPTIONS \
+    FULL=$( (java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
+    DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true); \
+    SCC_SIZE=$(echo $SCC_SIZE | sed 's/.$//'); \
+    SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}"); \
+    [ "${SCC_SIZE}" -eq 0 ] && SCC_SIZE=1; \
+    SCC_SIZE="${SCC_SIZE}m"; \
+    java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
+    unset OPENJ9_JAVA_OPTIONS; \
     \
-    && export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal" \
-    && for ((i=0; i<SCC_GEN_RUNS_COUNT; i++)) \
-       do \
-           "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-           sleep 5; \
-           "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
-           sleep 5; \
-       done \
+    export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
+    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
+    do \
+        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+        sleep 5; \
+        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        sleep 5; \
+    done; \
     \
-    && FULL=$((java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}') \
-    && echo "SCC layer is $FULL% full." \
-    && rm -rf "${INSTALL_PATH_TOMCAT}" \
-    && if [ -d "/opt/java/.scc" ]; then \
+    FULL=$( (java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
+    echo "SCC layer is $FULL% full."; \
+    rm -rf "${INSTALL_PATH_TOMCAT}"; \
+    if [ -d "/opt/java/.scc" ]; then \
           chmod -R 0777 /opt/java/.scc; \
-       fi \
+    fi; \
     \
-    && echo "SCC generation phase completed"
-
-# Resetting shell back to sh
-SHELL ["/bin/sh", "-c"]
+    echo "SCC generation phase completed";
 
 ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 

@@ -33,24 +33,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='49bfb36c88e0333301a9ff66690b96421e0795829457bd467aea869e5390ab34'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-09-50/OpenJDK11U-jdk_aarch64_linux_hotspot_2020-10-13-09-50.tar.gz'; \
+         ESUM='55c0f0505b7ab8f4fff903f1ae2a1faa61f46a3fbc8f059add5317c9f2bbf995'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_aarch64_linux_hotspot_2020-10-14-16-30.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='687337c7cb57ca6793d227e0ccdbcefe9b632b22e69fe6e3637d91be59bf6c45'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-09-50/OpenJDK11U-jdk_arm_linux_hotspot_2020-10-13-09-50.tar.gz'; \
+         ESUM='5edc47c67f7fb17ac2e3aecb6d62ab9eed161969fba49afdcd83782e8af4af65'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_arm_linux_hotspot_2020-10-14-16-30.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='2704ca8c0fb1dfed6def50d7dd483e315afdb8acca41c6bbb03b5e84a72b6304'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-09-50/OpenJDK11U-jdk_ppc64le_linux_hotspot_2020-10-13-09-50.tar.gz'; \
+         ESUM='a53225aedb0f3a1ed74e8e73386cd977d656952b3ca528c795cf772a213290c8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_ppc64le_linux_hotspot_2020-10-14-16-30.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='6daaa91b0af071f862a70b7c91c184f8b7e609993e4ca4c3c60662a8cf6fcad2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-09-50/OpenJDK11U-jdk_s390x_linux_hotspot_2020-10-13-09-50.tar.gz'; \
+         ESUM='eb92c7e6c6c81d15839b9c3008b32772139f7ac2472eea1a637160cf461ee549'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_s390x_linux_hotspot_2020-10-14-16-30.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='19d8581987305627552711528c250c8f1214e4ce2b31f49a6dfe77cb18986d84'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-09-50/OpenJDK11U-jdk_x64_linux_hotspot_2020-10-13-09-50.tar.gz'; \
+         ESUM='3d9b429e4d903192243d497e2b3bdcd2d418689eb848c4e41bf0211d943e9338'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_x64_linux_hotspot_2020-10-14-16-30.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

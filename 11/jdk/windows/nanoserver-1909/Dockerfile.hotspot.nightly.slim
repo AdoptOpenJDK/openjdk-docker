@@ -28,11 +28,11 @@ ENV JAVA_VERSION jdk11u
 COPY slim-java* C:/ProgramData/Java/
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-17-59/OpenJDK11U-jdk_x64_windows_hotspot_2020-10-13-17-59.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_x64_windows_hotspot_2020-10-14-16-30.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-13-17-59/OpenJDK11U-jdk_x64_windows_hotspot_2020-10-13-17-59.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (9e9f31c0159f12040cdf033fb1f035f733b2a76617bfac8c971a02ad406c7131) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '9e9f31c0159f12040cdf033fb1f035f733b2a76617bfac8c971a02ad406c7131') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_x64_windows_hotspot_2020-10-14-16-30.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (ce07b6d4fb221eb9f38b180d12090e2a94535b5af613dc4493498d12f9a3a595) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'ce07b6d4fb221eb9f38b180d12090e2a94535b5af613dc4493498d12f9a3a595') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
