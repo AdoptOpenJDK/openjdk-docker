@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -33,24 +33,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='80496ab177588cf67d01bb05777bbe4e1d4f78b704643d4612c73318c63def7b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-14-13-24/OpenJDK15U-jre_aarch64_linux_hotspot_2020-10-14-13-24.tar.gz'; \
+         ESUM='c496abb25cd226985b67e4ca3b91ce519e13b1f33c16dc7d9e11cb464ee3a24e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-16-06-21/OpenJDK15U-jre_aarch64_linux_hotspot_2020-10-16-06-21.tar.gz'; \
          ;; \
        armhf|armv7l) \
          ESUM='ad60bb2f711d63079a7aba6df8dcebef6f775cf9523e75a7f2ee911b1d29dce7'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-09-26-10-24/OpenJDK15U-jre_arm_linux_hotspot_2020-09-26-10-24.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='93b9b982e6bda8a89493a40de09566b4b02e1bd5e0e63ea81a2e681152ed6d7d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-15-07-56/OpenJDK15U-jre_ppc64le_linux_hotspot_2020-10-15-07-56.tar.gz'; \
+         ESUM='3d209afe9646b73237fe7514df301c270bcdccf439fefeb86afb558f31f97aad'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-19-22-27/OpenJDK15U-jre_ppc64le_linux_hotspot_2020-10-19-22-27.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='56b03a423b4004f1aa5d4b9ba2771b69ddacca62ec85d83d0d923fe48867d364'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-15-07-56/OpenJDK15U-jre_s390x_linux_hotspot_2020-10-15-07-56.tar.gz'; \
+         ESUM='6a5e2a3bdf326df3f85166fef091556ea03520df320e6395de81d8571bed4896'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-19-22-27/OpenJDK15U-jre_s390x_linux_hotspot_2020-10-19-22-27.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='523164e5f5745943f514c875c9887b4c8876987aac7827a1012ec88e0494428e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-15-07-56/OpenJDK15U-jre_x64_linux_hotspot_2020-10-15-07-56.tar.gz'; \
+         ESUM='4cdda4b2fbd614a118fe553fbf580295458dc80b813b5541d0b8dbd94ac475e3'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2020-10-19-22-27/OpenJDK15U-jre_x64_linux_hotspot_2020-10-19-22-27.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

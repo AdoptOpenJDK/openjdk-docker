@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='395547fcf974835757e8ba6c827050ed59e22f851f2e2a8722e00e936b9740e3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jre_aarch64_linux_openj9_2020-10-14-16-30.tar.gz'; \
+         ESUM='61b8b1ce399aeeb204182605eccdb9f2fcfbec42ed647fe767253a64cd8bd85e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-16-32/OpenJDK11U-jre_aarch64_linux_openj9_2020-10-19-16-32.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='80152c05f58066c8f30cf5dd820c8b1a6e0af669b82e75f3efb1c5af58bc3c1e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jre_ppc64le_linux_openj9_2020-10-14-16-30.tar.gz'; \
+         ESUM='3723355486235264be8c64027d9360d3afc4fab09c8ef92ba567b6214aa73dc9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-08-45/OpenJDK11U-jre_ppc64le_linux_openj9_2020-10-19-08-45.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='e2c60ca3aba4e91892922b933a8b590a560aa02ef146b5f7d63801f3a2f048be'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jre_s390x_linux_openj9_2020-10-14-16-30.tar.gz'; \
+         ESUM='90ed3951624f695bce59ac739bc175379a43e795410ccff8d9dde8afb2aaae9e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-08-45/OpenJDK11U-jre_s390x_linux_openj9_2020-10-19-08-45.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='40e3806fb161676138fe50900a0943d44dfe715667bee05eb4f2b2d43e364e85'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jre_x64_linux_openj9_2020-10-14-16-30.tar.gz'; \
+         ESUM='5ce87f488fd1a27807171ffbad44042bedacce4cef0b212e5481e150f3e0bf16'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-08-45/OpenJDK11U-jre_x64_linux_openj9_2020-10-19-08-45.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

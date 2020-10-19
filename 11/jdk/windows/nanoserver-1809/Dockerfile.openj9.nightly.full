@@ -26,11 +26,11 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 ENV JAVA_VERSION jdk11u
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_x64_windows_openj9_2020-10-14-16-30.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-08-45/OpenJDK11U-jdk_x64_windows_openj9_2020-10-19-08-45.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-14-16-30/OpenJDK11U-jdk_x64_windows_openj9_2020-10-14-16-30.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (422eab015560d3225305796ec80ed5079dd34952120924f4e14ac30b1b933c41) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '422eab015560d3225305796ec80ed5079dd34952120924f4e14ac30b1b933c41') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-19-08-45/OpenJDK11U-jdk_x64_windows_openj9_2020-10-19-08-45.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (7a0e6df3f3e3e22afe0177ac6877077535ffa379f4fc4dee19c003f8827bee03) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '7a0e6df3f3e3e22afe0177ac6877077535ffa379f4fc4dee19c003f8827bee03') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
