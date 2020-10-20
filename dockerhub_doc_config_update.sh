@@ -97,19 +97,27 @@ function generate_unofficial_image_info() {
 		# If none of the above, it has to be the `latest` build
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
+			super_tags="${super_tags} ${full_version}";
+		# jre only builds only use the jre version tag
+		elif [[ "${super_tags}" != *"nightly"*  && "${super_tags}" != *"slim"* ]]; then
+			super_tags="${super_tags} ${full_version}";
+		# jre nightly will have the attrs added
+		elif [[ "${super_tags}" == *"jre"* ]]; then
+			super_tags="${super_tags} ${full_version}-${attrs}";
+		# nightly / slim / nightly-slim
+		else
+			super_tags="${super_tags} ${full_version}-${super_tags}";
 		fi
-		super_tags="${super_tags} ${full_version}";
 		if [ "${attrs}" == "" ]; then
 			vattrs="${full_version}"
 		fi
 		;;
-	alpine|centos|clefos|debian|debianslim|leap|tumbleweed|ubi|ubi-minimal|windows)
+	*)
 		# Non Ubuntu builds all have the `$os` tag prepended
 		super_tags="${os}";
 		attrs=""
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
-			attrs="${pkg}"
 			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
