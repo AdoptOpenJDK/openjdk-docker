@@ -9,50 +9,62 @@ environment:
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jdk
+      runtype: test
     - version: 14
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jdk
+      runtype: test
     - version: 14
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jre
+      runtype: test
     - version: 14
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jre
+      runtype: test
     - version: 11
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jdk
+      runtype: test
     - version: 11
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jdk
+      runtype: test
     - version: 11
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jre
+      runtype: test
     - version: 11
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jre
+      runtype: test
     - version: 8
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jdk
+      runtype: test
     - version: 8
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jdk
+      runtype: test
     - version: 8
       variant: windowsservercore-ltsc2016
       vm: hotspot
       package: jre
+      runtype: test
     - version: 8
       variant: windowsservercore-ltsc2016
       vm: openj9
       package: jre
+      runtype: test
 
 build_script:
-  - cmd: bash build_latest.sh %version% %vm% %package%
+  - cmd: bash build_latest.sh %version% %vm% %package% %runtype%

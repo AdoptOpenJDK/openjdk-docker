@@ -24,18 +24,20 @@ source ./common_functions.sh
 # shellcheck source=dockerfile_functions.sh
 source ./dockerfile_functions.sh
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 4 ]; then
 	echo
-	echo "usage: $0 version vm package"
+	echo "usage: $0 version vm package runtype"
 	echo "version = ${supported_versions}"
 	echo "vm      = ${all_jvms}"
 	echo "package = ${all_packages}"
+	echo "runtype = ${all_runtypes}"
 	exit 1
 fi
 
 set_version "$1"
 vm="$2"
 package="$3"
+set_runtype "$4"
 
 # Get the image build time stored in the "build_time" array for the current arch
 # Build time is stored as the time since 1-1-1970
@@ -156,6 +158,15 @@ function check_build_needed() {
 	build_needed=0
 
 	adopt_image_tag="${tag// -t /}"
+
+	# `runtype` flag specifies if the script is being run for `build` or `test` (PR checks)
+	# Checking for runtype if its `test` we proceed to build release images, as part of PR checks
+	if [ "${runtype}" == "test" ]; then
+		if [ "${build}" == "releases" ]; then
+			build_needed=1
+		fi
+		return;
+	fi
 
 	# For nightly images, check if a newer adopt nightly build is available.
 	if [ "${build}" == "nightly" ]; then
@@ -292,6 +303,11 @@ function build_dockerfile {
 
 # Set the OSes that will be built on based on the current arch
 set_arch_os
+
+# Updating `oses` for `test` runtype to reduce the build time for OpenJ9 images for PR checks
+if [ "${runtype}" == "test" ] && [ "${vm}" == "openj9" ] && [ "${current_arch}" == "x86_64" ] && [ "${os_family}" == "linux" ]; then
+	oses="${PR_TEST_OSES}"
+fi
 
 # Script that has the push commands for the images that we are building.
 echo "#!/usr/bin/env bash" > "${push_cmdfile}"
