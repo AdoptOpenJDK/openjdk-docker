@@ -41,7 +41,7 @@ print_legal() {
 
 # Print the supported Ubuntu OS
 print_ubuntu_ver() {
-	os_version="18.04"
+	os_version="20.04"
 
 	cat >> "$1" <<-EOI
 	FROM ubuntu:${os_version}
@@ -105,6 +105,23 @@ print_clefos_ver() {
 	EOI
 }
 
+print_leap_ver() {
+	os_version="15.2"
+
+	cat >> "$1" <<-EOI
+	FROM opensuse/leap:${os_version}
+
+	EOI
+}
+
+print_tumbleweed_ver() {
+	os_version="latest"
+
+	cat >> "$1" <<-EOI
+	FROM opensuse/tumbleweed:${os_version}
+
+	EOI
+}
 
 # Print the supported Windows OS
 print_windows_ver() {
@@ -120,7 +137,8 @@ print_windows_ver() {
 	nanoserver_pat="nanoserver.*"
 	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 		cat >> "$1" <<-EOI
-	FROM mcr.microsoft.com/powershell:nanoserver-${os_version}
+	FROM mcr.microsoft.com/windows/nanoserver:${os_version}
+
 
 EOI
 	else
@@ -190,7 +208,7 @@ EOI
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
 	cat >> "$1" <<'EOI'
-RUN apk add --no-cache --virtual tzdata .build-deps curl binutils zstd \
+RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && GLIBC_VER="2.31-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
@@ -221,7 +239,7 @@ RUN apk add --no-cache --virtual tzdata .build-deps curl binutils zstd \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps glibc-i18n \
-    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+    && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 EOI
 }
 
@@ -250,10 +268,22 @@ RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
 EOI
 }
 
-
 # Select the ClefOS packages.
 print_clefos_pkg() {
   print_centos_pkg "$1"
+}
+
+# Select the Leap packages.
+print_leap_pkg() {
+	cat >> "$1" <<'EOI'
+RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
+    && zypper update -y; zypper clean --all
+EOI
+}
+
+# Select the Tumbleweed packages.
+print_tumbleweed_pkg() {
+  print_leap_pkg "$1"
 }
 
 # Print the Java version that is being installed here
@@ -571,6 +601,25 @@ print_clefos_java_install() {
 	print_centos_java_install "$1" "$2" "$3" "$4"
 }
 
+# Print the main RUN command that installs Java on Leap
+print_leap_java_install() {
+	pkg=$2
+	bld=$3
+	btype=$4
+	cat >> "$1" <<-EOI
+RUN set -eux; \\
+    ARCH="\$(uname -m)"; \\
+    case "\${ARCH}" in \\
+EOI
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_post "$1"
+}
+
+# Print the main RUN command that installs Java on Tumbleweed
+print_tumbleweed_java_install() {
+	print_leap_java_install "$1" "$2" "$3" "$4"
+}
+
 # Print the JAVA_HOME and PATH.
 # Currently Java is installed at a fixed path "/opt/java/openjdk"
 print_java_env() {
@@ -611,7 +660,7 @@ print_java_options() {
 		esac
 		;;
 	openj9)
-		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle";
+		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
 		;;
 	esac
 
@@ -649,6 +698,89 @@ print_cmd() {
 	fi
 }
 
+print_scc_gen() {
+	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
+        cat >> "$1" <<'EOI'
+
+# Create OpenJ9 SharedClassCache (SCC) for bootclasses to improve the java startup.
+# Downloads and runs tomcat to generate SCC for bootclasses at /opt/java/.scc/openj9_system_scc
+# Does a dry-run and calculates the optimal cache size and recreates the cache with the appropriate size.
+# With SCC, OpenJ9 startup is improved ~50% with an increase in image size of ~14MB
+# Application classes can be create a separate cache layer with this as the base for further startup improvement
+
+RUN set -eux; \
+EOI
+		if [[ "${os_family}" == "alpine" ]]; then
+			cat >> "$1" <<'EOI'
+    apk add --no-cache --virtual .scc-deps curl; \
+EOI
+		fi
+		cat >> "$1" <<'EOI'
+    unset OPENJ9_JAVA_OPTIONS; \
+    SCC_SIZE="50m"; \
+    SCC_GEN_RUNS_COUNT=3; \
+    DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
+    INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
+    TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
+    TOMCAT_DWNLD_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"; \
+    \
+    mkdir -p "${DOWNLOAD_PATH_TOMCAT}" "${INSTALL_PATH_TOMCAT}"; \
+    curl -LfsSo "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz "${TOMCAT_DWNLD_URL}"; \
+    echo "${TOMCAT_CHECKSUM} *${DOWNLOAD_PATH_TOMCAT}/tomcat.tar.gz" | sha512sum -c -; \
+    tar -xf "${DOWNLOAD_PATH_TOMCAT}"/tomcat.tar.gz -C "${INSTALL_PATH_TOMCAT}" --strip-components=1; \
+    rm -rf "${DOWNLOAD_PATH_TOMCAT}"; \
+    \
+    java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
+    export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
+    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
+    do \
+        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+        sleep 5; \
+        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        sleep 5; \
+    done; \
+    \
+    FULL=$( (java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
+    DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true); \
+    SCC_SIZE=$(echo $SCC_SIZE | sed 's/.$//'); \
+    SCC_SIZE=$(awk "BEGIN {print int($SCC_SIZE * $FULL / 100.0)}"); \
+    [ "${SCC_SIZE}" -eq 0 ] && SCC_SIZE=1; \
+    SCC_SIZE="${SCC_SIZE}m"; \
+    java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
+    unset OPENJ9_JAVA_OPTIONS; \
+    \
+    export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
+    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
+    do \
+        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+        sleep 5; \
+        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        sleep 5; \
+    done; \
+    \
+    FULL=$( (java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
+    echo "SCC layer is $FULL% full."; \
+    rm -rf "${INSTALL_PATH_TOMCAT}"; \
+    if [ -d "/opt/java/.scc" ]; then \
+          chmod -R 0777 /opt/java/.scc; \
+    fi; \
+    \
+EOI
+    if [[ "${os_family}" == "alpine" ]]; then
+            cat >> "$1" <<'EOI'
+    apk del --purge .scc-deps; \
+    rm -rf /var/cache/apk/*; \
+EOI
+    fi
+    cat >> "$1" <<'EOI'
+    echo "SCC generation phase completed";
+
+ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
+
+EOI
+	fi
+}
+
 # Generate the dockerfile for a given build, build_type and OS
 generate_dockerfile() {
 	file=$1
@@ -678,6 +810,7 @@ generate_dockerfile() {
 	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}";
 	print_java_env "${file}" "${bld}" "${btype}" "${os_family}";
 	print_java_options "${file}" "${bld}" "${btype}";
+	print_scc_gen "${file}";
 	print_cmd "${file}";
 	echo "done"
 	echo

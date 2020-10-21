@@ -21,7 +21,7 @@ FROM centos:7
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-RUN yum install -y openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
 ENV JAVA_VERSION jdk14u
@@ -32,16 +32,16 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='ea2690d9f44f2fc631d4f0fe51c17a990ea9bf97e8a091244a601efc0ca4f945'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='28de9560f6cf376b851ca38fc83d0f44f4aba474ba3c0cbc98342dfee2b2d5ba'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_ppc64le_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='32d97b59bec07132870b45e17914ebf85ba3e8621b83cde667a8ec76ff67c4a9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_s390x_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='0bfbbc83f30dbd937c72edb9da5a76e3f69a4fe55b9d42af0ecf30802ecde5a7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_s390x_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b3421efa1b2b85c0cae43a3e480999a5086ab1e4de7af0c6699e1765149a8955'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-06-24-03-52/OpenJDK14U-jdk_x64_linux_openj9_2020-06-24-03-52.tar.gz'; \
+         ESUM='5422108afaf1dc87091d24df03ec3a2e6a1682c983adf692f87d54d5e63da849'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk14u-2020-07-28-07-34/OpenJDK14U-jdk_x64_linux_openj9_2020-07-28-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -58,4 +58,7 @@ RUN set -eux; \
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+UseContainerSupport -XX:+IdleTuningCompactOnIdle -XX:+IdleTuningGcOnIdle"
+COPY generate_openj9_scc.sh /scripts/
+        RUN /scripts/generate_openj9_scc.sh
+        ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 CMD ["jshell"]

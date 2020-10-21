@@ -40,8 +40,8 @@ all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 all_packages="jdk jre"
 
 # Current JVM versions supported
-export supported_versions="8 11 13 14"
-export latest_version="14"
+export supported_versions="8 11 14 15"
+export latest_version="15"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -49,7 +49,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10|11|12|13|14)
+	8|9|10|11|12|13|14|15)
 		;;
 	*)
 		echo "ERROR: Invalid version"
@@ -69,26 +69,32 @@ function set_version() {
 
 # Set the valid OSes for the current architecure.
 function set_arch_os() {
-	machine=$(uname -m)
+	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
+		# Use buildx environment for build https://www.docker.com/blog/multi-platform-docker-builds/
+		echo "overiding machine to $TARGET_ARCHITECTURE"
+		machine="$TARGET_ARCHITECTURE"
+	else
+		machine=$(uname -m)
+	fi
 	case ${machine} in
-	armv7l)
+	armv7l|linux/arm/v7)
 		current_arch="armv7l"
-		oses="ubuntu debian debianslim centos"
+		oses="ubuntu debian debianslim centos leap tumbleweed"
 		os_family="linux"
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos"
+		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian debianslim ubi ubi-minimal clefos"
+		oses="ubuntu debian debianslim ubi ubi-minimal clefos tumbleweed"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -114,7 +120,7 @@ function set_arch_os() {
 			# shellcheck disable=SC2034 # used externally
 			current_arch="x86_64"
 			# shellcheck disable=SC2034 # used externally
-			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos"
+			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos leap tumbleweed"
 			# shellcheck disable=SC2034 # used externally
 			os_family="linux"
 			;;

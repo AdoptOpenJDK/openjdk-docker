@@ -26,7 +26,7 @@ set -o pipefail
 source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
-oses="alpine centos clefos debian debianslim ubi ubi-minimal ubuntu"
+oses="alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 
 # shellcheck disable=SC2034 # used externally
 hotspot_latest_tags="hotspot, latest"
@@ -97,19 +97,27 @@ function generate_unofficial_image_info() {
 		# If none of the above, it has to be the `latest` build
 		if [ "${super_tags}" == "" ]; then
 			super_tags="latest";
+			super_tags="${super_tags} ${full_version}";
+		# jre only builds only use the jre version tag
+		elif [[ "${super_tags}" != *"nightly"*  && "${super_tags}" != *"slim"* ]]; then
+			super_tags="${super_tags} ${full_version}";
+		# jre nightly will have the attrs added
+		elif [[ "${super_tags}" == *"jre"* ]]; then
+			super_tags="${super_tags} ${full_version}-${attrs}";
+		# nightly / slim / nightly-slim
+		else
+			super_tags="${super_tags} ${full_version}-${super_tags}";
 		fi
-		super_tags="${super_tags} ${full_version}";
 		if [ "${attrs}" == "" ]; then
 			vattrs="${full_version}"
 		fi
 		;;
-	alpine|centos|clefos|debian|debianslim|ubi|ubi-minimal|windows)
+	*)
 		# Non Ubuntu builds all have the `$os` tag prepended
 		super_tags="${os}";
 		attrs=""
 		if [ "${pkg}" == "jre" ]; then
 			super_tags="${super_tags}-${pkg}";
-			attrs="${pkg}"
 			full_version=${full_version//jdk/jre}
 		fi
 		if [ "${build}" == "nightly" ]; then
@@ -166,67 +174,98 @@ function generate_official_image_tags() {
 	full_version=$(grep "VERSION" "${file}" | awk '{ print $3 }')
 
 	# Remove any `jdk` references in the version
-	ojdk_version=$(echo "${full_version}" | sed 's/\(jdk\|jdk-\)//' | awk -F '_' '{ print $1 }')
+	ojdk_version=$(echo "${full_version}" | sed 's/\(jdk-\)//;s/\(jdk\)//' | awk -F '_' '{ print $1 }')
 	# Replace "+" with "_" in the version info as docker does not support "+"
 	ojdk_version=${ojdk_version//+/_}
+	
+	case $os in
+		"ubuntu") distro="focal" ;;
+		"windows") distro=$(echo $dfdir | awk -F '/' '{ print $4 }' ) ;;
+		*) distro=undefined;;
+	esac
 
 	# Official image build tags are as below
 	# 8u212-jre-openj9_0.12.1
 	# 8-jre-openj9
 	# 8u212-jdk-hotspot
 	full_ver_tag="${ojdk_version}-${pkg}"
+
 	# Add the openj9 version
 	if [ "${vm}" == "openj9" ]; then
 		openj9_version=$(echo "${full_version}" | awk -F '_' '{ print $2 }')
-		full_ver_tag="${full_ver_tag}-${openj9_version}"
+		full_ver_tag="${full_ver_tag}-${openj9_version}-${distro}"
 	else
-		full_ver_tag="${full_ver_tag}-${vm}"
+		full_ver_tag="${full_ver_tag}-${vm}-${distro}"
 	fi
-		ver_tag="${ver}-${pkg}-${vm}"
+	ver_tag="${ver}-${pkg}-${vm}-${distro}"
 	all_tags="${full_ver_tag}, ${ver_tag}"
 	# jdk builds also have additional tags
 	if [ "${pkg}" == "jdk" ]; then
-		jdk_tag="${ver}-${vm}"
+		jdk_tag="${ver}-${vm}-${distro}"
 		all_tags="${all_tags}, ${jdk_tag}"
 		# Add the "latest", "hotspot" and "openj9" tags for the right version
+		unset extra_shared_tags
 		if [ "${ver}" == "${latest_version}" ]; then
-			vm_tags="${vm}_latest_tags"
-			# shellcheck disable=SC1083,SC2086
-			eval vm_tags_val=\${$vm_tags}
+			vm_tags_val="${vm}-${distro}"
 			# shellcheck disable=SC2154
 			all_tags="${all_tags}, ${vm_tags_val}"
+			if [ "${vm}" == "hotspot" ]; then
+				extra_shared_tags=", latest"
+			fi
 		fi
+	fi
+	
+	unset windows_shared_tags
+	shared_tags=$(echo ${all_tags} | sed "s/-$distro//g")
+	if [ $os == "windows" ]; then
+		windows_version=$(echo $distro | awk -F '-' '{ print $1 }' )
+		windows_version_number=$(echo $distro | awk -F '-' '{ print $2 }' )
+		windows_shared_tags=$(echo ${all_tags} | sed "s/$distro/$windows_version/g")
+		all_shared_tags="${windows_shared_tags}, ${shared_tags}${extra_shared_tags}"
+		case $distro in
+			nanoserver*) constraints="${distro}, windowsservercore-${windows_version_number}" ;;
+			*) constraints="${distro}" ;;
+		esac
+	else
+	all_shared_tags="${shared_tags}${extra_shared_tags}"
 	fi
 }
 
 function generate_official_image_arches() {
 	# Generate the supported arches for the above tags.
-	# Official images supports amd64, arm64vX, s390x and ppc64le
-	# Remove ppc64el, x86_64 and aarch64
-	# Retain ppc64le, amd64 and arm64
-	# armhf is arm32v7 and arm64 is arm64v8 for docker builds
-	# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063 # TODO need to rewrite this
-	arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\|x86_64\|aarch64\)//g' | sed 's/armhf/arm32v7/' | sed 's/arm64/arm64v8/' | sort | grep -v "*" | sed 's/) \\//g; s/|/ /g'))
-	# Add a "," after each arch
-	arches=${arches// /, }
+	# Official images supports amd64, arm64vX, s390x, ppc64le amd windows-amd64
+	if [ $os == "windows" ]; then
+		arches="windows-amd64"
+	else
+		# Remove ppc64el, x86_64, armv7l and aarch64
+		# Retain ppc64le, amd64 and arm64
+		# armhf is arm32v7 and arm64 is arm64v8 for docker builds
+		# shellcheck disable=SC2046,SC2005,SC1003,SC2086,SC2063
+		arches=$(echo $(grep ') \\' ${file} | sed 's/\(ppc64el\)//;s/\(x86_64\)//;s/\(armv7l\)//;s/\(armhf\)/arm32v7/;s/\(aarch64\)//;s/\(arm64\)/arm64v8/;' | grep -v "*" | sed 's/) \\//g; s/|//g' | sort) | sed 's/ /, /g')
+	fi
 }
 
 function print_official_image_file() {
 	# Print them all
 	{
 	  echo "Tags: ${all_tags}"
+	  echo "SharedTags: ${all_shared_tags}"
 	  echo "Architectures: ${arches}"
 	  echo "GitCommit: ${gitcommit}"
 	  echo "Directory: ${dfdir}"
 	  echo "File: ${dfname}"
+	  if [ $os == "windows" ]; then
+		echo "Constraints: ${constraints}"
+	  fi
+	  echo ""
 	} >> ${official_docker_image_file}
 }
 
 rm -f ${official_docker_image_file}
 print_official_header
 
-# Currently we are not pushing official docker images for Alpine, Debian and Windows
-official_os_ignore_array=(alpine debian ubi-minimal)
+# Currently we are not pushing official docker images for Alpine, Debian
+official_os_ignore_array=(alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal)
 
 # Generate config and doc info only for "supported" official builds.
 function generate_official_image_info() {
@@ -252,21 +291,22 @@ function generate_official_image_info() {
 # Official docker images = https://hub.docker.com/_/adoptopenjdk
 for vm in ${all_jvms}
 do
-	for ver in ${supported_versions}
+	# Official images support different versions
+	official_supported_versions="8 11 13 14 15"
+	for ver in ${official_supported_versions}
 	do
 		print_official_text
-		print_official_text "#------------------------------${vm} v${ver} images-------------------------------"
+		print_official_text "#-----------------------------${vm} v${ver} images---------------------------------"
 		for pkg in ${all_packages}
 		do
-			print_official_text
 			# Iterate through each of the Dockerfiles.
-			for file in $(find . -name "Dockerfile.*" | grep "/${ver}" | grep "${vm}" | grep "${pkg}")
+			for file in $(find . -name "Dockerfile.*" | grep "/${ver}" | grep "${vm}" | grep "${pkg}" | sort -n)
 			do
 				# file will look like ./12/jdk/debian/Dockerfile.openj9.nightly.slim
 				# dockerfile name
 				dfname=$(basename "${file}")
 				# dockerfile dir
-				dfdir=$(dirname : | cut -c 3-)
+				dfdir=$(dirname $file | cut -c 3-)
 				os=$(echo "${file}" | awk -F '/' '{ print $4 }')
 				# build = release or nightly
 				build=$(echo "${dfname}" | awk -F "." '{ print $3 }')

@@ -1,0 +1,35 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+com/sun/java/swing/plaf/motif/MotifLookAndFeel
+sun/applet/AppletAudioClip
+sun/awt/motif/MFontConfiguration
+sun/awt/X11/OwnershipListener
+sun/awt/X11/XAWTXSettings
+sun/awt/X11/XAWTLookAndFeel
+sun/awt/X11/XBaseWindow
+sun/awt/X11/XCanvasPeer
+sun/awt/X11/XComponentPeer
+sun/awt/X11/XClipboard
+sun/awt/X11/XCustomCursor
+sun/awt/X11/XDataTransferer
+sun/awt/X11/XEmbedCanvasPeer
+sun/awt/X11/XEmbeddedFrame
+sun/awt/X11/XEventDispatcher
+sun/awt/X11/XFontPeer
+sun/awt/X11/XMouseDragGestureRecognizer
+sun/awt/X11/XMSelectionListener
+sun/awt/X11/XRootWindow
+sun/awt/X11/XToolkit
+sun/awt/X11/XWindow
+sun/java2d/opengl/GLXVolatileSurfaceManager
