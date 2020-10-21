@@ -179,7 +179,7 @@ function generate_official_image_tags() {
 	ojdk_version=${ojdk_version//+/_}
 	
 	case $os in
-		"ubuntu") distro="bionic" ;;
+		"ubuntu") distro="focal" ;;
 		"windows") distro=$(echo $dfdir | awk -F '/' '{ print $4 }' ) ;;
 		*) distro=undefined;;
 	esac
