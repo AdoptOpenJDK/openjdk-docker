@@ -22,13 +22,13 @@ FROM mcr.microsoft.com/windows/servercore:1809
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk8u265-b01_openj9-0.21.0
+ENV JAVA_VERSION jdk8u272-b10_openj9-0.23.0
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01_openj9-0.21.0/OpenJDK8U-jre_x64_windows_openj9_8u265b01_openj9-0.21.0.msi ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jre_x64_windows_openj9_8u272b10_openj9-0.23.0.msi ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01_openj9-0.21.0/OpenJDK8U-jre_x64_windows_openj9_8u265b01_openj9-0.21.0.msi -O 'openjdk.msi'; \
-    Write-Host ('Verifying sha256 (6685611c930761f77f9499de8c992d67859887183e72aa67f3724dc81d3e2472) ...'); \
-    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '6685611c930761f77f9499de8c992d67859887183e72aa67f3724dc81d3e2472') { \
+    wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jre_x64_windows_openj9_8u272b10_openj9-0.23.0.msi -O 'openjdk.msi'; \
+    Write-Host ('Verifying sha256 (7a0021f86d6a8f100e6d139e0f5e4c40b8af75809dc82b58b44dbcc479663355) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '7a0021f86d6a8f100e6d139e0f5e4c40b8af75809dc82b58b44dbcc479663355') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \

@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -27,22 +27,26 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk-15+36_openj9-0.22.0
+ENV JAVA_VERSION jdk-15.0.1+9_openj9-0.23.0
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='1db3c28e8c423d005fcf3b0c8a081061e56c51966273e32e3930d4c57c21bf49'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_aarch64_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
-         ESUM='fef3e6034a861b0bfa14120f064373d866b65f3525b9c791a647010194eb5632'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.22.0/OpenJDK15U-jre_ppc64le_linux_openj9_15_36_openj9-0.22.0.tar.gz'; \
+         ESUM='ea9e8225edb9fee7c425983fd8bb370327867dd06f4c9763834bde9977bfa81f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_ppc64le_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='5f5a6a46a432af651d63538997b0850fed9f631ab4a797e29d33347d3052fddc'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.22.0/OpenJDK15U-jre_s390x_linux_openj9_15_36_openj9-0.22.0.tar.gz'; \
+         ESUM='b430f9b59d909867b05cbec1da2c7e49793838fcc5056f01a8203e09a77e5a76'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_s390x_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='3811aea0eeaccd4aa50bbf6a374e31b19f52a22c1f2c8b378e8ea0ac194b8638'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36_openj9-0.22.0/OpenJDK15U-jre_x64_linux_openj9_15_36_openj9-0.22.0.tar.gz'; \
+         ESUM='e47fdadfe91f554f3e343b24e678b6862673f9b1dce3703efd1447950188357b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_x64_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

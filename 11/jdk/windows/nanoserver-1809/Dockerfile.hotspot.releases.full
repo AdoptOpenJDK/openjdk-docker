@@ -23,14 +23,14 @@ FROM mcr.microsoft.com/windows/nanoserver:1809
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk-11.0.8+10
+ENV JAVA_VERSION jdk-11.0.9+11
 
 USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.8_10.zip ...'); \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9%2B11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.9_11.zip ...'); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.8_10.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (473e552748b23bd95ad097249e97f5d923d8dde3b956a9487ab17c860a6baa48) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '473e552748b23bd95ad097249e97f5d923d8dde3b956a9487ab17c860a6baa48') { \
+    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9%2B11/OpenJDK11U-jdk_x64_windows_hotspot_11.0.9_11.zip -O 'openjdk.zip'; \
+    Write-Host ('Verifying sha256 (0ee03bdf9050d09624633e434416089cace8b7dfbf60080d9d1ef5747d76c7c2) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '0ee03bdf9050d09624633e434416089cace8b7dfbf60080d9d1ef5747d76c7c2') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
