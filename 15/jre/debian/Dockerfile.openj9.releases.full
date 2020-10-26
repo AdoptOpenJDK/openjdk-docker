@@ -34,7 +34,7 @@ RUN set -eux; \
     case "${ARCH}" in \
        aarch64|arm64) \
          ESUM='1db3c28e8c423d005fcf3b0c8a081061e56c51966273e32e3930d4c57c21bf49'; \
-         BINARY_URL=''; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_aarch64_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
          ESUM='ea9e8225edb9fee7c425983fd8bb370327867dd06f4c9763834bde9977bfa81f'; \
