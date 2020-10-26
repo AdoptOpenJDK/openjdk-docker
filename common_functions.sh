@@ -39,6 +39,18 @@ all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
 # shellcheck disable=SC2034 # used externally
 all_packages="jdk jre"
 
+# All supported runtypes
+# shellcheck disable=SC2034 # used externally
+all_runtypes="build test"
+
+# Setting the OS's built in test
+PR_TEST_OSES="ubuntu alpine ubi"
+
+# `runtype` specifies the reason for running the script, i.e for building images or to test for a PR check
+# Supported values for runtype : "build", "test"
+# setting default runtype to build (can be changed via `set_runtype` function)
+runtype="build"
+
 # Current JVM versions supported
 export supported_versions="8 11 14 15"
 export latest_version="15"
@@ -63,6 +75,16 @@ function set_version() {
 	if [ -n "$(check_version "${version}")" ]; then
 		echo "ERROR: Invalid Version: ${version}"
 		echo "Usage: $0 [${supported_versions}]"
+		exit 1
+	fi
+}
+
+# Set runtype
+function set_runtype() {
+	runtype=$1
+	if [ "${runtype}" != "build" ] && [ "${runtype}" != "test" ]; then
+		echo "ERROR: Invalid RunType : ${runtype}"
+		echo "Supported Runtypes : ${all_runtypes}"
 		exit 1
 	fi
 }

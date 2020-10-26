@@ -5,20 +5,20 @@ services: docker
 
 env:
   matrix:
-    - VERSION=14 VM=hotspot PACKAGE=jdk
-    - VERSION=14 VM=openj9 PACKAGE=jdk
-    - VERSION=14 VM=hotspot PACKAGE=jre
-    - VERSION=14 VM=openj9 PACKAGE=jre
-    - VERSION=11 VM=hotspot PACKAGE=jdk
-    - VERSION=11 VM=openj9 PACKAGE=jdk
-    - VERSION=11 VM=hotspot PACKAGE=jre
-    - VERSION=11 VM=openj9 PACKAGE=jre
-    - VERSION=8 VM=hotspot PACKAGE=jdk
-    - VERSION=8 VM=openj9 PACKAGE=jdk
-    - VERSION=8 VM=hotspot PACKAGE=jre
-    - VERSION=8 VM=openj9 PACKAGE=jre
+    - VERSION=14 VM=hotspot PACKAGE=jdk RUNTYPE=test
+    - VERSION=14 VM=openj9 PACKAGE=jdk RUNTYPE=test
+    - VERSION=14 VM=hotspot PACKAGE=jre RUNTYPE=test
+    - VERSION=14 VM=openj9 PACKAGE=jre RUNTYPE=test
+    - VERSION=11 VM=hotspot PACKAGE=jdk RUNTYPE=test
+    - VERSION=11 VM=openj9 PACKAGE=jdk RUNTYPE=test
+    - VERSION=11 VM=hotspot PACKAGE=jre RUNTYPE=test
+    - VERSION=11 VM=openj9 PACKAGE=jre RUNTYPE=test
+    - VERSION=8 VM=hotspot PACKAGE=jdk RUNTYPE=test
+    - VERSION=8 VM=openj9 PACKAGE=jdk RUNTYPE=test
+    - VERSION=8 VM=hotspot PACKAGE=jre RUNTYPE=test
+    - VERSION=8 VM=openj9 PACKAGE=jre RUNTYPE=test
 
-script: bash build_latest.sh $VERSION $VM $PACKAGE
+script: bash build_latest.sh $VERSION $VM $PACKAGE $RUNTYPE
 
 stages:
   - linter

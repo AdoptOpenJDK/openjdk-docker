@@ -35,12 +35,12 @@ do
 			# Remove any temporary files
 			rm -f hotspot_*_latest.sh openj9_*_latest.sh push_commands.sh
 
-			echo "==============================================================================="
-			echo "                                                                               "
-			echo "  $(date +%T) :    Building Docker Images for Version ${ver} ${vm} ${package}  "
-			echo "                                                                               "
-			echo "==============================================================================="
-			./build_latest.sh "${ver}" "${vm}" "${package}"
+			echo "=========================================================================================="
+			echo "                                                                                          "
+			echo "  $(date +%T) :    Building Docker Images for Version ${ver} ${vm} ${package} ${runtype}  "
+			echo "                                                                                          "
+			echo "=========================================================================================="
+			./build_latest.sh "${ver}" "${vm}" "${package}" "${runtype}"
 
 			err=$?
 			if [ ${err} != 0 ] ||  [ ! -f ./push_commands.sh ]; then

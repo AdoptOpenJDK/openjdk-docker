@@ -17,6 +17,7 @@ jobs:
         version: [8, 11, 14, 15]
         vm: [hotspot, openj9]
         package: [jdk, jre]
+        runtype: [test]
 
     steps:
       - name: Checkout
@@ -27,7 +28,7 @@ jobs:
         run: |
           # add msys2 to the path so the correct exes are used
           $env:PATH="C:\msys64\usr\bin;${env:PATH}"
-          C:\msys64\usr\bin\bash -c "./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}"
+          C:\msys64\usr\bin\bash -c "./build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }} ${{ matrix.runtype }}"
         env:
           BUILD_VERSION: ${{ matrix.version }}
           BUILD_OS: ${{ matrix.os }}
@@ -36,7 +37,7 @@ jobs:
 
       - name: Build - Linux
         if: matrix.os == 'ubuntu-20.04'
-        run: bash build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }}
+        run: bash build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }} ${{ matrix.runtype }}
         env:
           BUILD_VERSION: ${{ matrix.version }}
           BUILD_OS: ${{ matrix.os }}
