@@ -46,7 +46,7 @@ RUN set -eux; \
          ;; \
        amd64|x86_64) \
          ESUM='e47fdadfe91f554f3e343b24e678b6862673f9b1dce3703efd1447950188357b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.1%2B9_openj9-0.23.0/OpenJDK15U-jre_x64_linux_openj9_15.0.1_9_openj9-0.23.0.tar.gz'; \
+         BINARY_URL=''; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
