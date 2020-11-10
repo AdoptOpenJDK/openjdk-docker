@@ -7,6 +7,20 @@ Dockerfiles and build scripts for generating Docker Images based on various Adop
 * Hotspot is supported on ```armv7l```, ```aarch64```, ```ppc64le```, ```s390x``` and ```x86_64```.
 * Eclipse OpenJ9 is supported on ```ppc64le```, ```s390x``` and ```x86_64```.
 
+# Supported OS
+
+* Supported Linux OSes
+
+| Alpine | centos | clefos | debian |  debianslim  | leap | tumbleweed | ubi | ubi-minimal | ubuntu(*) |
+|:------:|:------:|:------:|:------:|:------------:|:----:|:----------:|:---:|:-----------:|:------:|
+|  3.12  |    7   |    7   | buster | buster-slim  | 15.2 |   latest   | 8.2 |     8.2     |  20.04 |
+
+Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
+
+* Supported Windows OSes
+  - 1809
+  - ltsc2016
+
 # Official and Unofficial Images
 AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Unofficial Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
 * [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
@@ -17,9 +31,14 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
   - Linux
     - Alpine (3.12): Release, Nightly and Slim
+    - CentOS (7): Release, Nightly and Slim
+    - ClefOS (7): Release, Nightly and Slim
     - Debian (Buster): Release, Nightly and Slim
-    - UBI (8): Release, Nightly and Slim
-    - UBI-Minimal (8): Release, Nightly and Slim
+    - DebianSlim (Buster-slim): Release, Nightly and Slim
+    - Leap (15.2): Release and Nightly
+    - Tumbleweed (latest): Release and Nightly
+    - UBI (8.2): Release, Nightly and Slim
+    - UBI-Minimal (8.2): Release and Nightly
     - Ubuntu (20.04): Nightly and Slim
 
 
