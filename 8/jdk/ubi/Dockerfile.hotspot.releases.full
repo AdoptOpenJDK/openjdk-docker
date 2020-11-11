@@ -41,6 +41,10 @@ RUN set -eux; \
          ESUM='cfbde5191027c6d25af44af8a3d64625c6e22422dea8c4af6fe9240e7e249baa'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10/OpenJDK8U-jdk_aarch64_linux_hotspot_8u272b10.tar.gz'; \
          ;; \
+       armhf|armv7l) \
+         ESUM='b005e9e8a912aa6605debdea3685a223c077d5a4ba7c90bca02d804c5f39d0b9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10/OpenJDK8U-jdk_arm_linux_hotspot_8u272b10.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='56cccbff1073aba7637d7d71da2d8469a1db0be994176acaa44055396cefaef9'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10/OpenJDK8U-jdk_ppc64le_linux_hotspot_8u272b10.tar.gz'; \

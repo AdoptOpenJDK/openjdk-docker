@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/AdoptOpenJDK/openjdk-docker.svg?branch=master)](https://travis-ci.com/AdoptOpenJDK/openjdk-docker) [![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
 
 # AdoptOpenJDK and Docker
 Dockerfiles and build scripts for generating Docker Images based on various AdoptOpenJDK binaries. We support both Hotspot and Eclipse OpenJ9 VMs.
