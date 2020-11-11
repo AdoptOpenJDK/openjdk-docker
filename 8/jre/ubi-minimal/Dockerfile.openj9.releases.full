@@ -37,6 +37,10 @@ ENV JAVA_VERSION jdk8u272-b10_openj9-0.23.0
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='b0891c3493a9fc6135700d065a826fc67223d54e9d0da3c41b57e6cb6897b726'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jre_aarch64_linux_openj9_8u272b10_openj9-0.23.0.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='57fd112b347255aeb85a9659397333314e1edf7457ddb5f9ffd7384bfc6d6a05'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jre_ppc64le_linux_openj9_8u272b10_openj9-0.23.0.tar.gz'; \

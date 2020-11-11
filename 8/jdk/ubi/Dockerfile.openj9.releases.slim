@@ -39,6 +39,10 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
+       aarch64|arm64) \
+         ESUM='bbc78dc8caf25372578a95287bcf672c4bf62af23939d4a988634b2a1356cd89'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jdk_aarch64_linux_openj9_8u272b10_openj9-0.23.0.tar.gz'; \
+         ;; \
        ppc64el|ppc64le) \
          ESUM='71f649a103e2abab58c062adc7cca0a60dca5feba1cb868cdf87bba1e1a9d333'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10_openj9-0.23.0/OpenJDK8U-jdk_ppc64le_linux_openj9_8u272b10_openj9-0.23.0.tar.gz'; \
