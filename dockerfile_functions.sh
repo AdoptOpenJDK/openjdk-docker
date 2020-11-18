@@ -270,7 +270,7 @@ EOI
 
 # Select the ClefOS packages.
 print_clefos_pkg() {
-  print_centos_pkg "$1"
+	print_centos_pkg "$1"
 }
 
 # Select the Leap packages.
@@ -283,24 +283,24 @@ EOI
 
 # Select the Tumbleweed packages.
 print_tumbleweed_pkg() {
-  print_leap_pkg "$1"
+	print_leap_pkg "$1"
 }
 
 # Print the Java version that is being installed here
 print_env() {
-  # shellcheck disable=SC2154
+	# shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 	if [ -z "${arch}" ]; then
 		jverinfo="${shasums}[version]"
 	else
 		jverinfo="${shasums}[version-${arch}]"
 	fi
-  # shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
+	# shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
-  jver="${jver}" # to satifsy shellcheck SC2154
-# Print additional label for UBI alone
-if [ "${os}" == "ubi-minimal" ] || [ "${os}" == "ubi" ]; then
-	cat >> "$1" <<-EOI
+	jver="${jver}" # to satifsy shellcheck SC2154
+	# Print additional label for UBI alone
+	if [ "${os}" == "ubi-minimal" ] || [ "${os}" == "ubi" ]; then
+		cat >> "$1" <<-EOI
 
 LABEL name="AdoptOpenJDK Java" \\
       vendor="AdoptOpenJDK" \\
@@ -310,7 +310,7 @@ LABEL name="AdoptOpenJDK Java" \\
       summary="AdoptOpenJDK Docker Image for OpenJDK with ${vm} and ${os}" \\
       description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
 EOI
-fi
+	fi
 
 	cat >> "$1" <<-EOI
 
@@ -339,7 +339,7 @@ print_java_install_pre() {
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
-	elif [ "${sarch}" == "armv7l" ]; then
+		elif [ "${sarch}" == "armv7l" ]; then
 			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" arm);
 			cat >> "$1" <<-EOI
        armhf|armv7l) \\
@@ -361,6 +361,21 @@ print_java_install_pre() {
        s390x) \\
          ESUM='$(sarray="${shasums}[s390x]"; eval esum=\${$sarray}; echo "${esum}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
+		EOI
+			# Ubuntu 20.04 has a newer version of libffi (libffi7)
+			# whereas hotspot has been built on libffi6 and fails if that is not avaialble
+			# Workaround is to install libffi6 on ubuntu / hotspot / s390x
+			if [ "${version}" == "8" ] && [ "${vm}" == "hotspot" ] && [ "${os}" == "ubuntu" ]; then
+				cat >> "$1" <<'EOI'
+         LIBFFI_SUM='05e456a2e8ad9f20db846ccb96c483235c3243e27025c3e8e8e358411fd48be9'; \
+         LIBFFI_URL='http://launchpadlibrarian.net/354371408/libffi6_3.2.1-8_s390x.deb'; \
+         curl -LfsSo /tmp/libffi6.deb ${LIBFFI_URL}; \
+         echo "${LIBFFI_SUM} /tmp/libffi6.deb" | sha256sum -c -; \
+         apt-get install -y --no-install-recommends /tmp/libffi6.deb; \
+         rm -rf /tmp/libffi6.deb; \
+EOI
+			fi
+			cat >> "$1" <<-EOI
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
