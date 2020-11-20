@@ -127,6 +127,7 @@ print_tumbleweed_ver() {
 print_windows_ver() {
 	os=$4
 	case $os in
+		*20h2) os_version="20H2" ;;
 		*ltsc2019) os_version="ltsc2019" ;;
 		*1909) os_version="1909" ;;
 		*ltsc2016) os_version="ltsc2016" ;;
@@ -137,8 +138,7 @@ print_windows_ver() {
 	nanoserver_pat="nanoserver.*"
 	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 		cat >> "$1" <<-EOI
-	FROM mcr.microsoft.com/windows/nanoserver:${os_version}
-
+	FROM mcr.microsoft.com/windows/servercore:${os_version} as installer
 
 EOI
 	else
@@ -189,19 +189,10 @@ print_debianslim_pkg() {
 }
 
 print_windows_pkg() {
-	servertype=$(echo "$file" | cut -f4 -d"/")
-	nanoserver_pat="nanoserver.*"
-	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
-		cat >> "$1" <<'EOI'
-# $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-EOI
-	else
-		cat >> "$1" <<'EOI'
+	cat >> "$1" <<'EOI'
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 EOI
-	fi
 }
 
 # Select the alpine OS packages.
@@ -480,6 +471,16 @@ print_debianslim_java_install() {
 
 print_windows_java_install_post() {
 	servertype="$2"
+	version="$3"
+	os=$4
+	case $os in
+		*20h2) os_version="20H2" ;;
+		*ltsc2019) os_version="ltsc2019" ;;
+		*1909) os_version="1909" ;;
+		*ltsc2016) os_version="ltsc2016" ;;
+		*1809) os_version="1809" ;;
+	esac
+
 	if [ "${servertype}" == "windowsservercore" ]; then
 		cat >> "$1" <<-EOI
     Write-Host 'Removing openjdk.msi ...'; \\
@@ -489,6 +490,15 @@ EOI
 		cat >> "$1" <<-EOI
     Write-Host 'Removing openjdk.zip ...'; \\
     Remove-Item openjdk.zip -Force
+
+FROM mcr.microsoft.com/windows/nanoserver:${os_version}
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\\\openjdk-${version}" & \\
+    setx /M PATH "%PATH%;%JAVA_HOME%\\\\bin"
+
+COPY --from=installer ["/openjdk-${version}", "/openjdk-${version}"]
 
 USER ContainerUser
 EOI
@@ -500,6 +510,7 @@ print_windows_java_install() {
 	pkg=$2
 	bld=$3
 	btype=$4
+	os=$5
 
 	servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
 	version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
@@ -510,8 +521,7 @@ print_windows_java_install() {
 
 		cat >> "$1" <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-    wget ${BINARY_URL} -O 'openjdk.msi'; \\
+    curl.exe -LfsSo openjdk.msi ${BINARY_URL}; \\
     Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
     if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
             Write-Host 'FAILED!'; \\
@@ -532,10 +542,8 @@ EOI
 		BINARY_URL=$(get_v3_binary_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
-USER ContainerAdministrator
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \\
-    Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.zip'; \\
+    curl.exe -LfsSo openjdk.zip ${BINARY_URL} ; \\
     Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
     if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '${ESUM}') { \\
             Write-Host 'FAILED!'; \\
@@ -543,7 +551,7 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
     }; \\
     \\
     Write-Host 'Expanding Zip ...'; \\
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\\ ; \\
+    tar.exe -xf openjdk.zip -C C:\\ ; \\
     \$jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { \$_.FullName } | Select-String 'jdk'); \\
     Move-Item -Path \$jdkDirectory C:\\openjdk-${version}; \\
 EOI
@@ -553,7 +561,7 @@ EOI
 		print_"${servertype}"_slim_package "$1" "${version}"
 	fi
 
-	print_windows_java_install_post "$1" "${servertype}"
+	print_windows_java_install_post "$1" "${servertype}" "${version}" "${os}"
 }
 
 # Print the main RUN command that installs Java on alpine.
@@ -655,7 +663,7 @@ EOI
 ENV JAVA_HOME=C:\\\\openjdk-${version} \\
     ProgramFiles="C:\\\\Program Files" \\
     WindowsPATH="C:\\\\Windows\\\\system32;C:\\\\Windows"
-ENV PATH="\${WindowsPATH};\${ProgramFiles}\\\\PowerShell;\${JAVA_HOME}\\\\bin"
+ENV PATH="\${WindowsPATH};\${JAVA_HOME}\\\\bin"
 EOI
 		fi
 	fi
@@ -822,7 +830,7 @@ generate_dockerfile() {
 	print_"${os_family}"_pkg "${file}";
 	print_env "${file}" "${bld}" "${btype}";
 	copy_slim_script "${file}";
-	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}";
+	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${os}"; 
 	print_java_env "${file}" "${bld}" "${btype}" "${os_family}";
 	print_java_options "${file}" "${bld}" "${btype}";
 	print_scc_gen "${file}";
