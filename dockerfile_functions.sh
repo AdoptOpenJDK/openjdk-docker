@@ -733,7 +733,7 @@ EOI
 		cat >> "$1" <<'EOI'
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
-    SCC_GEN_RUNS_COUNT=3; \
+    SCC_GEN_RUNS_COUNT=2; \
     DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
     INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
     TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
@@ -751,7 +751,7 @@ EOI
     do \
         "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
         sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
         sleep 5; \
     done; \
     \
@@ -769,7 +769,7 @@ EOI
     do \
         "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
         sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
         sleep 5; \
     done; \
     \
