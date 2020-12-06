@@ -675,7 +675,14 @@ print_java_options() {
 		esac
 		;;
 	openj9)
-		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
+		case ${os} in
+		windows)
+			JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
+			;;
+		*)
+			JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal";
+			;;
+		esac
 		;;
 	esac
 
@@ -789,8 +796,6 @@ EOI
     fi
     cat >> "$1" <<'EOI'
     echo "SCC generation phase completed";
-
-ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 
 EOI
 	fi
