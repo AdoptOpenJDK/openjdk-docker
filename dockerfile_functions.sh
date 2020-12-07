@@ -737,6 +737,18 @@ EOI
     apk add --no-cache --virtual .scc-deps curl; \
 EOI
 		fi
+		if [[ "${os}" == "ubi-minimal" ]]; then
+			cat >> "$1" <<'EOI'
+    microdnf update; \
+    microdnf install -y procps; \
+EOI
+		fi
+		if [[ "${os}" == "ubi" ]]; then
+			cat >> "$1" <<'EOI'
+    dnf update; \
+    dnf install -y procps; \
+EOI
+		fi
 		cat >> "$1" <<'EOI'
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
@@ -788,13 +800,25 @@ EOI
     fi; \
     \
 EOI
-    if [[ "${os_family}" == "alpine" ]]; then
-            cat >> "$1" <<'EOI'
+		if [[ "${os_family}" == "alpine" ]]; then
+			cat >> "$1" <<'EOI'
     apk del --purge .scc-deps; \
     rm -rf /var/cache/apk/*; \
 EOI
-    fi
-    cat >> "$1" <<'EOI'
+    	fi
+		if [[ "${os}" == "ubi-minimal" ]]; then
+			cat >> "$1" <<'EOI'
+    microdnf remove -y procps-ng; \
+    microdnf clean all; \
+EOI
+		fi
+		if [[ "${os}" == "ubi" ]]; then
+			cat >> "$1" <<'EOI'
+    dnf remove -y procps; \
+    dnf clean all; \
+EOI
+		fi
+		cat >> "$1" <<'EOI'
     echo "SCC generation phase completed";
 
 EOI
