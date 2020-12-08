@@ -749,6 +749,12 @@ EOI
     dnf install -y procps; \
 EOI
 		fi
+		if [[ "${os}" == "debian" || "${os}" == "debianslim" ]]; then
+			cat >> "$1" <<'EOI'
+    apt-get update; \
+    apt-get install -y --no-install-recommends procps; \
+EOI
+		fi
 		cat >> "$1" <<'EOI'
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
@@ -816,6 +822,12 @@ EOI
 			cat >> "$1" <<'EOI'
     dnf remove -y procps; \
     dnf clean all; \
+EOI
+		fi
+		if [[ "${os}" == "debian" || "${os}" == "debianslim" ]]; then
+			cat >> "$1" <<'EOI'
+    apt-get remove -y --purge procps; \
+    rm -rf /var/lib/apt/lists/* ; \ 
 EOI
 		fi
 		cat >> "$1" <<'EOI'
