@@ -33,20 +33,20 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='7be9d3b06cd1e85708003ae88a9b188200ea2fb0032f6d3597d0a40b684bbfa8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_aarch64_linux_openj9_2020-10-23-08-51.tar.gz'; \
+         ESUM='4ef3d6cddc560f70701b4e4caddbe91cf1bc0a32a46c1a217d2e062e5fc7b2bc'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-12-07-10-34/OpenJDK11U-jre_aarch64_linux_openj9_2020-12-07-10-34.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='716acde349f5c1c7ec3f9d587fb3854fe1819c6f75ddc80b2df76eb960ab79fe'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_ppc64le_linux_openj9_2020-10-23-08-51.tar.gz'; \
+         ESUM='fa83a1dfe34b464d83dc407dcf66e751cda43e37d1f7a3e4675db6890d20f6bd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-12-07-10-34/OpenJDK11U-jre_ppc64le_linux_openj9_2020-12-07-10-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='4a90d546a0ec27864ab45e9fcfb95e3e720be50962402777976b34e897da61a7'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_s390x_linux_openj9_2020-10-23-08-51.tar.gz'; \
+         ESUM='dc19497fed7d2b8d2d8f8cfef7d92a5d2137bbde1062efb5298173ae57d4d8a0'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-12-07-10-34/OpenJDK11U-jre_s390x_linux_openj9_2020-12-07-10-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='3ed8a8d1b7ffe4b69b188df2d644765622c4c5252c65911dd4465bb73c28ef3f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-10-23-08-51/OpenJDK11U-jre_x64_linux_openj9_2020-10-23-08-51.tar.gz'; \
+         ESUM='8a4ad02ca7babb707e4bff3af279252057dec640684fe357993c5cc1fbc47d70'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2020-12-07-10-34/OpenJDK11U-jre_x64_linux_openj9_2020-12-07-10-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -62,7 +62,7 @@ RUN set -eux; \
 
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
-ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 
 # Create OpenJ9 SharedClassCache (SCC) for bootclasses to improve the java startup.
 # Downloads and runs tomcat to generate SCC for bootclasses at /opt/java/.scc/openj9_system_scc
@@ -73,7 +73,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
 RUN set -eux; \
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
-    SCC_GEN_RUNS_COUNT=3; \
+    SCC_GEN_RUNS_COUNT=2; \
     DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
     INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
     TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
@@ -91,7 +91,7 @@ RUN set -eux; \
     do \
         "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
         sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
         sleep 5; \
     done; \
     \
@@ -109,7 +109,7 @@ RUN set -eux; \
     do \
         "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
         sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
+        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
         sleep 5; \
     done; \
     \
@@ -121,6 +121,4 @@ RUN set -eux; \
     fi; \
     \
     echo "SCC generation phase completed";
-
-ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 
