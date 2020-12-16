@@ -236,6 +236,11 @@ function build_image() {
 			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
+			if [ "${runtype}" == "test" ]; then
+				cleanup_images
+				cleanup_manifest
+				exit 1
+			fi
 		fi
 		docker buildx rm mbuilder
 	else
@@ -246,6 +251,11 @@ function build_image() {
 			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
+			if [ "${runtype}" == "test" ]; then
+				cleanup_images
+				cleanup_manifest
+				exit 1
+			fi
 		fi
 	fi
 }
