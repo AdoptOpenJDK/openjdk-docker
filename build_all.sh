@@ -22,6 +22,14 @@ if [ ! -z "$1" ]; then
 	supported_versions="$1"
 fi
 
+# Removing the summary data if exist
+if [ -f "${summary_table_file}" ]; then
+	remove_summary_table_file
+fi
+
+# Create summary table file
+create_summary_table_file
+
 for ver in ${supported_versions}
 do
 	for vm in ${all_jvms}
@@ -80,6 +88,12 @@ do
 		done
 	done
 done
+
+# Print the sumamry information of the docker images build
+print_summary_table
+
+# Remove summary table temporary file
+remove_summary_table_file
 
 # Cleanup any old containers and images
 cleanup_images

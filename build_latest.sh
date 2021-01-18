@@ -211,6 +211,9 @@ function build_image() {
 		tags="${tags} -t ${repo}:${tag}"
 	done
 
+	auto_space_line="                                                                              "
+	image_name="${repo}:${tag}"
+
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 	# Check if we need to build this image.
 	check_build_needed "${dockerfile}" "${tags}"
@@ -236,12 +239,18 @@ function build_image() {
 			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
+			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | failure  |" >> ${summary_table_file}
+			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 			if [ "${runtype}" == "test" ]; then
 				cleanup_images
 				cleanup_manifest
 				exit 1
 			fi
+		else
+			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | success  |" >> ${summary_table_file}
+			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 		fi
+
 		docker buildx rm mbuilder
 	else
 		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
@@ -251,11 +260,16 @@ function build_image() {
 			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
+			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | failure  |" >> ${summary_table_file}
+			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 			if [ "${runtype}" == "test" ]; then
 				cleanup_images
 				cleanup_manifest
 				exit 1
 			fi
+		else
+			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | success  |" >> ${summary_table_file}
+			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 		fi
 	fi
 }
