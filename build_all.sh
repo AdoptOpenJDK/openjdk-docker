@@ -14,8 +14,28 @@
 #
 set -o pipefail
 
+export root_dir="$PWD"
+
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+
+# summary table array
+export summary_table_file="${root_dir}/.summary_table"
+
+function create_summary_table_file() {
+	touch ${summary_table_file}
+	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
+	echo "|                                 Docker image                                 |  Status  |" >> ${summary_table_file}
+	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
+}
+
+function print_summary_table() {
+	cat ${summary_table_file}
+}
+
+function remove_summary_table_file() {
+	rm -f ${summary_table_file}
+}
 
 if [ ! -z "$1" ]; then
 	echo "overiding supported_versions to $1"
