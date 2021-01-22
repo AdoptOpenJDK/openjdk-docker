@@ -16,10 +16,10 @@ assignees: ''
 * **Non-official images**
   - [ ] Doc updates on hub.docker.com
 
-| Package / OS | Alpine | CentOS | ClefOS | Debian | Debianslim | UBI | UBI Minimal |
-| :----------: | :-------: | :---------: | :--------: | :--------: | :----: | :---: | :--------------: |
-| **Hotspot JDK** |   |   |   |   |   |   |   |
-| **Hotspot JRE** |   |   |   |   |   |   |   |
+| Package / OS | Alpine | CentOS | ClefOS | Debian | Debianslim | Leap | Tumbleweed | UBI | UBI Minimal |
+| :----------: | :-------: | :---------: | :--------: | :--------: | :----: | :---: | :--------------: | :---: | :--------------: |
+| **Hotspot JDK** |   |   |   |   |   |   |   |   |   |
+| **Hotspot JRE** |   |   |   |   |   |   |   |   |   |
 
 * **Arches (Both official and Non-official)**
   - [ ] amd64/x86_64
@@ -37,10 +37,10 @@ assignees: ''
 * **Non-official images**
   - [ ] Doc updates on hub.docker.com
 
-| Package / OS | Alpine | CentOS | ClefOS | Debian | Debianslim | UBI | UBI Minimal |
-| :----------: | :-------: | :---------: | :--------: | :--------: | :---: | :-----: | :--------------: |
-| **OpenJ9 JDK** |   |   |   |   |   |   |   |
-| **OpenJ9 JRE** |   |   |   |   |   |   |   |
+| Package / OS | Alpine | CentOS | ClefOS | Debian | Debianslim | Leap | Tumbleweed | UBI | UBI Minimal |
+| :----------: | :-------: | :---------: | :--------: | :--------: | :----: | :---: | :--------------: | :---: | :--------------: |
+| **Hotspot JDK** |   |   |   |   |   |   |   |   |   |
+| **Hotspot JRE** |   |   |   |   |   |   |   |   |   |
 
 * **Arches (Both official and Non-official)**
   - [ ] amd64/x86_64
