@@ -14,8 +14,16 @@
 #
 set -o pipefail
 
-export root_dir="$PWD"
+if [[ -z ${root_dir} ]]; then
+	export root_dir="$PWD"
+fi
+
 push_cmdfile=${root_dir}/push_commands.sh
+
+if [[ -z ${summary_table_file} ]]; then
+	export summary_table_file=${root_dir}/.summary_table
+fi
+
 target_repo="adoptopenjdk/openjdk"
 version="9"
 

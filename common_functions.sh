@@ -51,9 +51,6 @@ PR_TEST_OSES="ubuntu alpine ubi"
 # setting default runtype to build (can be changed via `set_runtype` function)
 runtype="build"
 
-# summary table array
-summary_table_file=$(pwd | awk -F "openjdk-docker" '{print $1}')"openjdk-docker/.summary_table"
-
 # Current JVM versions supported
 export supported_versions="8 11 14 15"
 export latest_version="15"
@@ -657,17 +654,3 @@ function get_shasums() {
 	chmod +x "${ofile_sums}" "${ofile_build_time}"
 }
 
-function create_summary_table_file() {
-	touch ${summary_table_file}
-	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
-	echo "|                                 Docker image                                 |  Status  |" >> ${summary_table_file}
-	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
-}
-
-function print_summary_table() {
-	cat ${summary_table_file}
-}
-
-function remove_summary_table_file() {
-	rm -rf ${summary_table_file}
-}
