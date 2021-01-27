@@ -18,6 +18,8 @@ export root_dir="$PWD"
 
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=snyk.sh
+source ./snyk.sh
 
 # summary table array
 export summary_table_file="${root_dir}/.summary_table"

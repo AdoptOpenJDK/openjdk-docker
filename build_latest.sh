@@ -29,6 +29,9 @@ version="9"
 
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=snyk.sh
+source ./snyk.sh
+
 # shellcheck source=dockerfile_functions.sh
 source ./dockerfile_functions.sh
 
@@ -206,22 +209,23 @@ function check_build_needed() {
 	# build not needed
 	echo "INFO: Docker image for ${adopt_image_tag} exists and is latest. Docker build NOT needed"
 }
- 
+
 # Build the Docker image with the given repo, build, build type and tags.
 function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
 	btype=$1; shift;
 
-	tags=""
-	for tag in "$@"
+	local tags=("$@") # copy arguments to local array
+	for i in "${!tags[@]}"
 	do
 		tags="${tags} -t ${repo}:${tag}"
 	done
 
 	auto_space_line="                                                                              "
 	image_name="${repo}:${tag}"
-
+	printf -v expanded_tags "%s ${repo}:%s " "-t" "${tags[@]}" # concatenate to single string : -t repo:tag -t repo:tag2
+	expanded_tags=${expanded_tags%?} # remove trailing space
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 	# Check if we need to build this image.
 	check_build_needed "${dockerfile}" "${tags}"
@@ -232,7 +236,7 @@ function build_image() {
 
 	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
 	echo "#####################################################"
-	echo "INFO: docker build --no-cache ${tags} -f ${dockerfile} ."
+	echo "INFO: docker build --no-cache ${expanded_tags} -f ${dockerfile} ."
 	echo "#####################################################"
 	if [ ! -z "$TARGET_ARCHITECTURE" ]; then
 		echo "using a buildx environment"
@@ -241,10 +245,10 @@ function build_image() {
 		docker buildx use mbuilder
 		docker buildx inspect --bootstrap
 		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-		if ! docker buildx build --platform "$TARGET_ARCHITECTURE" --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+		if ! docker buildx build --platform "$TARGET_ARCHITECTURE" --pull --no-cache ${expanded_tags} -f "${dockerfile}" . ; then
 			echo "#############################################"
 			echo
-			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo "ERROR: Docker build of image: ${expanded_tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
 			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | failure  |" >> ${summary_table_file}
@@ -255,6 +259,16 @@ function build_image() {
 				exit 1
 			fi
 		else
+			if ((SNYK_ENABLED)); then
+			echo "#####################################################"
+			echo "        Scanning with snyk for vulnerabilities       "
+			echo "#####################################################"
+				for i in "${!tags[@]}"
+				do
+					echo "...scanning ${repo}:${tags[$i]}"
+					snyk test --docker "${repo}:${tags[$i]}" --file="${dockerfile}"
+				done
+			fi
 			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | success  |" >> ${summary_table_file}
 			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 		fi
@@ -262,10 +276,10 @@ function build_image() {
 		docker buildx rm mbuilder
 	else
 		# shellcheck disable=SC2086 # ignoring ${tags} due to whitespace problem
-		if ! docker build --pull --no-cache ${tags} -f "${dockerfile}" . ; then
+		if ! docker build --pull --no-cache ${expanded_tags} -f "${dockerfile}" . ; then
 			echo "#############################################"
 			echo
-			echo "ERROR: Docker build of image: ${tags} from ${dockerfile} failed."
+			echo "ERROR: Docker build of image: ${expanded_tags} from ${dockerfile} failed."
 			echo
 			echo "#############################################"
 			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | failure  |" >> ${summary_table_file}
@@ -276,6 +290,16 @@ function build_image() {
 				exit 1
 			fi
 		else
+		  if ((SNYK_ENABLED)); then
+			echo "#####################################################"
+			echo "        Scanning with snyk for vulnerabilities       "
+			echo "#####################################################"
+				for i in "${!tags[@]}"
+				do
+					echo "...scanning ${repo}:${tags[$i]}"
+					snyk test --docker "${repo}:${tags[$i]}" --file="${dockerfile}"
+				done
+			fi
 			echo "| ${image_name:0:80}${auto_space_line:0:$((76 - ${#image_name}))} | success  |" >> ${summary_table_file}
 			echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
 		fi
