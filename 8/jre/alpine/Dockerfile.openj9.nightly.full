@@ -61,20 +61,20 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='c1f0abd02b353bd6bc4719a1cd5b89ee264e85e0761760c980c0a900655efba0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-12-07-09-17/OpenJDK8U-jre_aarch64_linux_openj9_2020-12-07-09-17.tar.gz'; \
+         ESUM='b97510c02c1dabb784f5aac8bf77f2782c46e285969508b7ab4c5d8ec545ff88'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jre_aarch64_linux_openj9_2021-01-28-00-11.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='2cc8b05f938521baa86bdcdd51a28f2f918126b4676c4f12a972ca601e52b0b2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-12-07-09-17/OpenJDK8U-jre_ppc64le_linux_openj9_2020-12-07-09-17.tar.gz'; \
+         ESUM='2559f12e32a517bd7f9c85d993630b6705de69c13c572a542b8e37a2623f4cb8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jre_ppc64le_linux_openj9_2021-01-28-00-11.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c35e86339d9c68d97bbf43daebf2263ad1585346ac596abb2ff70a415f74d010'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-12-07-09-17/OpenJDK8U-jre_s390x_linux_openj9_2020-12-07-09-17.tar.gz'; \
+         ESUM='71888fd695fcada0d029ebf55295da010f0e5184cf47c0888fd73b58fc698e32'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jre_s390x_linux_openj9_2021-01-28-00-11.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='446ced34c27a776843d7fc6bc61cf3ca9a0fb7630855e8c9379b9facc5d29a46'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2020-12-07-09-17/OpenJDK8U-jre_x64_linux_openj9_2020-12-07-09-17.tar.gz'; \
+         ESUM='fcdef6c10b19541ade6d6d54c89835237483637fd97d89b5873363b14fa00fd5'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jre_x64_linux_openj9_2021-01-28-00-11.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -104,7 +104,6 @@ RUN set -eux; \
     apk add --no-cache --virtual .scc-deps curl; \
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
-    SCC_GEN_RUNS_COUNT=2; \
     DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
     INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
     TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
@@ -118,14 +117,10 @@ RUN set -eux; \
     \
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
-    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
-    do \
-        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-        sleep 5; \
-        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
-        sleep 5; \
-    done; \
-    \
+    "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+    sleep 5; \
+    "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh -force; \
+    sleep 15; \
     FULL=$( (java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
     DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true); \
     SCC_SIZE=$(echo $SCC_SIZE | sed 's/.$//'); \
@@ -136,14 +131,10 @@ RUN set -eux; \
     unset OPENJ9_JAVA_OPTIONS; \
     \
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
-    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
-    do \
-        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-        sleep 5; \
-        kill -9 $(ps -ef | grep 'catalina' | tr -s ' ' | cut -d ' ' -f 2 | head -n 2 | tail -n 1); \
-        sleep 5; \
-    done; \
-    \
+    "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+    sleep 5; \
+    "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh -force; \
+    sleep 5; \
     FULL=$( (java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
     echo "SCC layer is $FULL% full."; \
     rm -rf "${INSTALL_PATH_TOMCAT}"; \

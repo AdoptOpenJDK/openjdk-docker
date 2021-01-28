@@ -39,7 +39,7 @@ RUN set -eux; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
          ESUM='531381d69146d9df8e85f454051c552970e0b18c1fb543dc93e9a0cb2ba762ce'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u282-b08/OpenJDK8U-jre_ppc64le_linux_hotspot_8u282b08.tar.gz'; \
+         BINARY_URL=''; \
          ;; \
        s390x) \
          ESUM='b6fcc6912feedf5cd09a32ecd1e8e1a1790f8d694680baccae1e47397e36ea52'; \
