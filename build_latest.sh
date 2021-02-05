@@ -35,13 +35,14 @@ source ./snyk.sh
 # shellcheck source=dockerfile_functions.sh
 source ./dockerfile_functions.sh
 
-if [ $# -ne 4 ]; then
+if [ $# -le 3 ]; then
 	echo
-	echo "usage: $0 version vm package runtype"
+	echo "usage: $0 version vm package runtype os(Optional)"
 	echo "version = ${supported_versions}"
 	echo "vm      = ${all_jvms}"
 	echo "package = ${all_packages}"
 	echo "runtype = ${all_runtypes}"
+	echo "os      = ${oses}"
 	exit 1
 fi
 
@@ -49,6 +50,7 @@ set_version "$1"
 vm="$2"
 package="$3"
 set_runtype "$4"
+os_param=$(echo "$5" | tr "," " ")
 
 # Get the image build time stored in the "build_time" array for the current arch
 # Build time is stored as the time since 1-1-1970
@@ -359,6 +361,10 @@ function build_dockerfile {
 
 # Set the OSes that will be built on based on the current arch
 set_arch_os
+
+if [ ! -z "${os_param}" ];then
+	oses=${os_param}
+fi
 
 # Updating `oses` for `test` runtype to reduce the build time for OpenJ9 images for PR checks
 if [ "${runtype}" == "test" ] && [ "${vm}" == "openj9" ] && [ "${current_arch}" == "x86_64" ] && [ "${os_family}" == "linux" ]; then
