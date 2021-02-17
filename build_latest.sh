@@ -217,7 +217,7 @@ function build_image() {
 	btype=$1; shift;
 	local local_tag=$1; shift;
 
-	tags="${tags} -t ${repo}:${local_tag}"
+	tags=" -t ${repo}:${local_tag}"
 
 	auto_space_line="                                                                              "
 	image_name="${repo}:${local_tag}"
