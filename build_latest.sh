@@ -215,17 +215,13 @@ function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
 	btype=$1; shift;
+	local local_tag=$1; shift;
 
-	local local_tags=("$@") # copy arguments to local array
-	for i in "${!local_tags[@]}"
-	do
-		echo "Tag - ${i} : ${local_tags[$i]}" # Adding an echo to check if jenkins build job is passing multiple tags
-		tags="${tags} -t ${repo}:${local_tags[$i]}"
-	done
+	tags="${tags} -t ${repo}:${local_tag}"
 
 	auto_space_line="                                                                              "
-	image_name="${repo}:${tag}"
-	printf -v expanded_tags "%s ${repo}:%s " "-t" "${local_tags[@]}" # concatenate to single string : -t repo:tag -t repo:tag2
+	image_name="${repo}:${local_tag}"
+	printf -v expanded_tags "%s ${repo}:%s " "-t" "${local_tag}" # concatenate to single string : -t repo:tag -t repo:tag2
 	expanded_tags=${expanded_tags%?} # remove trailing space
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 	# Check if we need to build this image.
@@ -235,7 +231,7 @@ function build_image() {
 		return;
 	fi
 
-	echo "docker push ${repo}:${tag}" >> "${push_cmdfile}"
+	echo "docker push ${repo}:${local_tag}" >> "${push_cmdfile}"
 	echo "#####################################################"
 	echo "INFO: docker build --no-cache ${expanded_tags} -f ${dockerfile} ."
 	echo "#####################################################"
