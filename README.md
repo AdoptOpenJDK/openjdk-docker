@@ -13,7 +13,7 @@ Dockerfiles and build scripts for generating Docker Images based on various Adop
 
 | Alpine | centos | clefos | debian |  debianslim  | leap | tumbleweed | ubi | ubi-minimal | ubuntu(*) |
 |:------:|:------:|:------:|:------:|:------------:|:----:|:----------:|:---:|:-----------:|:------:|
-|  3.12  |    7   |    7   | buster | buster-slim  | 15.2 |   latest   | 8.2 |     8.2     |  20.04 |
+|  3.13  |    7   |    7   | buster | buster-slim  | 15.2 |   latest   | 8.2 |     8.2     |  20.04 |
 
 Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
 
@@ -30,7 +30,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
     - Windows Server Core (ltsc2016 and 1809): Release
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
   - Linux
-    - Alpine (3.12): Release, Nightly and Slim
+    - Alpine (3.13): Release, Nightly and Slim
     - CentOS (7): Release, Nightly and Slim
     - ClefOS (7): Release, Nightly and Slim
     - Debian (Buster): Release, Nightly and Slim
