@@ -215,16 +215,13 @@ function build_image() {
 	repo=$1; shift;
 	build=$1; shift;
 	btype=$1; shift;
+    local tag=$1; shift;
 
-	local local_tags=("$@") # copy arguments to local array
-	for i in "${!local_tags[@]}"
-	do
-		tags="${tags} -t ${repo}:${local_tags[$i]}"
-	done
+	tags=" -t ${repo}:${tag}"
 
 	auto_space_line="                                                                              "
 	image_name="${repo}:${tag}"
-	printf -v expanded_tags "%s ${repo}:%s " "-t" "${local_tags[@]}" # concatenate to single string : -t repo:tag -t repo:tag2
+	printf -v expanded_tags "%s ${repo}:%s " "-t" "${tag}" # concatenate to single string : -t repo:tag -t repo:tag2
 	expanded_tags=${expanded_tags%?} # remove trailing space
 	dockerfile="Dockerfile.${vm}.${build}.${btype}"
 	# Check if we need to build this image.
