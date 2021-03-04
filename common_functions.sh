@@ -19,6 +19,8 @@ tags_config_file="config/tags.config"
 openj9_config_file="config/openj9.config"
 # shellcheck disable=SC2034
 hotspot_config_file="config/hotspot.config"
+# shellcheck disable=SC2034
+dragonwell_config_file="config/dragonwell.config"
 
 # Test lists
 # shellcheck disable=SC2034

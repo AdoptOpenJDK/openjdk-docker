@@ -103,6 +103,10 @@ function Get-VMImplementation() {
   if($impl -match "OpenJ9") {
     return "OpenJ9"
   }
+  $dragonwellImpl=& cmd /c "java -version 2>&1"
+  if($dragonwellImpl -match "Dragonwell") {
+    return "Dragonwell"
+  }
   return "Hotspot"
 }
 
