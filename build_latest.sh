@@ -219,6 +219,7 @@ function build_image() {
 	local local_tags=("$@") # copy arguments to local array
 	for i in "${!local_tags[@]}"
 	do
+		echo "Tag - ${i} : ${local_tags[$i]}" # Adding an echo to check if jenkins build job is passing multiple tags
 		tags="${tags} -t ${repo}:${local_tags[$i]}"
 	done
 
