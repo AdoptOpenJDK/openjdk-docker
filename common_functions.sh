@@ -52,8 +52,8 @@ PR_TEST_OSES="ubuntu alpine ubi"
 runtype="build"
 
 # Current JVM versions supported
-export supported_versions="8 11 14 15"
-export latest_version="15"
+export supported_versions="16"
+export latest_version="16"
 
 # Current builds supported
 export supported_builds="releases nightly"
@@ -61,7 +61,7 @@ export supported_builds="releases nightly"
 function check_version() {
 	version=$1
 	case ${version} in
-	8|9|10|11|12|13|14|15)
+	8|9|10|11|12|13|14|15|16)
 		;;
 	*)
 		echo "ERROR: Invalid version"
