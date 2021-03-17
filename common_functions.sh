@@ -52,7 +52,7 @@ PR_TEST_OSES="ubuntu alpine ubi"
 runtype="build"
 
 # Current JVM versions supported
-export supported_versions="16"
+export supported_versions="8 11 14 15 16"
 export latest_version="16"
 
 # Current builds supported
