@@ -70,7 +70,7 @@ print_debianslim_ver() {
 }
 
 print_ubi_ver() {
-	os_version="8.2"
+	os_version="8.3"
 
 	cat >> "$1" <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi:${os_version}
@@ -79,7 +79,7 @@ print_ubi_ver() {
 }
 
 print_ubi-minimal_ver() {
-	os_version="8.2"
+	os_version="8.3"
 
 	cat >> "$1" <<-EOI
 	FROM registry.access.redhat.com/ubi8/ubi-minimal:${os_version}
@@ -683,7 +683,14 @@ print_java_options() {
 		esac
 		;;
 	openj9)
-		JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
+		case ${os} in
+		windows)
+			JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle";
+			;;
+		*)
+			JOPTS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal";
+			;;
+		esac
 		;;
 	esac
 
@@ -741,7 +748,6 @@ EOI
 		cat >> "$1" <<'EOI'
     unset OPENJ9_JAVA_OPTIONS; \
     SCC_SIZE="50m"; \
-    SCC_GEN_RUNS_COUNT=3; \
     DOWNLOAD_PATH_TOMCAT=/tmp/tomcat; \
     INSTALL_PATH_TOMCAT=/opt/tomcat-home; \
     TOMCAT_CHECKSUM="0db27185d9fc3174f2c670f814df3dda8a008b89d1a38a5d96cbbe119767ebfb1cf0bce956b27954aee9be19c4a7b91f2579d967932207976322033a86075f98"; \
@@ -755,14 +761,10 @@ EOI
     \
     java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal,createLayer -Xscmx$SCC_SIZE -version; \
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
-    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
-    do \
-        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-        sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
-        sleep 5; \
-    done; \
-    \
+    "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+    sleep 5; \
+    "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh -force; \
+    sleep 15; \
     FULL=$( (java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
     DST_CACHE=$(java -Xshareclasses:name=dry_run_scc,cacheDir=/opt/java/.scc,destroy 2>&1 || true); \
     SCC_SIZE=$(echo $SCC_SIZE | sed 's/.$//'); \
@@ -773,14 +775,10 @@ EOI
     unset OPENJ9_JAVA_OPTIONS; \
     \
     export OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,bootClassesOnly,nonFatal"; \
-    for i in $(seq 0 $SCC_GEN_RUNS_COUNT); \
-    do \
-        "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
-        sleep 5; \
-        "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh; \
-        sleep 5; \
-    done; \
-    \
+    "${INSTALL_PATH_TOMCAT}"/bin/startup.sh; \
+    sleep 5; \
+    "${INSTALL_PATH_TOMCAT}"/bin/shutdown.sh -force; \
+    sleep 5; \
     FULL=$( (java -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,printallStats 2>&1 || true) | awk '/^Cache is [0-9.]*% .*full/ {print substr($3, 1, length($3)-1)}'); \
     echo "SCC layer is $FULL% full."; \
     rm -rf "${INSTALL_PATH_TOMCAT}"; \
@@ -789,16 +787,14 @@ EOI
     fi; \
     \
 EOI
-    if [[ "${os_family}" == "alpine" ]]; then
-            cat >> "$1" <<'EOI'
+		if [[ "${os_family}" == "alpine" ]]; then
+			cat >> "$1" <<'EOI'
     apk del --purge .scc-deps; \
     rm -rf /var/cache/apk/*; \
 EOI
-    fi
-    cat >> "$1" <<'EOI'
+    	fi
+		cat >> "$1" <<'EOI'
     echo "SCC generation phase completed";
-
-ENV OPENJ9_JAVA_OPTIONS="-Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"
 
 EOI
 	fi

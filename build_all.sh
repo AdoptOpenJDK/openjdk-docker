@@ -14,13 +14,43 @@
 #
 set -o pipefail
 
+export root_dir="$PWD"
+
 # shellcheck source=common_functions.sh
 source ./common_functions.sh
+# shellcheck source=snyk.sh
+source ./snyk.sh
+
+# summary table array
+export summary_table_file="${root_dir}/.summary_table"
+
+function create_summary_table_file() {
+	touch ${summary_table_file}
+	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
+	echo "|                                 Docker image                                 |  Status  |" >> ${summary_table_file}
+	echo "+------------------------------------------------------------------------------+----------+" >> ${summary_table_file}
+}
+
+function print_summary_table() {
+	cat ${summary_table_file}
+}
+
+function remove_summary_table_file() {
+	rm -f ${summary_table_file}
+}
 
 if [ ! -z "$1" ]; then
 	echo "overiding supported_versions to $1"
 	supported_versions="$1"
 fi
+
+# Removing the summary data if exist
+if [ -f "${summary_table_file}" ]; then
+	remove_summary_table_file
+fi
+
+# Create summary table file
+create_summary_table_file
 
 for ver in ${supported_versions}
 do
@@ -80,6 +110,12 @@ do
 		done
 	done
 done
+
+# Print the sumamry information of the docker images build
+print_summary_table
+
+# Remove summary table temporary file
+remove_summary_table_file
 
 # Cleanup any old containers and images
 cleanup_images

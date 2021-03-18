@@ -190,12 +190,14 @@ function generate_official_image_tags() {
 	# 8u212-jdk-hotspot
 	full_ver_tag="${ojdk_version}-${pkg}"
 
+	unset extra_shared_tags extra_ver_tags
 	# Add the openj9 version
 	if [ "${vm}" == "openj9" ]; then
 		openj9_version=$(echo "${full_version}" | awk -F '_' '{ print $2 }')
 		full_ver_tag="${full_ver_tag}-${openj9_version}-${distro}"
 	else
 		full_ver_tag="${full_ver_tag}-${vm}-${distro}"
+		extra_ver_tags=", ${ver}-${pkg}"
 	fi
 	ver_tag="${ver}-${pkg}-${vm}-${distro}"
 	all_tags="${full_ver_tag}, ${ver_tag}"
@@ -203,14 +205,18 @@ function generate_official_image_tags() {
 	if [ "${pkg}" == "jdk" ]; then
 		jdk_tag="${ver}-${vm}-${distro}"
 		all_tags="${all_tags}, ${jdk_tag}"
+		if [ "${vm}" == "hotspot" ]; then
+			extra_ver_tags="${extra_ver_tags}, ${ver}"
+		fi
+		# jdk builds also have additional tags
 		# Add the "latest", "hotspot" and "openj9" tags for the right version
-		unset extra_shared_tags
 		if [ "${ver}" == "${latest_version}" ]; then
 			vm_tags_val="${vm}-${distro}"
 			# shellcheck disable=SC2154
 			all_tags="${all_tags}, ${vm_tags_val}"
 			if [ "${vm}" == "hotspot" ]; then
 				extra_shared_tags=", latest"
+				extra_ver_tags="${extra_ver_tags}, ${pkg}"
 			fi
 		fi
 	fi
@@ -221,13 +227,13 @@ function generate_official_image_tags() {
 		windows_version=$(echo $distro | awk -F '-' '{ print $1 }' )
 		windows_version_number=$(echo $distro | awk -F '-' '{ print $2 }' )
 		windows_shared_tags=$(echo ${all_tags} | sed "s/$distro/$windows_version/g")
-		all_shared_tags="${windows_shared_tags}, ${shared_tags}${extra_shared_tags}"
+		all_shared_tags="${windows_shared_tags}, ${shared_tags}${extra_ver_tags}${extra_shared_tags}"
 		case $distro in
 			nanoserver*) constraints="${distro}, windowsservercore-${windows_version_number}" ;;
 			*) constraints="${distro}" ;;
 		esac
 	else
-	all_shared_tags="${shared_tags}${extra_shared_tags}"
+	all_shared_tags="${shared_tags}${extra_ver_tags}${extra_shared_tags}"
 	fi
 }
 
@@ -275,7 +281,14 @@ function generate_official_image_info() {
 		if [ "${os}" == "${arr_os}" ]; then
 			return;
 		fi
-	done	
+	done
+	if [ "${os}" == "windows" ]; then
+		distro=$(echo $dfdir | awk -F '/' '{ print $4 }' )
+		# Nanoserver dockerfiles need refactoring and dont work right now
+		if [[ "${distro}" =~ "nanoserver" ]]; then
+			return;
+		fi
+	fi
 	# We do not push our nightly and slim images either.
 	if [ "${build}" == "nightly" ] || [ "${btype}" == "slim" ]; then
 		return;
@@ -292,7 +305,7 @@ function generate_official_image_info() {
 for vm in ${all_jvms}
 do
 	# Official images support different versions
-	official_supported_versions="8 11 13 14 15"
+	official_supported_versions="8 11 14 15"
 	for ver in ${official_supported_versions}
 	do
 		print_official_text
