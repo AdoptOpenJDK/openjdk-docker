@@ -166,6 +166,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
    ```
    You should now have two files, `hotspot_shasums_latest.sh` and `openj9_shasums_latest.sh`. These will have the shasums for the latest version for each of the supported arches for hotspot and Eclipse OpenJ9 respectively.
  - [slim-java.sh](/slim-java.sh): Script that is used to generate the slim docker images. This script strips out various aspects of the JDK that are typically not needed in a server side containerized application. This includes debug info, symbols, classes related to audio, desktop etc
+ - [slim-java.ps1](/slim-java.ps1): Script that is used to generate slim docker images on Windows. This script provides the same function as the slim-java.sh script mentioned above.
  - [dockerhub_doc_config_update.sh](/dockerhub_doc_config_update.sh): Script that generates the tag documentation for each of the unofficial AdoptOpenJDK pages on hub.docker.com and the config file for raising a PR at the Official AdoptOpenJDK git repo.
 
 #### Config Files
