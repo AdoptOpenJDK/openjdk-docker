@@ -42,6 +42,7 @@ do
 			# Build Type = Full or Slim
 			btypes=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Type:")
 			dir=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Directory:")
+			osfamily=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "OS_Family:")
 
 			for build in ${builds}
 			do
@@ -64,7 +65,7 @@ do
 				for btype in ${btypes}
 				do
 					file="${dir}/Dockerfile.${vm}.${build}.${btype}"
-					generate_dockerfile "${file}" "${package}" "${build}" "${btype}" "${os}"
+					generate_dockerfile "${file}" "${package}" "${build}" "${btype}" "${osfamily}" "${os}"
 					# Copy the script to generate slim builds.
 					if [ "${btype}" = "slim" ]; then
 						if [ "${os}" == "windows" ]; then

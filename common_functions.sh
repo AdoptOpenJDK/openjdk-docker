@@ -32,8 +32,11 @@ test_buckets_file="config/test_buckets.list"
 # shellcheck disable=SC2034 # used externally
 all_jvms="hotspot openj9"
 
-# All supported arches
-all_arches="aarch64 armv7l ppc64le s390x x86_64 windows-amd windows-nano"
+# Supported arches for each of the os_families
+os_families="linux alpine-linux windows"
+linux_arches="aarch64 armv7l ppc64le s390x x86_64"
+alpine_linux_arches="x86_64"
+windows_arches="windows-amd windows-nano"
 
 # All supported packages
 # shellcheck disable=SC2034 # used externally
@@ -59,7 +62,7 @@ export latest_version="16"
 export supported_builds="releases nightly"
 
 function check_version() {
-	version=$1
+	local version=$1
 	case ${version} in
 	8|9|10|11|12|13|14|15|16)
 		;;
@@ -101,22 +104,22 @@ function set_arch_os() {
 	case ${machine} in
 	armv7l|linux/arm/v7)
 		current_arch="armv7l"
-		oses="ubuntu debian debianslim centos leap tumbleweed"
+		oses="centos debian debianslim leap tumbleweed ubuntu"
 		os_family="linux"
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
+		oses="centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
 		current_arch="ppc64le"
-		oses="ubuntu debian debianslim ubi ubi-minimal centos leap tumbleweed"
+		oses="centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 		os_family="linux"
 		;;
 	s390x)
 		current_arch="s390x"
-		oses="ubuntu debian debianslim ubi ubi-minimal clefos tumbleweed"
+		oses="clefos debian debianslim tumbleweed ubi ubi-minimal ubuntu"
 		os_family="linux"
 		;;
 	amd64|x86_64)
@@ -142,9 +145,10 @@ function set_arch_os() {
 			# shellcheck disable=SC2034 # used externally
 			current_arch="x86_64"
 			# shellcheck disable=SC2034 # used externally
-			oses="ubuntu alpine debian debianslim ubi ubi-minimal centos leap tumbleweed"
+			oses="alpine centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
+			# alpine-linux (musl libc) based builds are only available on x86_64 currently
 			# shellcheck disable=SC2034 # used externally
-			os_family="linux"
+			os_family="alpine-linux linux"
 			;;
 		esac
 		;;
@@ -155,6 +159,22 @@ function set_arch_os() {
 	esac
 }
 
+# get shasums for a given architecture and os_family
+# This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
+# arch = aarch64, armv7l, ppc64le, s390x, x86_64
+# os_family = alpine-linux, linux, windows
+function get_shasum() {
+	local arch=$2;
+	local os_family=$3;
+
+	if ! declare -p "$1" >/dev/null 2>/dev/null; then
+		return;
+	fi
+	# shellcheck disable=SC2154,SC1083
+	local shasum=$(sarray=$1[${os_family}_${arch}]; eval esum=\${"$sarray"}; echo "${esum}");
+	echo "${shasum}"
+}
+
 # Get the supported architectures for a given VM (Hotspot, OpenJ9).
 # This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
 function get_arches() {
@@ -162,11 +182,12 @@ function get_arches() {
 	# corresponding build combination does not exist.
 	# Eg. jdk_openj9_10_releases_sums does not exist as we do not have any
 	# release builds for version 10 (Only nightly builds).
-	if ! declare -p "$1" 2>/dev/null; then
+	if ! declare -p "$1" >/dev/null 2>/dev/null; then
 		return;
 	fi
-	archsums="$(declare -p "$1")";
+	local archsums="$(declare -p "$1")";
 	eval "declare -A sums=""${archsums#*=}";
+	local arch=""
 	for arch in "${!sums[@]}";
 	do
 		if [[ "${arch}" == version* ]] ; then
@@ -174,9 +195,10 @@ function get_arches() {
 		fi
 		# Arch is supported only if the shasum is not empty !
 		# shellcheck disable=SC2154,SC1083
-		shasum=$(sarray=$1[${arch}]; eval esum=\${"$sarray"}; echo "${esum}");
+		local shasum=$(sarray=$1[${arch}]; eval esum=\${"$sarray"}; echo "${esum}");
 		if [ -n "${shasum}" ]; then
-			echo "${arch} "
+			local arch_val=$(echo ${arch} | sed 's/alpine-linux_//; s/linux_//; s/windows_//')
+			echo "${arch_val} "
 		fi
 	done
 }
@@ -193,8 +215,8 @@ function vm_supported_onarch() {
 		test_arch=$(uname -m)
 	fi
 
-	suparches=$(get_arches "${sums}")
-	sup=$(echo "${suparches}" | grep "${test_arch}")
+	local suparches=$(get_arches "${sums}")
+	local sup=$(echo "${suparches}" | grep "${test_arch}")
 	echo "${sup}"
 }
 
@@ -407,6 +429,7 @@ function get_v2_installer_url() {
 # url_impl = hotspot / openj9
 # url_arch = aarch64 / ppc64le / s390x / x64
 # url_pkg  = jdk / jre
+# url_os_family = linux / windows / alpine-linux
 # https://api.adoptopenjdk.net/v3/assets/feature_releases/11/ga?page=0&page_size=1&release_type=ga&sort_order=DESC&vendor=adoptopenjdk&jvm_impl=openj9&heap_size=normal&architecture=x64&os=linux&image_type=jdk
 function get_v3_url() {
 	local request_type=$1
@@ -414,6 +437,7 @@ function get_v3_url() {
 	local url_impl=$3
 	local url_pkg=$4
 	local url_arch=$5
+	local url_os_family=$6
 	local url_heapsize="normal"
 
 	if [ "${release_type}" == "releases" ]; then
@@ -427,9 +451,14 @@ function get_v3_url() {
 	windows_pat="windows.*"
 	if [ -n "${url_arch}" ]; then
 		if [[ "${url_arch}" =~ ${windows_pat} ]]; then
-			specifiers="${specifiers}&os=windows&architecture=x64"
+			specifiers="${specifiers}&architecture=x64&os=windows"
 		else
-			specifiers="${specifiers}&os=linux&architecture=${url_arch}"
+			specifiers="${specifiers}&architecture=${url_arch}"
+			if [ -n "${url_os_family}" ]; then
+				specifiers="${specifiers}&os=${url_os_family}"
+			else
+				specifiers="${specifiers}&os=linux"
+			fi
 		fi
 	else
 		specifiers="${specifiers}&os=linux"
@@ -469,6 +498,7 @@ function get_v3_installer_url() {
 function get_nightly_short_version() {
 	local arch_build=$1
 	local arch_full_version=$2
+
 	if [ "${arch_build}" = "nightly" ]; then
 		# Remove date and time at the end of full_version for nightly builds.
 		# Handle both the old and new date-time formats used by the Adopt build system.
@@ -491,25 +521,30 @@ function get_sums_for_build_arch() {
 	local pkg=$3
 	local build=$4
 	local arch=$5
+	local os_family=$6
 
+	if [ -z ${os_family} ]; then
+		os_family=linux
+	fi
 	case ${arch} in
 		armv7l)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" arm);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" arm "${os_family}");
 			;;
 		aarch64)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" aarch64);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" aarch64 "${os_family}");
 			;;
 		ppc64le)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" ppc64le);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" ppc64le "${os_family}");
 			;;
 		s390x)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" s390x);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" s390x "${os_family}");
 			;;
 		x86_64)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" x64);
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" x64 "${os_family}");
 			;;
 		windows-amd|windows-nano)
-			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" windows);
+			os_family=windows
+			LATEST_URL=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}" windows "${os_family}");
 			;;
 		*)
 			echo "Unsupported arch: ${arch}"
@@ -566,15 +601,15 @@ function get_sums_for_build_arch() {
 			arch_last_build_time="$(date --date "${arch_last_build_date}" +%s)"
 			# Only print the entry if the shasum is not empty
 			if [ -n "${shasum}" ]; then
-				printf "\t[version-%s]=\"%s\"\n" "${arch}" "${arch_build_version}" >> "${ofile_sums}"
-				printf "\t[version-%s]=\"%s\"\n" "${arch}" "${arch_build_version}" >> "${ofile_build_time}"
-				printf "\t[%s]=\"%s\"\n" "${arch}" "${shasum}" >> "${ofile_sums}"
-				printf "\t[%s]=\"%s\"\n" "${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
+				printf "\t[version-%s]=\"%s\"\n" "${os_family}_${arch}" "${arch_build_version}" >> "${ofile_sums}"
+				printf "\t[version-%s]=\"%s\"\n" "${os_family}_${arch}" "${arch_build_version}" >> "${ofile_build_time}"
+				printf "\t[%s]=\"%s\"\n" "${os_family}_${arch}" "${shasum}" >> "${ofile_sums}"
+				printf "\t[%s]=\"%s\"\n" "${os_family}_${arch}" "${arch_last_build_time}" >> "${ofile_build_time}"
 			fi
 		fi
 		break;
 	done
-	rm -f "${shasum_file}"
+	#rm -f "${shasum_file}"
 }
 
 # Get shasums for the build and arch combination given
@@ -606,9 +641,18 @@ function get_sums_for_build() {
 	if [ -n "${arch}" ]; then
 		get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
 	else
-		for arch in ${all_arches}
+		# Need to get shasums for each of the OS Families
+		# families = alpine-linux, linux and windows
+		for os_fam in ${os_families}
 		do
-			get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
+			# bash doesnt support '-' in the name of a variable
+			# So make alpine-linux as alpine_linux
+			local fam="${os_fam//-/_}"
+			local arches="${fam}_arches"
+			for arch in ${!arches}
+			do
+				get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}" "${os_fam}"
+			done
 		done
 	fi
 	printf ")\n" >> "${ofile_sums}"
@@ -634,10 +678,10 @@ function get_shasums() {
 	if [ -f "${ofile_sums}" ]; then
 		# shellcheck disable=SC1090
 		source ./"${vm}"_shasums_latest.sh
-		sums="${pkg}_${vm}_${ver}_${build}_sums"
+		local sums="${pkg}_${vm}_${ver}_${build}_sums"
 		# File exists, which means shasums for the VM exists.
 		# Now check for the specific Ver/VM/Pg/Build combo
-		suparches=$(get_arches "${sums}")
+		local suparches=$(get_arches "${sums}")
 		if [ -n "${suparches}" ]; then
 			return;
 		fi
