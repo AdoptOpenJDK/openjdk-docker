@@ -138,7 +138,7 @@ print_windows_ver() {
 	nanoserver_pat="nanoserver.*"
 	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 		cat >> "$1" <<-EOI
-	FROM mcr.microsoft.com/windows/nanoserver:${os_version} as installer
+	FROM mcr.microsoft.com/windows/servercore:${os_version} as installer
 
 
 EOI
@@ -774,6 +774,10 @@ print_cmd() {
 }
 
 print_scc_gen() {
+	local vm=$2;
+	local osfamily=$3;
+	local os=$4;
+
 	if [[ "${vm}" == "openj9" && "${osfamily}" != "windows" ]]; then
         cat >> "$1" <<'EOI'
 
@@ -785,7 +789,7 @@ print_scc_gen() {
 
 RUN set -eux; \
 EOI
-		if [[ "${osfamily}" == "alpine" ]]; then
+		if [[ "${os}" == "alpine" ]]; then
 			cat >> "$1" <<'EOI'
     apk add --no-cache --virtual .scc-deps curl; \
 EOI
@@ -832,7 +836,7 @@ EOI
     fi; \
     \
 EOI
-		if [[ "${osfamily}" == "alpine" ]]; then
+		if [[ "${os}" == "alpine" ]]; then
 			cat >> "$1" <<'EOI'
     apk del --purge .scc-deps; \
     rm -rf /var/cache/apk/*; \
@@ -878,7 +882,7 @@ generate_dockerfile() {
 		print_"${os}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}";
 		print_java_env "${file}" "${bld}" "${btype}" "${osfamily}";
 		print_java_options "${file}" "${bld}" "${btype}";
-		print_scc_gen "${file}";
+		print_scc_gen "${file}" "${vm}" "${osfamily}" "${os}";
 		print_cmd "${file}";
 	fi
 	echo "done"
