@@ -319,9 +319,9 @@ function build_tags() {
 		rel="${rel//jdk/jre}"
 	fi
 	# Get the list of supported arches for this vm / ver /os combo
-	arches=$(parse_vm_entry "${vm}" "${ver}" "${pkg}" "${os}" "Architectures:")
+	local arches=$(parse_vm_entry "${vm}" "${ver}" "${pkg}" "${os}" "Architectures:")
 	# Replace the proper version string in the tags
-	rtags=$(echo "${rawtags}" | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
+	local rtags=$(echo "${rawtags}" | sed "s/{{ JDK_${build}_VER }}/${rel}/gI; s/{{ OS }}/${os}/gI;");
 	echo "${rtags}" | sed "s/{{ *ARCH *}}/{{ARCH}}/" |
 	# Separate the arch and the generic alias tags
 	awk '{ a=0; n=0;
@@ -338,10 +338,13 @@ function build_tags() {
 	}' > ${tmpfile}
 
 	# shellcheck disable=SC2034 # used externally
-	tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
-	raw_arch_tags=$( < "${tmpfile}" grep "^arch_tags:" | sed "s/arch_tags: //")
+	local tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
+	local raw_arch_tags=$( < "${tmpfile}" grep "^arch_tags:" | sed "s/arch_tags: //")
+	# arch_tags is a global variable
 	arch_tags=""
 	# Iterate through the arch tags and expand to add the supported arches.
+	local tag=""
+	local arch=""
 	for tag in ${raw_arch_tags}
 	do
 		for arch in ${arches}

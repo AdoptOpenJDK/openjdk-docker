@@ -302,7 +302,6 @@ print_env() {
 	local osfamily=$2
 	local os=$3
 
-	echo "############# ARCH: ${arch}"
 	# shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 	jverinfo="${shasums}[version]"
