@@ -609,7 +609,7 @@ function get_sums_for_build_arch() {
 		fi
 		break;
 	done
-	#rm -f "${shasum_file}"
+	rm -f "${shasum_file}"
 }
 
 # Get shasums for the build and arch combination given
@@ -619,7 +619,6 @@ function get_sums_for_build() {
 	local vm=$2
 	local pkg=$3
 	local build=$4
-	local arch=$5
 
 	info_url=$(get_v3_url feature_releases "${build}" "${vm}" "${pkg}");
 	# Repeated requests from a script triggers a error threshold on adoptopenjdk.net
@@ -638,23 +637,19 @@ function get_sums_for_build() {
 	# Capture the full version according to adoptopenjdk
 	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile_sums}"
 	printf "\t[version]=\"%s\"\n" "${full_version}" >> "${ofile_build_time}"
-	if [ -n "${arch}" ]; then
-		get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
-	else
-		# Need to get shasums for each of the OS Families
-		# families = alpine-linux, linux and windows
-		for os_fam in ${os_families}
+	# Need to get shasums for each of the OS Families
+	# families = alpine-linux, linux and windows
+	for os_fam in ${os_families}
+	do
+		# bash doesnt support '-' in the name of a variable
+		# So make alpine-linux as alpine_linux
+		local fam="${os_fam//-/_}"
+		local arches="${fam}_arches"
+		for arch in ${!arches}
 		do
-			# bash doesnt support '-' in the name of a variable
-			# So make alpine-linux as alpine_linux
-			local fam="${os_fam//-/_}"
-			local arches="${fam}_arches"
-			for arch in ${!arches}
-			do
-				get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}" "${os_fam}"
-			done
+			get_sums_for_build_arch "${ver}" "${vm}" "${pkg}" "${build}" "${arch}" "${os_fam}"
 		done
-	fi
+	done
 	printf ")\n" >> "${ofile_sums}"
 	printf ")\n" >> "${ofile_build_time}"
 
@@ -670,7 +665,6 @@ function get_shasums() {
 	local vm=$2
 	local pkg=$3
 	local build=$4
-	local arch=$5
 	local ofile_sums="${vm}_shasums_latest.sh"
 	local ofile_build_time="${vm}_build_time_latest.sh"
 
@@ -688,11 +682,11 @@ function get_shasums() {
 	fi
 
 	if [ -n "${build}" ]; then
-		get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
+		get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}"
 	else
 		for build in ${supported_builds}
 		do
-			get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}" "${arch}"
+			get_sums_for_build "${ver}" "${vm}" "${pkg}" "${build}"
 		done
 	fi
 	chmod +x "${ofile_sums}" "${ofile_build_time}"

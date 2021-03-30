@@ -302,13 +302,10 @@ print_env() {
 	local osfamily=$2
 	local os=$3
 
+	echo "############# ARCH: ${arch}"
 	# shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-	if [ -z "${arch}" ]; then
-		jverinfo="${shasums}[version]"
-	else
-		jverinfo="${shasums}[version-${osfamily}_${arch}]"
-	fi
+	jverinfo="${shasums}[version]"
 	# shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
 	jver="${jver}" # to satifsy shellcheck SC2154
@@ -574,7 +571,7 @@ EOI
 	else
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano windows);
 		# shellcheck disable=SC1083
-		ESUM=$(get_shasum "${shasums}" windows-amd "${osfamily}");
+		ESUM=$(get_shasum "${shasums}" windows-nano "${osfamily}");
 		BINARY_URL=$(get_v3_binary_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
@@ -694,6 +691,7 @@ print_java_env() {
 	# e.g 11 or 8
 	local version=$(echo "$file" | cut -f1 -d"/")
 	local os=$4
+
 	if [ "$os" != "windows" ]; then
 		cat >> "$1" <<-EOI
 

@@ -310,6 +310,7 @@ function build_dockerfile {
 	local os=$6;
 
 	local tag=""
+	echo "INFO: current_arch: ${current_arch}, osfamily: ${osfamily}, os: ${os}"
 	if [ -z "${current_arch}" ]; then
 		jverinfo="${shasums}[version]"
 	else
@@ -317,6 +318,7 @@ function build_dockerfile {
 	fi
 	# shellcheck disable=SC1083,SC2086
 	eval jrel=\${$jverinfo}
+	echo "INFO: release: ${jrel}"
 	# Docker image tags cannot have "+" in them, replace it with "_" instead.
 	# shellcheck disable=SC2154
 	rel=${jrel//+/_}
@@ -353,7 +355,6 @@ function build_dockerfile {
 	fi
 	echo "INFO: Building ${trepo} ${tag} from $file ..."
 	pushd "${dir}" >/dev/null || return
-	echo "Building image for tag ${tag}"
 	build_image "${trepo}" "${build}" "${btype}" "${osfamily}" "${tag}"
 	popd >/dev/null || return
 }
