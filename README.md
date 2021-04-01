@@ -21,8 +21,12 @@ Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
   - 1809
   - ltsc2016
 
-# Official and Unofficial Images
-AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Unofficial Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
+# musl libc based Alpine Images
+
+Starting from Java 16, hotspot builds are available natively built on musl libc instead of the regular glibc as part of the AdoptOpenJDK project. Currently these are available only for the x86_64 architecture. Accordingly we now have both regular and slim Docker Images for alpine musl based hotspot on x86_64.
+
+# Official and Non-official Images
+AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Non-official Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
 * [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
   - Linux
     - Ubuntu (20.04): Release

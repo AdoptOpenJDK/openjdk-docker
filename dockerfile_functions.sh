@@ -125,13 +125,13 @@ print_tumbleweed_ver() {
 
 # Print the supported Windows OS
 print_windows_ver() {
-	os=$4
+	local os=$4
 	case $os in
-		*20h2) os_version="20H2" ;;
 		*ltsc2019) os_version="ltsc2019" ;;
 		*1909) os_version="1909" ;;
 		*ltsc2016) os_version="ltsc2016" ;;
 		*1809) os_version="1809" ;;
+		*20h2) os_version="20H2" ;;
 	esac
 
 	servertype=$(echo "$file" | cut -f4 -d"/")
@@ -139,6 +139,7 @@ print_windows_ver() {
 	if [[ "$servertype" =~ ${nanoserver_pat} ]]; then
 		cat >> "$1" <<-EOI
 	FROM mcr.microsoft.com/windows/servercore:${os_version} as installer
+
 
 EOI
 	else
@@ -160,7 +161,7 @@ print_alpine_ver() {
 
 # Print the locale and language
 print_lang_locale() {
-	os=$2
+	local os=$2
 	if [ "$os" != "windows" ]; then
 		cat >> "$1" <<-EOI
 	ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
@@ -189,7 +190,7 @@ print_debianslim_pkg() {
 }
 
 print_windows_pkg() {
-	cat >> "$1" <<'EOI'
+    cat >> "$1" <<'EOI'
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 EOI
@@ -198,6 +199,17 @@ EOI
 # Select the alpine OS packages.
 # Install GNU glibc as this OpenJDK build is compiled against glibc and not musl.
 print_alpine_pkg() {
+	local osfamily=$2
+
+	if [ "${osfamily}" == "alpine-linux" ]; then
+		print_alpine_musl_pkg "$1" "$2"
+	else
+		print_alpine_glibc_pkg "$1" "$2"
+	fi
+
+}
+
+print_alpine_glibc_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && GLIBC_VER="2.31-r0" \
@@ -231,6 +243,14 @@ RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
+EOI
+}
+
+# Select the alpine OS musl based packages.
+print_alpine_musl_pkg() {
+	cat >> "$1" <<'EOI'
+RUN apk add --no-cache tzdata musl-locales musl-locales-lang java-cacerts \
+    && rm -rf /var/cache/apk/*
 EOI
 }
 
@@ -279,13 +299,12 @@ print_tumbleweed_pkg() {
 
 # Print the Java version that is being installed here
 print_env() {
+	local osfamily=$2
+	local os=$3
+
 	# shellcheck disable=SC2154
 	shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-	if [ -z "${arch}" ]; then
-		jverinfo="${shasums}[version]"
-	else
-		jverinfo="${shasums}[version-${arch}]"
-	fi
+	jverinfo="${shasums}[version]"
 	# shellcheck disable=SC1083,SC2086 # TODO not sure about intention here
 	eval jver=\${$jverinfo}
 	jver="${jver}" # to satifsy shellcheck SC2154
@@ -312,45 +331,54 @@ EOI
 
 # OS independent portion (Works for both Alpine and Ubuntu)
 print_java_install_pre() {
-	pkg=$2
-	bld=$3
-	btype=$4
-	reldir="openjdk${version}";
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
+	local reldir="openjdk${version}";
+
 	if [ "${vm}" != "hotspot" ]; then
 		reldir="${reldir}-${vm}";
 	fi
-	supported_arches=$(get_arches "${shasums}" | sort)
+	# First get the arches for which the builds are available as per shasums file
+	local sup_arches_for_build=$(get_arches "${shasums}" | sort | uniq)
+	# Next, check the arches that are supported for the underlying OS
+	local sup_arches_for_os=$(parse_vm_entry "${vm}" "${version}" "${pkg}" "${os}" "Architectures:")
+	# Now the actual arches are the intersection of the above two
+	local merge_arches="${sup_arches_for_build} ${sup_arches_for_os}"
+	local supported_arches=$(echo ${merge_arches} | tr ' ' '\n' | sort | uniq -d)
 	for sarch in ${supported_arches}
 	do
 		if [ "${sarch}" == "aarch64" ]; then
-			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" aarch64);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" aarch64 "${osfamily}");
 			cat >> "$1" <<-EOI
        aarch64|arm64) \\
-         ESUM='$(sarray="${shasums}[aarch64]"; eval esum=\${$sarray}; echo "${esum}")'; \\
+         ESUM='$(get_shasum "${shasums}" aarch64 "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "armv7l" ]; then
-			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" arm);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" arm "${osfamily}");
 			cat >> "$1" <<-EOI
        armhf|armv7l) \\
-         ESUM='$(sarray="${shasums}[armv7l]"; eval esum=\${$sarray}; echo "${esum}")'; \\
+         ESUM='$(get_shasum "${shasums}" armv7l "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
-			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" ppc64le);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" ppc64le "${osfamily}");
 			cat >> "$1" <<-EOI
        ppc64el|ppc64le) \\
-         ESUM='$(sarray="${shasums}[ppc64le]"; eval esum=\${$sarray}; echo "${esum}")'; \\
+         ESUM='$(get_shasum "${shasums}" ppc64le "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
 		elif [ "${sarch}" == "s390x" ]; then
-			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" s390x);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" s390x "${osfamily}");
 			cat >> "$1" <<-EOI
        s390x) \\
-         ESUM='$(sarray="${shasums}[s390x]"; eval esum=\${$sarray}; echo "${esum}")'; \\
+         ESUM='$(get_shasum "${shasums}" s390x "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
 		EOI
 			# Ubuntu 20.04 has a newer version of libffi (libffi7)
@@ -370,10 +398,10 @@ EOI
          ;; \\
 		EOI
 		elif [ "${sarch}" == "x86_64" ]; then
-			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" x64);
+			JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" x64 "${osfamily}");
 			cat >> "$1" <<-EOI
        amd64|x86_64) \\
-         ESUM='$(sarray="${shasums}[x86_64]"; eval esum=\${$sarray}; echo "${esum}")'; \\
+         ESUM='$(get_shasum "${shasums}" x86_64 "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
          ;; \\
 		EOI
@@ -446,15 +474,18 @@ EOI
 
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
+
 	cat >> "$1" <<-EOI
 RUN set -eux; \\
     ARCH="\$(dpkg --print-architecture)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	if [ "${btype}" == "slim" ]; then
 		print_ubuntu_slim_package "$1"
 	fi
@@ -462,17 +493,18 @@ EOI
 }
 
 print_debian_java_install() {
-  print_ubuntu_java_install "$1" "$2" "$3" "$4"
+  print_ubuntu_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
 print_debianslim_java_install() {
-  print_ubuntu_java_install "$1" "$2" "$3" "$4"
+  print_ubuntu_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
 print_windows_java_install_post() {
-	servertype="$2"
-	version="$3"
-	os=$4
+	local servertype="$2"
+	local version="$3"
+	local os=$4
+
 	case $os in
 		*20h2) os_version="20H2" ;;
 		*ltsc2019) os_version="ltsc2019" ;;
@@ -507,16 +539,16 @@ EOI
 
 # Print the main RUN command that installs Java on ubuntu.
 print_windows_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
-	os=$5
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local os=$5
 
-	servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
-	version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
+	local servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
+	local version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
 	if [ "${servertype}" == "windowsservercore" ]; then
-		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd);
-		ESUM=$(sarray="${shasums}[windows-amd]"; eval esum=\${$sarray}; echo "${esum}");
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd windows);
+		ESUM=$(get_shasum "${shasums}" windows-amd "${osfamily}");
 		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
@@ -536,9 +568,9 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
     Remove-Item -Path C:\temp -Recurse | Out-Null; \\
 EOI
 	else
-		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano);
-    # shellcheck disable=SC1083
-		ESUM=$(sarray="${shasums}[windows-nano]"; eval esum=\${"$sarray"}; echo "${esum}");
+		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-nano windows);
+		# shellcheck disable=SC1083
+		ESUM=$(get_shasum "${shasums}" windows-nano "${osfamily}");
 		BINARY_URL=$(get_v3_binary_url "${JAVA_URL}");
 
 		cat >> "$1" <<-EOI
@@ -566,16 +598,19 @@ EOI
 
 # Print the main RUN command that installs Java on alpine.
 print_alpine_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
+
 	cat >> "$1" <<-EOI
 RUN set -eux; \\
     apk add --no-cache --virtual .fetch-deps curl; \\
     ARCH="\$(apk --print-arch)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	if [ "${btype}" == "slim" ]; then
 		print_alpine_slim_package "$1"
 	fi
@@ -588,67 +623,74 @@ EOI
 
 # Print the main RUN command that installs Java on ubi
 print_ubi_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
+
 	cat >> "$1" <<-EOI
 RUN set -eux; \\
     ARCH="\$(uname -m)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	print_java_install_post "$1"
 }
 
 # Print the main RUN command that installs Java on ubi-minimal
 print_ubi-minimal_java_install() {
-	print_ubi_java_install "$1" "$2" "$3" "$4"
+	print_ubi_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
 # Print the main RUN command that installs Java on CentOS
 print_centos_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
+
 	cat >> "$1" <<-EOI
 RUN set -eux; \\
     ARCH="\$(uname -m)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	print_java_install_post "$1"
 }
 
 # Print the main RUN command that installs Java on ClefOS
 print_clefos_java_install() {
-	print_centos_java_install "$1" "$2" "$3" "$4"
+	print_centos_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
 # Print the main RUN command that installs Java on Leap
 print_leap_java_install() {
-	pkg=$2
-	bld=$3
-	btype=$4
+	local pkg=$2
+	local bld=$3
+	local btype=$4
 	cat >> "$1" <<-EOI
 RUN set -eux; \\
     ARCH="\$(uname -m)"; \\
     case "\${ARCH}" in \\
 EOI
-	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}"
+	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	print_java_install_post "$1"
 }
 
 # Print the main RUN command that installs Java on Tumbleweed
 print_tumbleweed_java_install() {
-	print_leap_java_install "$1" "$2" "$3" "$4"
+	print_leap_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
 # Print the JAVA_HOME and PATH.
 # Currently Java is installed at a fixed path "/opt/java/openjdk"
 print_java_env() {
 	# e.g 11 or 8
-	version=$(echo "$file" | cut -f1 -d"/")
-	os=$4
+	local version=$(echo "$file" | cut -f1 -d"/")
+	local os=$4
+
 	if [ "$os" != "windows" ]; then
 		cat >> "$1" <<-EOI
 
@@ -729,7 +771,11 @@ print_cmd() {
 }
 
 print_scc_gen() {
-	if [[ "${vm}" == "openj9" && "${os_family}" != "windows" ]]; then
+	local vm=$2;
+	local osfamily=$3;
+	local os=$4;
+
+	if [[ "${vm}" == "openj9" && "${osfamily}" != "windows" ]]; then
         cat >> "$1" <<'EOI'
 
 # Create OpenJ9 SharedClassCache (SCC) for bootclasses to improve the java startup.
@@ -740,7 +786,7 @@ print_scc_gen() {
 
 RUN set -eux; \
 EOI
-		if [[ "${os_family}" == "alpine" ]]; then
+		if [[ "${os}" == "alpine" ]]; then
 			cat >> "$1" <<'EOI'
     apk add --no-cache --virtual .scc-deps curl; \
 EOI
@@ -787,7 +833,7 @@ EOI
     fi; \
     \
 EOI
-		if [[ "${os_family}" == "alpine" ]]; then
+		if [[ "${os}" == "alpine" ]]; then
 			cat >> "$1" <<'EOI'
     apk del --purge .scc-deps; \
     rm -rf /var/cache/apk/*; \
@@ -802,18 +848,12 @@ EOI
 
 # Generate the dockerfile for a given build, build_type and OS
 generate_dockerfile() {
-	file=$1
-	pkg=$2
-	bld=$3
-	btype=$4
-	case $5 in
-		windows*|nanoserver*)
-			os_family=windows
-			os=$5 ;;
-		*)
-			os_family=$5
-			os=$5 ;;
-	esac
+	local file=$1
+	local pkg=$2
+	local bld=$3
+	local btype=$4
+	local osfamily=$5
+	local os=$6
 
 	jhome="/opt/java/openjdk"
 
@@ -821,18 +861,27 @@ generate_dockerfile() {
 	echo
 	echo -n "Writing ${file} ... "
 	print_legal "${file}";
-	print_"${os_family}"_ver "${file}" "${bld}" "${btype}" "${os}";
-	print_lang_locale "${file}" "${os_family}";
-	print_"${os_family}"_pkg "${file}";
-	print_env "${file}" "${bld}" "${btype}";
-	copy_slim_script "${file}";
-	print_"${os_family}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${os}"; 
-	print_java_env "${file}" "${bld}" "${btype}" "${os_family}";
-	print_java_options "${file}" "${bld}" "${btype}";
-	print_scc_gen "${file}";
-	print_cmd "${file}";
+	if [ "${osfamily}" == "windows" ]; then
+		print_"${osfamily}"_ver "${file}" "${bld}" "${btype}" "${os}";
+		print_lang_locale "${file}" "${osfamily}";
+		print_"${osfamily}"_pkg "${file}" "${osfamily}";
+		print_env "${file}" "${osfamily}" "${os}";
+		print_"${osfamily}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}";
+		print_java_env "${file}" "${bld}" "${btype}" "${osfamily}";
+		print_java_options "${file}" "${bld}" "${btype}";
+		print_cmd "${file}";
+	else
+		print_"${os}"_ver "${file}" "${bld}" "${btype}" "${os}";
+		print_lang_locale "${file}" "${osfamily}";
+		print_"${os}"_pkg "${file}" "${osfamily}";
+		print_env "${file}" "${osfamily}" "${os}";
+		copy_slim_script "${file}";
+		print_"${os}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}";
+		print_java_env "${file}" "${bld}" "${btype}" "${osfamily}";
+		print_java_options "${file}" "${bld}" "${btype}";
+		print_scc_gen "${file}" "${vm}" "${osfamily}" "${os}";
+		print_cmd "${file}";
+	fi
 	echo "done"
 	echo
-	# Reset os back to the value of disto
-	os_family="$os"
 }

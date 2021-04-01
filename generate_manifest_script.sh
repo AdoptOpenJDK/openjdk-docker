@@ -58,13 +58,13 @@ function print_annotate_cmd() {
 	*)
 		;;
 	esac
-	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os ${os_family} --arch ${march}" >> "${man_file}"
+	echo "\"${manifest_tool}\" manifest annotate ${main_tag} ${arch_tag} --os linux --arch ${march}" >> "${man_file}"
 }
 
 # Space separated list of tags
 function print_manifest_cmd() {
-	trepo=$1; shift;
-	img_list=$*
+	local trepo=$1; shift;
+	local img_list=$*
 
 	# Global variable tag_aliases has the alias list
 	for talias in ${tag_aliases}
@@ -82,8 +82,8 @@ function print_manifest_cmd() {
 # Check each of the images in the global variable arch_tags exist and
 # Create the tag list from the arch_tags list.
 function print_tags() {
-	repo="$1"
-	img_list=""
+	local repo="$1"
+	local img_list=""
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
@@ -104,8 +104,7 @@ function print_tags() {
 check_manifest_tool
 
 # Set the OSes that we will be generating manifests for
-oses="alpine centos clefos debian debianslim ubi ubi-minimal ubuntu"
-os_family="linux"
+oses="alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh "${version}"
@@ -140,13 +139,15 @@ do
 	builds=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Build:")
 	# Type = Full or Slim
 	btypes=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Type:")
+	osfamily=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "OS_Family:")
+
 	for build in ${builds}
 	do
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 		if [ -z "${arch}" ]; then
 			jverinfo="${shasums}[version]"
 		else
-			jverinfo="${shasums}[version-${arch}]"
+			jverinfo="${shasums}[version-${osfamily}_${arch}]"
 		fi
 		# shellcheck disable=SC1083,SC2086
 		eval jrel=\${$jverinfo}
