@@ -116,6 +116,8 @@ function test_tags() {
 			printf "\n##############################################\n"
 			printf "\nError: Docker Image %s not found on hub.docker\n" "${img}"
 			printf "\n##############################################\n"
+		else
+			echo "done"
 		fi
 		run_tests "${target_repo}":"${arch_tag}" "${rel}"
 	done
@@ -161,13 +163,15 @@ for os in ${oses}
 do
 	builds=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Build:")
 	btypes=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Type:")
+	osfamily=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "OS_Family:")
+
 	for build in ${builds}
 	do
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
-		if [ -z "${arch}" ]; then
+		if [ -z "${current_arch}" ]; then
 			jverinfo="${shasums}[version]"
 		else
-			jverinfo="${shasums}[version-${arch}]"
+			jverinfo="${shasums}[version-${osfamily}_${current_arch}]"
 		fi
 		# shellcheck disable=SC1083,SC2086
 		eval jrel=\${$jverinfo}
