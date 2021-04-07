@@ -338,7 +338,8 @@ function build_tags() {
 	}' > ${tmpfile}
 
 	# shellcheck disable=SC2034 # used externally
-	local tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
+	# tag_aliases is a global variable, used for generating manifest list
+	tag_aliases=$( < "${tmpfile}" grep "^tag_aliases:" | sed "s/tag_aliases: //")
 	local raw_arch_tags=$( < "${tmpfile}" grep "^arch_tags:" | sed "s/arch_tags: //")
 	# arch_tags is a global variable
 	arch_tags=""
