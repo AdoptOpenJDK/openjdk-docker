@@ -249,7 +249,7 @@ EOI
 # Select the alpine OS musl based packages.
 print_alpine_musl_pkg() {
 	cat >> "$1" <<'EOI'
-RUN apk add --no-cache tzdata musl-locales musl-locales-lang java-cacerts \
+RUN apk add --no-cache tzdata musl-locales musl-locales-lang \
     && rm -rf /var/cache/apk/*
 EOI
 }
