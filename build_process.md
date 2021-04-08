@@ -145,12 +145,57 @@ FROM ubuntu:20.04
 
 `print_java_install_pre` & `print_java_install_post` are the other two functions called to download, extract, install and delete the tarball
 
-- 
+- Next step we will add the environment vars to the dockerfile, Like `JAVA_HOME` and `PATH` by calling the `print_java_env` function
+
+`print_java_env` - Adds the environment vars `JAVA_HOME` and `PATH` to the dockerfile
+
+- Next we add the Java Options to the dockerfile based on the type of VM (Hotspot / OpenJ9)
+
+`print_java_options` - Adds VM specific java options like (`-Xshareclasses` in OpenJ9 etc)
+
+- We now proceed to SCC (Shared Class Cache) generation step if it's a linux environment
+
+`print_scc_gen` - Installs tomcat and starts it with `-Xshareclasses` set to default location and size (`50M`) and now we extract the original size of SCC for baseclasses, destroy the cache and re-run the tomcat with right size and saves the cache as part of the image.
+
+- Finally we now add the executing command at the bottom of the dockerfile by calling `print_cmd`
+
+`print_cmd` - Sets `CMD` as `jshell` to get executed when the container starts.
 
 - Next we go ahead and build the docker image from the file generated
+
 ### Step - 3:
 
 Based on the OS and build type the dockerfile is generated based on the conditions placed in
 `dockerfile_functions.sh` (Eg. Packages needed to be installed, downloading the adoptopenjdk 
 tar and extracting it to the location, cleaning up the package manager caches) once the file is generated its checks if the build is required and it needs
 the docker image is generated and pushed to adopt docker repo
+
+- After the dockerfile is generated we check of the file is generated and we proceed to docker image building by calling the function `build_dockerfile` in `build_latest.sh`
+
+`build_dockerfile "${vm}" "${package}" "${build}" "${btype}" "${osfamily}" "${os}"`
+
+- We now set the tag, repo etc from the vars passed to the function
+
+`trepo` - will be the combination of `target_repo` and `version`. if its openj9 the `-openj9` is added at the end
+`tag` -  will be the combination of `current_arch` , `os`, `release`, `package_type`, `build_type`
+
+- If it's a slim build then we copy the `slim-java.sh` and `config` files to the respective directory where the docker build is issued to make them available in docker context
+
+- Now we build the image by calling the `build_image` function
+
+`build_image "${trepo}" "${build}" "${btype}" "${osfamily}" "${tag}"`
+
+- First we check if the build is needed by calling the `check_build_needed` function. 
+
+`check_build_needed "${dockerfile}" "${osfamily}" "${image_name}"`
+
+- We proceed to build only if the latest build (tarball) is available at adopt and adopt image is created 24 hours before the time of adopt build.
+
+`check_new_adopt_build_available` - Checks if new adopt tarball is available and gets the creation time of docker image and if the difference is more than 24 hours then we proceed to build
+`get_image_build_time` - gets the last build date from `build_time` array
+`check_adopt_image_available` - Checks if adopt image is available, if its not we proceed to build
+`check_new_os_image_available` - We build the images if there is a change in base OS image, We inspect the image and check if the RoofFS layers checksum matches if not we proceed to build the image
+
+- So now if the build is needed we proceed to docker build, If for some reason the build fails we call `cleanup_images` and `cleanup_manifest` to remove the image and manifests
+
+
