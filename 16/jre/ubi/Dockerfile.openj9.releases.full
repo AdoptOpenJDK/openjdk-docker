@@ -37,10 +37,6 @@ ENV JAVA_VERSION jdk-16+36_openj9-0.25.0
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='13ae42f5040d4e5d97b8809e27ebfdf8f7326604771963d85b2c1385abe13742'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36_openj9-0.25.0/OpenJDK16-jre_aarch64_linux_openj9_16_36_openj9-0.25.0.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='0e80def3cc03b984b3407a3bda841569a9df074cc73640881ffd10b28290fde5'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36_openj9-0.25.0/OpenJDK16-jre_ppc64le_linux_openj9_16_36_openj9-0.25.0.tar.gz'; \

@@ -41,10 +41,6 @@ RUN set -eux; \
          ESUM='7217a9f9be3b0c8dfc78538f95fd2deb493eb651152d975062920566492b2574'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36/OpenJDK16-jdk_aarch64_linux_hotspot_16_36.tar.gz'; \
          ;; \
-       armhf|armv7l) \
-         ESUM='f1d32ba01a40c98889f31368c0e987d6bbda65a7c50b8c088623b48e3a90104a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36/OpenJDK16-jdk_arm_linux_hotspot_16_36.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='07438952a22007c308440072cf3835c1c075e7102670cc666a3c47c8648da35a'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36/OpenJDK16-jdk_ppc64le_linux_hotspot_16_36.tar.gz'; \
