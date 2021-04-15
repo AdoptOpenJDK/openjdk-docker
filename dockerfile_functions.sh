@@ -549,15 +549,21 @@ print_windows_java_install() {
 	local os=$5
 
 	local servertype=$(echo -n "${file}" | cut -f4 -d"/" | cut -f1 -d"-" | head -qn1)
+	local serverversion=$(echo -n "${file}" | cut -f4 -d"/" | cut -f2 -d"-" | head -qn1)
 	local version=$(echo -n "${file}" | cut -f1 -d "/" | head -qn1)
 	if [ "${servertype}" == "windowsservercore" ]; then
 		JAVA_URL=$(get_v3_url feature_releases "${bld}" "${vm}" "${pkg}" windows-amd windows);
 		ESUM=$(get_shasum "${shasums}" windows-amd "${osfamily}");
 		BINARY_URL=$(get_v3_installer_url "${JAVA_URL}");
 
+		DOWNLOAD_COMMAND="curl.exe -LfsSo openjdk.msi ${BINARY_URL}"
+		if [ "${serverversion}" == "ltsc2016" ]; then
+			DOWNLOAD_COMMAND="[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; Invoke-WebRequest -Uri ${BINARY_URL} -O 'openjdk.msi'"
+		fi
+
 		cat >> "$1" <<-EOI
 RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
-    curl.exe -LfsSo openjdk.msi ${BINARY_URL}; \\
+    ${DOWNLOAD_COMMAND} ; \\
     Write-Host ('Verifying sha256 (${ESUM}) ...'); \\
     if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '${ESUM}') { \\
             Write-Host 'FAILED!'; \\
@@ -567,8 +573,14 @@ RUN Write-Host ('Downloading ${BINARY_URL} ...'); \\
     New-Item -ItemType Directory -Path C:\temp | Out-Null; \\
     \\
     Write-Host 'Installing using MSI ...'; \\
-    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
+    \$proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \\
     '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \\
+    \$proc.WaitForExit() ; \\
+    if (\$proc.ExitCode -ne 0) { \\
+            Write-Host 'FAILED installing MSI!' ; \\
+            exit 1; \\
+    }; \\
+    \\
     Remove-Item -Path C:\temp -Recurse | Out-Null; \\
 EOI
 	else
