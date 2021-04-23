@@ -696,3 +696,13 @@ function get_shasums() {
 	chmod +x "${ofile_sums}" "${ofile_build_time}"
 }
 
+# Login to docker for pushing images to repo
+# Login credentials are taken from ".docker/config.json"
+function docker_login() {
+	docker login docker.io
+}
+
+# Logout docker cli
+function docker_logout() {
+	docker logout
+}

@@ -49,6 +49,9 @@ if [ -f "${summary_table_file}" ]; then
 	remove_summary_table_file
 fi
 
+# Login to docker
+docker_login
+
 # Create summary table file
 create_summary_table_file
 

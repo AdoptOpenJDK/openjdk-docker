@@ -21,6 +21,9 @@ if [ ! -z "$1" ]; then
 	supported_versions="$1"
 fi
 
+# Login to docker
+docker_login
+
 for ver in ${supported_versions}
 do
 	for vm in ${all_jvms}
