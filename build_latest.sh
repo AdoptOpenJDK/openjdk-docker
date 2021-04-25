@@ -226,6 +226,7 @@ function build_image() {
 	check_build_needed "${dockerfile}" "${osfamily}" "${image_name}"
 	# Check if we need to build this image.
 	if [[ ${build_needed} -eq 0 ]]; then
+		echo "build not needed"
 		# No build needed, we are done
 		return;
 	fi
