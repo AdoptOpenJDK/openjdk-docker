@@ -41,10 +41,6 @@ RUN set -eux; \
          ESUM='9742e53597c71bf30af991c23047630d4d460e151bce1e3985b7ba8d37c28df3'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_aarch64_linux_hotspot_2021-01-22-02-31.tar.gz'; \
          ;; \
-       armhf|armv7l) \
-         ESUM='7f56429f6381be93c36fa0456945cd5b895cd6670c25ad9339844b6b982e0cf1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_arm_linux_hotspot_2021-01-22-02-31.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='b71ac40226c24936136873d7cef2b566035387bae532681c71d131421ca5976c'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_ppc64le_linux_hotspot_2021-01-22-02-31.tar.gz'; \

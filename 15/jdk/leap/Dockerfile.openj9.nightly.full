@@ -29,17 +29,9 @@ ENV JAVA_VERSION jdk15u
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='e0c7e5adf357b9aeb0401cb1abb645224220ed76b0cc1b15eece085a2295e2f3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_aarch64_linux_openj9_2021-01-22-02-31.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='f7a6adbb3e309eb38f9ceaf37c3815c20b122a798449e1089583d44db528e6c6'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_ppc64le_linux_openj9_2021-01-22-02-31.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='f6e006d19dbbc485755c02e9ca1a4c6153e6885021cdedb6037e90327c6776f6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_s390x_linux_openj9_2021-01-22-02-31.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='4693933d87b5c725499d7ae82356f84929b805fcedb170e165037ebf47172ca0'; \

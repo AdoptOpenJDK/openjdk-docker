@@ -119,6 +119,7 @@ function strip_debug_from_jar() {
 
 # Trim the files in jre/lib dir
 function jre_lib_files() {
+	local vm_impl=$(get_vm_impl)
 	echo -n "INFO: Trimming jre/lib dir..."
 	pushd "${target}"/jre/lib >/dev/null || return
 		rm -rf applet/ boot/ ddr/ deploy desktop/ endorsed/
@@ -131,8 +132,8 @@ function jre_lib_files() {
 		if [ -d "${lib_arch_dir}" ]; then
 			pushd "${lib_arch_dir}" >/dev/null || return
 				rm -rf classic/ libdeploy.so libjavaplugin_* libjsoundalsa.so libnpjp2.so libsplashscreen.so
-				# Only remove the default dir for 64bit versions
-				if [ "${proc_type}" == "64bit" ]; then
+				# Only remove the default dir for 64bit versions and for hotspot
+				if [[ "${proc_type}" == "64bit" && "${vm_impl}" != "OpenJ9"  ]]; then
 					rm -rf default/
 				fi
 			popd >/dev/null || return

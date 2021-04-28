@@ -24,26 +24,14 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk16
+ENV JAVA_VERSION jdk16u
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='5f2c4c69c9148bbcf2ac5ce9e5ace95e46d7fbd58d2b34bc1e22d69ce195e47d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_aarch64_linux_openj9_2021-03-16-01-39.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='c04ef15b2bd29030ee49653eb66261557fcd33172b9b1f4396561aef2bc01767'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_ppc64le_linux_openj9_2021-03-16-01-39.tar.gz'; \
-         ;; \
        s390x) \
-         ESUM='86e72915c8d54919d7e786af1474c8c69caa80c4eb283004c23b4956daa61a7f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_s390x_linux_openj9_2021-03-16-01-39.tar.gz'; \
-         ;; \
-       amd64|x86_64) \
-         ESUM='97e22da5ce79b8523d77e0a786a415b68d4f889a70a98d72f2e7ab1262dc3210'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_x64_linux_openj9_2021-03-16-01-39.tar.gz'; \
+         ESUM='c0d601202dcafa2bd91360bf5fc9a517880448bd1631de39bff3337f557fcba5'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_s390x_linux_openj9_2021-04-27-05-00.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

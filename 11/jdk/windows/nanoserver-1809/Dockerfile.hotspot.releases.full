@@ -23,12 +23,12 @@ FROM mcr.microsoft.com/windows/servercore:1809 as installer
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk-11.0.10+9
+ENV JAVA_VERSION jdk-11.0.11+9
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.zip ...'); \
-    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.zip ; \
-    Write-Host ('Verifying sha256 (d92722551cb6ff9b8a63c12a92d7ccacfd4c17e9159f6c7eb427a3a776049af8) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'd92722551cb6ff9b8a63c12a92d7ccacfd4c17e9159f6c7eb427a3a776049af8') { \
+RUN Write-Host ('Downloading  ...'); \
+    curl.exe -LfsSo openjdk.zip  ; \
+    Write-Host ('Verifying sha256 (36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
@@ -36,7 +36,7 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/
     Write-Host 'Expanding Zip ...'; \
     tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-    Move-Item -Path $jdkDirectory C:\openjdk-11; \
+    Move-Item -Path $jdkDirectory C:\openjdk-; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
@@ -44,14 +44,10 @@ FROM mcr.microsoft.com/windows/nanoserver:1809
 
 USER ContainerAdministrator
 # Set JAVA_HOME and PATH environment variables
-RUN setx /M JAVA_HOME "C:\\openjdk-11" & \
+RUN setx /M JAVA_HOME "C:\\openjdk-" & \
     setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
 
-COPY --from=installer ["/openjdk-11", "/openjdk-11"]
+COPY --from=installer ["/openjdk-", "/openjdk-"]
 
 USER ContainerUser
-ENV JAVA_HOME=C:\\openjdk-11 \
-    ProgramFiles="C:\\Program Files" \
-    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
-ENV PATH="${WindowsPATH};${JAVA_HOME}\\bin"
 CMD ["jshell"]

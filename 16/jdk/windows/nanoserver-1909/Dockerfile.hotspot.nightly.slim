@@ -17,37 +17,37 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/windows/nanoserver:1909
+FROM mcr.microsoft.com/windows/servercore:1909 as installer
 
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk16
+ENV JAVA_VERSION jdk16u
 
-COPY slim-java* C:/ProgramData/Java/
-
-USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-13-03-17/OpenJDK16-jdk_x64_windows_hotspot_2021-03-13-03-17.zip ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-13-03-17/OpenJDK16-jdk_x64_windows_hotspot_2021-03-13-03-17.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (6ebbe684c567d19c1c57ceba560ff33fb08a122d05fe899fcf7f1dd6e7d72c54) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '6ebbe684c567d19c1c57ceba560ff33fb08a122d05fe899fcf7f1dd6e7d72c54') { \
+RUN Write-Host ('Downloading  ...'); \
+    curl.exe -LfsSo openjdk.zip  ; \
+    Write-Host ('Verifying sha256 (e8fc45812503581f41f0f865dc8a869b077bd66d833a95464f2ea53fb94be03c) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'e8fc45812503581f41f0f865dc8a869b077bd66d833a95464f2ea53fb94be03c') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
     \
     Write-Host 'Expanding Zip ...'; \
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-    Move-Item -Path $jdkDirectory C:\openjdk-16; \
-    & C:/ProgramData/Java/slim-java.ps1 C:\openjdk-16; \
+    Move-Item -Path $jdkDirectory C:\openjdk-; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
+FROM mcr.microsoft.com/windows/nanoserver:1909
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\openjdk-" & \
+    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
+
+COPY --from=installer ["/openjdk-", "/openjdk-"]
+
 USER ContainerUser
-ENV JAVA_HOME=C:\\openjdk-16 \
-    ProgramFiles="C:\\Program Files" \
-    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
 CMD ["jshell"]
