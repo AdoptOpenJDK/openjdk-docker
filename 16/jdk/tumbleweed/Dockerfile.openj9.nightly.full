@@ -24,26 +24,22 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
     && zypper update -y; zypper clean --all
 
-ENV JAVA_VERSION jdk16
+ENV JAVA_VERSION jdk16u
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='5124b8f8ad93e298032fcc8e194507d9805ef76e87102c226d1da64233274e59'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jdk_aarch64_linux_openj9_2021-03-16-01-39.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='9f88c75ce39bba40774d098a734baddbb0758c993b5c848bce41bed2400495b6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jdk_ppc64le_linux_openj9_2021-03-16-01-39.tar.gz'; \
+         ESUM='1ee88cb348ce7bab60fd711f906fe45ca8a5cf4674e153821d8ff33267d2930f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jdk_ppc64le_linux_openj9_2021-04-27-05-00.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='85789ba54264342f70213955606c395e52f1a71a2ba1dbe16fcc5c44b9876d1d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jdk_s390x_linux_openj9_2021-03-16-01-39.tar.gz'; \
+         ESUM='7ae0120cccc532fdd53d5c0092adb1841fc5df299ebac527e575a7da72511c87'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jdk_s390x_linux_openj9_2021-04-27-05-00.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='1114be555ce0f315ffccff80ff6a059611ab459cfa2eebf9abefefdadd61f3aa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jdk_x64_linux_openj9_2021-03-16-01-39.tar.gz'; \
+         ESUM='f0a82e903f0919733fbf7ff53c0e65fd0787c3c41ed0f5d6d9c273998ac24667'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jdk_x64_linux_openj9_2021-04-27-05-00.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

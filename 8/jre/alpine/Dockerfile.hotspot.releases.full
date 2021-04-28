@@ -54,15 +54,15 @@ RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk8u282-b08
+ENV JAVA_VERSION jdk8u292-b10
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='3b2e2c6ad3ee04a58ffb8d629e3e242b0ae87b38cfd06425e4446b1f9490f521'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u282-b08/OpenJDK8U-jre_x64_linux_hotspot_8u282b08.tar.gz'; \
+         ESUM='cad66f48f90167ed19030c71f8f0580702c43cce5ce5a0d76833f7a5ae7c402a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u292-b10/OpenJDK8U-jre_x64_linux_hotspot_8u292b10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

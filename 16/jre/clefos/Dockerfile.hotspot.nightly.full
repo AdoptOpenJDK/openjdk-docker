@@ -24,30 +24,14 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk16
+ENV JAVA_VERSION jdk16u
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='59bf53f743387fb81471566143ac71faacd3fc8f95acc95bca47a902afa89f8d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_aarch64_linux_hotspot_2021-03-16-01-39.tar.gz'; \
-         ;; \
-       armhf|armv7l) \
-         ESUM='a8125223bd1135f4c2787c922d062678f6afba2490331052bfc877409c54e756'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_arm_linux_hotspot_2021-03-16-01-39.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='9c35eed8af3570e0e6c2f1f025c8c8cf7a8d4163e405a02c9c115df4431c2511'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_ppc64le_linux_hotspot_2021-03-16-01-39.tar.gz'; \
-         ;; \
        s390x) \
-         ESUM='781a5796937e9978a9b5e6fd4aeff3ac78a9675d4ff98912ea0ed7588ec24b7e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_s390x_linux_hotspot_2021-03-16-01-39.tar.gz'; \
-         ;; \
-       amd64|x86_64) \
-         ESUM='2629e1131ce5d2fcc08641804e0d6ee4a853ac875fc64ab4190ef34193347b2c'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16-2021-03-16-01-39/OpenJDK16-jre_x64_linux_hotspot_2021-03-16-01-39.tar.gz'; \
+         ESUM='15ceba52c61a842fe166f2c783fa4e71108e01c7779ef3667d633e4498b61916'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_s390x_linux_hotspot_2021-04-27-05-00.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

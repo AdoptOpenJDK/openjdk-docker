@@ -29,21 +29,17 @@ ENV JAVA_VERSION jdk11u
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='f958278341855a5652b5d68922ad40acbe71eca4a713b32e2c6a203ae5d68037'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_aarch64_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='d252a785076885e1094f97f5f338a6b28dc7eb97b87f461e9402a17380efe1eb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_ppc64le_linux_openj9_2021-01-27-13-56.tar.gz'; \
+         ESUM='b9ed8871689e8ac185be4aa53bc5a3f87d4b84a836de1d4957a55f342c683ad9'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-28-05-56/OpenJDK11U-jdk_ppc64le_linux_openj9_2021-04-28-05-56.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='7196941b0587aa345ac0d936c20656b5ba86ea78fcc8c2e017cc1d700ed2b03a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_s390x_linux_openj9_2021-01-27-13-56.tar.gz'; \
+         ESUM='581f32e74b4847642d204743261df607b8a425d36df65ba5de43df35dcde1c6f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-28-05-56/OpenJDK11U-jdk_s390x_linux_openj9_2021-04-28-05-56.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='f4790c53c1bd2129b633e57b22e4cca447253606d3dac18638a0ad0a14d04cae'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jdk_x64_linux_openj9_2021-01-27-07-02.tar.gz'; \
+         ESUM='075557d3ccf5e8ae27cfeb51d6e6b6abeb0d62be28f5cdd68496a4ba7540e714'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-28-05-56/OpenJDK11U-jdk_x64_linux_openj9_2021-04-28-05-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

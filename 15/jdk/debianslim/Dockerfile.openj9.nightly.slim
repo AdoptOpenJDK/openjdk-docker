@@ -34,10 +34,6 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='e0c7e5adf357b9aeb0401cb1abb645224220ed76b0cc1b15eece085a2295e2f3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_aarch64_linux_openj9_2021-01-22-02-31.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='f7a6adbb3e309eb38f9ceaf37c3815c20b122a798449e1089583d44db528e6c6'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_ppc64le_linux_openj9_2021-01-22-02-31.tar.gz'; \

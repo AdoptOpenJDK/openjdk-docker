@@ -54,15 +54,15 @@ RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk-11.0.10+9
+ENV JAVA_VERSION jdk-11.0.11+9
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='ae78aa45f84642545c01e8ef786dfd700d2226f8b12881c844d6a1f71789cb99'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.10_9.tar.gz'; \
+         ESUM='e99b98f851541202ab64401594901e583b764e368814320eba442095251e78cb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.11%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.11_9.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

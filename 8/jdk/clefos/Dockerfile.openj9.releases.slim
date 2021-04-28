@@ -24,7 +24,7 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk8u282-b08_openj9-0.24.0
+ENV JAVA_VERSION jdk8u292-b10_openj9-0.26.0
 
 COPY slim-java* /usr/local/bin/
 
@@ -32,8 +32,8 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        s390x) \
-         ESUM='1c166b8a7e3e2250d2c0affb9b1fd8170128928536f01c69bc7f1dc6aa48d05d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u282-b08_openj9-0.24.0/OpenJDK8U-jdk_s390x_linux_openj9_8u282b08_openj9-0.24.0.tar.gz'; \
+         ESUM='7aff99f87482d5bb0969f13cddecfb600e755d428ae14f4292d08d4a1ea5f080'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u292-b10_openj9-0.26.0/OpenJDK8U-jdk_s390x_linux_openj9_8u292b10_openj9-0.26.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -22,28 +22,31 @@ FROM mcr.microsoft.com/windows/servercore:1809
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
-ENV JAVA_VERSION jdk-11.0.10+9
+ENV JAVA_VERSION jdk-11.0.11+9
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.msi ...'); \
-    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_windows_hotspot_11.0.10_9.msi ; \
-    Write-Host ('Verifying sha256 (f12011de94a72e1f14c9e68ce63bdd537aab1bf51eb336eba6d6061bc307baeb) ...'); \
-    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f12011de94a72e1f14c9e68ce63bdd537aab1bf51eb336eba6d6061bc307baeb') { \
+RUN Write-Host ('Downloading  ...'); \
+    curl.exe -LfsSo openjdk.zip  ; \
+    Write-Host ('Verifying sha256 (36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '36c08b0f41465b43c91abf9d4e13d063e01d670cbf448106a1c700786d89cfa8') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
     \
-    New-Item -ItemType Directory -Path C:\temp | Out-Null; \
-    \
-    Write-Host 'Installing using MSI ...'; \
-    $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
-    '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
-    $proc.WaitForExit() ; \
-    if ($proc.ExitCode -ne 0) { \
-            Write-Host 'FAILED installing MSI!' ; \
-            exit 1; \
-    }; \
-    \
-    Remove-Item -Path C:\temp -Recurse | Out-Null; \
-    Write-Host 'Removing openjdk.msi ...'; \
-    Remove-Item openjdk.msi -Force
+    Write-Host 'Expanding Zip ...'; \
+    tar.exe -xf openjdk.zip -C C:\ ; \
+    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
+    Move-Item -Path $jdkDirectory C:\openjdk-; \
+    Write-Host 'Removing openjdk.zip ...'; \
+    Remove-Item openjdk.zip -Force
+
+FROM mcr.microsoft.com/windows/nanoserver:1809
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\openjdk-" & \
+    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
+
+COPY --from=installer ["/openjdk-", "/openjdk-"]
+
+USER ContainerUser
 CMD ["jshell"]

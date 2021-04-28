@@ -17,33 +17,36 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/windows/nanoserver:1909
+FROM mcr.microsoft.com/windows/servercore:1909 as installer
 
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk8u
 
-USER ContainerAdministrator
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-01-28-00-11.zip ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-01-28-00-11.zip -O 'openjdk.zip'; \
-    Write-Host ('Verifying sha256 (776526153ef1808b16b014607bf44a82c865df020f31a690637914fee68ccdbf) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '776526153ef1808b16b014607bf44a82c865df020f31a690637914fee68ccdbf') { \
+RUN Write-Host ('Downloading  ...'); \
+    curl.exe -LfsSo openjdk.zip  ; \
+    Write-Host ('Verifying sha256 (f4905fe20e635c02bf588442e5ca917921cf3da9074f50b7957947e156b80c9f) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'f4905fe20e635c02bf588442e5ca917921cf3da9074f50b7957947e156b80c9f') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
     \
     Write-Host 'Expanding Zip ...'; \
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-    Move-Item -Path $jdkDirectory C:\openjdk-8; \
+    Move-Item -Path $jdkDirectory C:\openjdk-; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
+FROM mcr.microsoft.com/windows/nanoserver:1909
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\openjdk-" & \
+    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
+
+COPY --from=installer ["/openjdk-", "/openjdk-"]
+
 USER ContainerUser
-ENV JAVA_HOME=C:\\openjdk-8 \
-    ProgramFiles="C:\\Program Files" \
-    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"

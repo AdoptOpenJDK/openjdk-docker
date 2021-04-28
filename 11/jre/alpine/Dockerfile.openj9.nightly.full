@@ -60,21 +60,9 @@ RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='35fc89cae0bd22c5a675227e46ea77af48f49e09240705932235de7c36f51e09'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_aarch64_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='5f723102ac2e3bf3e384e99411e43dbbcca5216c22cbbedd5867b000fbefdf3e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_ppc64le_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='853277c413ff7bbf59029a73025e34b719e32ec24631e547ef4761614bded491'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_s390x_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
        amd64|x86_64) \
-         ESUM='25a33265b7ec7f4a53ecf7cd32d405ebae5733e0d0d4eaf982fc79b1b187999b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jre_x64_linux_openj9_2021-01-27-07-02.tar.gz'; \
+         ESUM='1a0004477ece0dbe59ddc9a57aeb386735752756ef9fe4d9c9e9c4fe47a58fad'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-28-05-56/OpenJDK11U-jre_x64_linux_openj9_2021-04-28-05-56.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

@@ -24,14 +24,14 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk-16+36_openj9-0.25.0
+ENV JAVA_VERSION jdk-16.0.1+9_openj9-0.26.0
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        s390x) \
-         ESUM='bb2631805a301ee61ac868b118d280d27be1063da2dedd4fae446d317e3ede7a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36_openj9-0.25.0/OpenJDK16-jre_s390x_linux_openj9_16_36_openj9-0.25.0.tar.gz'; \
+         ESUM='9fd79eacf7371b34bfeb1c8ccd8563421336a6ab767fe0726b86e7bfb8eebfe2'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jre_s390x_linux_openj9_16.0.1_9_openj9-0.26.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
