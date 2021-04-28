@@ -762,7 +762,7 @@ EOI
 # For slim builds copy the slim script and related config files.
 copy_slim_script() {
 	if [ "${btype}" == "slim" ]; then
-		if [ "${os}" == "windows" ]; then
+		if [ "${osfamily}" == "windows" ]; then
 			cat >> "$1" <<-EOI
 COPY slim-java* C:/ProgramData/Java/
 
