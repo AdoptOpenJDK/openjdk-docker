@@ -882,6 +882,7 @@ generate_dockerfile() {
 		print_lang_locale "${file}" "${osfamily}";
 		print_"${osfamily}"_pkg "${file}" "${osfamily}";
 		print_env "${file}" "${osfamily}" "${os}";
+		copy_slim_script "${file}";
 		print_"${osfamily}"_java_install "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}";
 		print_java_env "${file}" "${bld}" "${btype}" "${osfamily}";
 		print_java_options "${file}" "${bld}" "${btype}";
