@@ -36,6 +36,8 @@ function Get-JavaVersion() {
     "12*" { return 12; break }
     "13*" { return 13; break }
     "14*" { return 14; break }
+    "15*" { return 14; break }
+    "16*" { return 14; break }
     default {
       Write-Error "Unknown Java Version: $verstring"
       exit 1

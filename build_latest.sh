@@ -347,7 +347,7 @@ function build_dockerfile {
 	if [ "${btype}" == "slim" ]; then
 		tag=${tag}-slim
 		# Copy the script to generate slim builds.
-		if [ "${os}" == "windows" ]; then
+		if [ "${osfamily}" == "windows" ]; then
 		    cp slim-java.ps1 config/slim-java* "${dir}"/
 		else
 		    cp slim-java.sh config/slim-java* "${dir}"/
