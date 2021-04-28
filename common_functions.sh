@@ -132,7 +132,7 @@ function set_arch_os() {
 				if [ -n "${BUILD_OS}" ]; then
 					case ${BUILD_OS} in
 					windows-2019)
-						oses="windowsservercore-1809 nanoserver-1809 windowsservercore-ltsc2019 nanoserver-20h2 windowsservercore-20h2"
+						oses="windowsservercore-1809 nanoserver-1809 windowsservercore-ltsc2019"
 						;;
 					windows-2016)
 						oses="windowsservercore-ltsc2016"
