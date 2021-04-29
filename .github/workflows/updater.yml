@@ -35,7 +35,7 @@ jobs:
         git reset --hard upstream/master
         bash update_all.sh
         git add .
-        git commit -m "dockerfile updates $branch"
+        git commit -m "dockerfile updates $BRANCH"
         git push -f fork "$BRANCH"
         hub pull-request --base adoptopenjdk:master --head "$BRANCH" -m "update Casks"
       env:
