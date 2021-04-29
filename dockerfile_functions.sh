@@ -261,7 +261,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> "$1" <<'EOI'
-RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar binutils \
     && dnf update -y; dnf clean all
 EOI
 }
@@ -270,7 +270,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi-minimal_pkg() {
 	cat >> "$1" <<'EOI'
-RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
+RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar binutils \
     && microdnf update -y; microdnf clean all
 EOI
 }
@@ -278,7 +278,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
-RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar binutils \
     && yum update -y; yum clean all
 EOI
 }
@@ -476,6 +476,16 @@ print_alpine_slim_package() {
 EOI
 }
 
+# Call the script to create the slim package for Ubi
+# Using binutils package installed at startup for the "strip" command
+# Same function used for ubi-minimal, centos and clefos
+print_ubi_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+EOI
+}
+
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
 	local pkg=$2
@@ -651,6 +661,9 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		print_ubi_slim_package "$1"
+	fi
 	print_java_install_post "$1"
 }
 
@@ -673,6 +686,9 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		print_ubi_slim_package "$1"
+	fi
 	print_java_install_post "$1"
 }
 
