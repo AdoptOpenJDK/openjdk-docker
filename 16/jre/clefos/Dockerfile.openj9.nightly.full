@@ -30,8 +30,8 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        s390x) \
-         ESUM='c0d601202dcafa2bd91360bf5fc9a517880448bd1631de39bff3337f557fcba5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_s390x_linux_openj9_2021-04-27-05-00.tar.gz'; \
+         ESUM='b3a103efcbb7c5edac8d2d4d645810e9c3266bfd463e0c621431315c7a3b36aa'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_s390x_linux_openj9_2021-04-29-10-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

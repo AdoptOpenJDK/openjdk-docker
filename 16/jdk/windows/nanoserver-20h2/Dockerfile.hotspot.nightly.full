@@ -25,10 +25,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk16u
 
-RUN Write-Host ('Downloading  ...'); \
-    curl.exe -LfsSo openjdk.zip  ; \
-    Write-Host ('Verifying sha256 (e8fc45812503581f41f0f865dc8a869b077bd66d833a95464f2ea53fb94be03c) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'e8fc45812503581f41f0f865dc8a869b077bd66d833a95464f2ea53fb94be03c') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jdk_x64_windows_hotspot_2021-04-29-10-10.zip ...'); \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jdk_x64_windows_hotspot_2021-04-29-10-10.zip ; \
+    Write-Host ('Verifying sha256 (06b73f4f71b164700a2e167cedde71115cb212c26e4609636c6e71c07c39a9cf) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '06b73f4f71b164700a2e167cedde71115cb212c26e4609636c6e71c07c39a9cf') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
@@ -36,7 +36,7 @@ RUN Write-Host ('Downloading  ...'); \
     Write-Host 'Expanding Zip ...'; \
     tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-    Move-Item -Path $jdkDirectory C:\openjdk-; \
+    Move-Item -Path $jdkDirectory C:\openjdk-16; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
@@ -44,10 +44,14 @@ FROM mcr.microsoft.com/windows/nanoserver:20H2
 
 USER ContainerAdministrator
 # Set JAVA_HOME and PATH environment variables
-RUN setx /M JAVA_HOME "C:\\openjdk-" & \
+RUN setx /M JAVA_HOME "C:\\openjdk-16" & \
     setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
 
-COPY --from=installer ["/openjdk-", "/openjdk-"]
+COPY --from=installer ["/openjdk-16", "/openjdk-16"]
 
 USER ContainerUser
+ENV JAVA_HOME=C:\\openjdk-16 \
+    ProgramFiles="C:\\Program Files" \
+    WindowsPATH="C:\\Windows\\system32;C:\\Windows"
+ENV PATH="${WindowsPATH};${JAVA_HOME}\\bin"
 CMD ["jshell"]

@@ -33,16 +33,16 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='90059dcebb4dfc49bf7fef32fe7bd5d27365f65e8d05a668e9c645984fa8a9cf'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_ppc64le_linux_openj9_2021-04-27-05-00.tar.gz'; \
+         ESUM='cb19db6a0ee70a8d95e7f349cf1c80214f9ec9d54e589362099c3ed317695181'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_ppc64le_linux_openj9_2021-04-29-10-10.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='c0d601202dcafa2bd91360bf5fc9a517880448bd1631de39bff3337f557fcba5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_s390x_linux_openj9_2021-04-27-05-00.tar.gz'; \
+         ESUM='b3a103efcbb7c5edac8d2d4d645810e9c3266bfd463e0c621431315c7a3b36aa'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_s390x_linux_openj9_2021-04-29-10-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='bfcd422b1cdd73637f49fa5075e5548046c13fabaf7399a7946185423749f200'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-27-05-00/OpenJDK16U-jre_x64_linux_openj9_2021-04-27-05-00.tar.gz'; \
+         ESUM='6e15aa76db0596e9aa10c91f198a59c7aff51278ce20c50a53a743afd48f4a81'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_x64_linux_openj9_2021-04-29-10-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
