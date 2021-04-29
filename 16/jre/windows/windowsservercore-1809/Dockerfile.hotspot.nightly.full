@@ -24,28 +24,25 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk16u
 
-RUN Write-Host ('Downloading  ...'); \
-    curl.exe -LfsSo openjdk.zip  ; \
-    Write-Host ('Verifying sha256 (004c500cf7993b2e6bf5b030137273cba6d486e29f4b8c43158d343d61e978da) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '004c500cf7993b2e6bf5b030137273cba6d486e29f4b8c43158d343d61e978da') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_x64_windows_hotspot_2021-04-29-10-10.msi ...'); \
+    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jre_x64_windows_hotspot_2021-04-29-10-10.msi ; \
+    Write-Host ('Verifying sha256 (f115a01fa11a4a0864cc631df14467e41c1109cf713ced0bbbf415d30d7167e4) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f115a01fa11a4a0864cc631df14467e41c1109cf713ced0bbbf415d30d7167e4') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
     \
-    Write-Host 'Expanding Zip ...'; \
-    tar.exe -xf openjdk.zip -C C:\ ; \
-    $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
-    Move-Item -Path $jdkDirectory C:\openjdk-; \
-    Write-Host 'Removing openjdk.zip ...'; \
-    Remove-Item openjdk.zip -Force
-
-FROM mcr.microsoft.com/windows/nanoserver:1809
-
-USER ContainerAdministrator
-# Set JAVA_HOME and PATH environment variables
-RUN setx /M JAVA_HOME "C:\\openjdk-" & \
-    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
-
-COPY --from=installer ["/openjdk-", "/openjdk-"]
-
-USER ContainerUser
+    New-Item -ItemType Directory -Path C:\temp | Out-Null; \
+    \
+    Write-Host 'Installing using MSI ...'; \
+    $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+    '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+    $proc.WaitForExit() ; \
+    if ($proc.ExitCode -ne 0) { \
+            Write-Host 'FAILED installing MSI!' ; \
+            exit 1; \
+    }; \
+    \
+    Remove-Item -Path C:\temp -Recurse | Out-Null; \
+    Write-Host 'Removing openjdk.msi ...'; \
+    Remove-Item openjdk.msi -Force
