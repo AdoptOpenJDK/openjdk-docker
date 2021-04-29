@@ -1,0 +1,46 @@
+name: Updater
+
+on: 
+    workflow_dispatch:
+    schedule:
+        - cron: '0 0 * * 0' # every week
+    push:
+        branches:
+            - master
+
+jobs:
+  updater:
+    if: startsWith(github.repository, 'AdoptOpenJDK/')
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+      with:
+        repository: adoptopenjdk-github-bot/openjdk-docker
+        token: ${{ secrets.ACCESS_TOKEN }}
+        ssh-key: ${{ secrets.ADOPT_BOT_SSH_PRIVATE }}
+        
+    - name: Setup Git repos
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git remote rename origin fork
+        git remote add upstream https://github.com/AdoptOpenJDK/openjdk-docker.git
+        git remote -v
+        git fetch --all
+        git reset --hard upstream/master
+
+    - name: Run updater
+      run: |
+        BRANCH=$(date +"%Y-%m-%d")
+        git fetch --all
+        git checkout "$BRANCH" || git checkout -b "$BRANCH"
+        git reset --hard upstream/master
+        bash update_all.sh
+        git add .
+        git commit -m "dockerfile updates $BRANCH"
+        git push -f fork "$BRANCH"
+        hub pull-request --base adoptopenjdk:master --head "$BRANCH" -m "update Dockerfiles"
+      env:
+        GITHUB_USER: adoptopenjdk-github-bot
+        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
