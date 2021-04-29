@@ -37,7 +37,7 @@ jobs:
         git add .
         git commit -m "dockerfile updates $BRANCH"
         git push -f fork "$BRANCH"
-        hub pull-request --base adoptopenjdk:master --head "$BRANCH" -m "update Casks"
+        hub pull-request --base adoptopenjdk:master --head "$BRANCH" -m "update Dockerfiles"
       env:
         GITHUB_USER: adoptopenjdk-github-bot
         GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
