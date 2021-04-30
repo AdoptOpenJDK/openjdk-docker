@@ -24,10 +24,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_x64_windows_hotspot_2021-04-26-09-11.msi ...'); \
-    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_x64_windows_hotspot_2021-04-26-09-11.msi ; \
-    Write-Host ('Verifying sha256 (665a6368517228354342cf7f5291fdf940fb041936e888436fe60f80ef90e0bc) ...'); \
-    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '665a6368517228354342cf7f5291fdf940fb041936e888436fe60f80ef90e0bc') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_x64_windows_hotspot_2021-04-29-19-09.msi ...'); \
+    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_x64_windows_hotspot_2021-04-29-19-09.msi ; \
+    Write-Host ('Verifying sha256 (8bd170233314180a3944ab3190bf60e7e8af8e621f0dc0734212882d1053e146) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '8bd170233314180a3944ab3190bf60e7e8af8e621f0dc0734212882d1053e146') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \

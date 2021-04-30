@@ -33,24 +33,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='1740250e2d26a7872222da2595b169f9b750cf1248d3530709415d3968a99627'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_aarch64_linux_hotspot_2021-04-26-09-11.tar.gz'; \
+         ESUM='28e43487493aefd7634c85216852b20952dc5d466d7686294fed1d92352f04e4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_aarch64_linux_hotspot_2021-04-29-19-09.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='434a5b9cbc1f7d74b4f476df109f3c4cd4acd907c8be3a046164913f473ea5a6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_arm_linux_hotspot_2021-04-26-09-11.tar.gz'; \
+         ESUM='b8c7c8fab6701513241da33815e5042af94d81216b5bc29565e6bde7a5559ee1'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_arm_linux_hotspot_2021-04-29-19-09.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='7393e1743d38ecb956f732862fb1bbee58dda275f18bff0d955c5912294f3ae0'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_ppc64le_linux_hotspot_2021-04-26-09-11.tar.gz'; \
+         ESUM='4205dec07b431d0fc6b38d3c4a9dfe87b28a8ba376de495e1878e173bd6c7d76'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_ppc64le_linux_hotspot_2021-04-29-19-09.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='14c2bba2abffb3bfa3395bdb474fed989af3744aedd0bf3d99b51355b4220626'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_s390x_linux_hotspot_2021-04-26-09-11.tar.gz'; \
+         ESUM='3fd18fd6d610fb0ce90c116b11aa533024f0fd39457b47ad2c9c9430c2fa4872'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_s390x_linux_hotspot_2021-04-29-19-09.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='0104b2cad1a85cb99ab8629ea01060bc20dc0a812444b3298cafc614873abb1f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jre_x64_linux_hotspot_2021-04-26-09-11.tar.gz'; \
+         ESUM='a62bebbbe145dbb7bbd8f9f6e777d5c75678978343c45b528071be3da551ea3b'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jre_x64_linux_hotspot_2021-04-29-19-09.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

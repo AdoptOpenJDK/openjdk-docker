@@ -61,8 +61,8 @@ RUN set -eux; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='4362ac2736f09020d0daeaec5505a56c4df2193f277d8f0da1d1966640069bff'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-28-05-56/OpenJDK11U-jre_x64_linux_hotspot_2021-04-28-05-56.tar.gz'; \
+         ESUM='0b4c83054a9296297e6ccd014a906eae7090571ed0be4a9d7129dcb6fffef49a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-04-30-05-13/OpenJDK11U-jre_x64_linux_hotspot_2021-04-30-05-13.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
