@@ -53,7 +53,7 @@ print_unofficial_tags() {
 print_official_header() {
 	print_official_text "# AdoptOpenJDK official images for OpenJDK with HotSpot and OpenJDK with Eclipse OpenJ9."
 	print_official_text
-	print_official_text "Maintainers: Dinakar Guniguntala <dinakar.g@in.ibm.com> (@dinogun)"
+	print_official_text "Maintainers: George Adams <george.adams@microsoft.com> (@gdams_)"
 	print_official_text "GitRepo: https://github.com/AdoptOpenJDK/openjdk-docker.git"
 }
 
@@ -284,8 +284,11 @@ function generate_official_image_info() {
 	done
 	if [ "${os}" == "windows" ]; then
 		distro=$(echo $dfdir | awk -F '/' '{ print $4 }' )
-		# Nanoserver dockerfiles need refactoring and dont work right now
-		if [[ "${distro}" =~ "nanoserver" ]]; then
+		# 20h2 and 1909 is not supported upstream
+		if [[ "${distro}" == "windowsservercore-20h2" ]] || [[ "${distro}" == "windowsservercore-1909" ]] || [[ "${distro}" == "windowsservercore-ltsc2019" ]] ; then
+			return;
+		fi
+		if [[ "${distro}" == "nanoserver-20h2" ]] || [[ "${distro}" == "nanoserver-1909" ]]; then
 			return;
 		fi
 	fi
@@ -305,7 +308,7 @@ function generate_official_image_info() {
 for vm in ${all_jvms}
 do
 	# Official images support different versions
-	official_supported_versions="8 11 14 15"
+	official_supported_versions="8 11 15 16"
 	for ver in ${official_supported_versions}
 	do
 		print_official_text
