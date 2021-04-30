@@ -27,10 +27,10 @@ ENV JAVA_VERSION jdk8u
 
 COPY slim-java* C:/ProgramData/Java/
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-04-26-09-11.zip ...'); \
-    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-26-09-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-04-26-09-11.zip ; \
-    Write-Host ('Verifying sha256 (f4905fe20e635c02bf588442e5ca917921cf3da9074f50b7957947e156b80c9f) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'f4905fe20e635c02bf588442e5ca917921cf3da9074f50b7957947e156b80c9f') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jdk_x64_windows_hotspot_2021-04-29-19-09.zip ...'); \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-04-29-19-09/OpenJDK8U-jdk_x64_windows_hotspot_2021-04-29-19-09.zip ; \
+    Write-Host ('Verifying sha256 (785ae27669fe45848d9534a0c3493a5f8724ac7be9af733247956d58f6284bcb) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '785ae27669fe45848d9534a0c3493a5f8724ac7be9af733247956d58f6284bcb') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
