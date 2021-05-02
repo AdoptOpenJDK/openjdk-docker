@@ -24,10 +24,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk16u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jdk_x64_windows_openj9_2021-04-29-10-10.msi ...'); \
-    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-04-29-10-10/OpenJDK16U-jdk_x64_windows_openj9_2021-04-29-10-10.msi ; \
-    Write-Host ('Verifying sha256 (67e06b93f75954b9606d0e75fc73890e0c9abf12fc83021a58301276d41a2b4a) ...'); \
-    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '67e06b93f75954b9606d0e75fc73890e0c9abf12fc83021a58301276d41a2b4a') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_x64_windows_openj9_2021-05-01-09-39.msi ...'); \
+    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_x64_windows_openj9_2021-05-01-09-39.msi ; \
+    Write-Host ('Verifying sha256 (d9bfb4e81d73f037db8777518e8015add1364ea89a98228d4e7ed3598efd48fe) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'd9bfb4e81d73f037db8777518e8015add1364ea89a98228d4e7ed3598efd48fe') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
