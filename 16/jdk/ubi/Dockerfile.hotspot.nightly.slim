@@ -40,20 +40,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='3cd536f9d9e95af2cf12ca0eb0740e8875ddc296b4771ab22f5f1dd134b2482a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-05-01-09-39.tar.gz'; \
+         ESUM='b7921de78c7f550ca55af3a76f80140552dcdf97fd9c5e99c1d2fa05c3c08e7e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-05-04-09-44.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='d2619cb750bd9c3196d397f148d1096606113869550f78aaa7d81974ffed1f80'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-05-01-09-39.tar.gz'; \
+         ESUM='00ec5ca015f38185da43a8e14b71a6630d3b65a49d0bd135979f5bfe7fc4045e'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-05-04-09-44.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='bdba8b9186b054948a2a18412784f3a936d48e0a6126cf7ea08609873f45c94a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_s390x_linux_hotspot_2021-05-01-09-39.tar.gz'; \
+         ESUM='8d434d352e9de5e0ac179f9b765486665580dd11b4cf66ac45d1ed958f37fc43'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_s390x_linux_hotspot_2021-05-04-09-44.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='7c448aed938db1b338830fc4cba358455bd78bec488b49c5bc3233a2bfc64363'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-01-09-39/OpenJDK16U-jdk_x64_linux_hotspot_2021-05-01-09-39.tar.gz'; \
+         ESUM='14fe9e8aab3cee58014d3c234cbf608e410dd8c6b50aef96a9548f141392e101'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_x64_linux_hotspot_2021-05-04-09-44.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
