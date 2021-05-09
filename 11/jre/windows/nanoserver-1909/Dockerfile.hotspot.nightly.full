@@ -25,10 +25,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk11u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jre_x64_windows_hotspot_2021-05-05-06-09.zip ...'); \
-    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jre_x64_windows_hotspot_2021-05-05-06-09.zip ; \
-    Write-Host ('Verifying sha256 (b84c35b0d4b6923ddc9756f7d81d8df0df6e42e5eb4a2112338d31077e8126d3) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne 'b84c35b0d4b6923ddc9756f7d81d8df0df6e42e5eb4a2112338d31077e8126d3') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_windows_hotspot_2021-05-07-07-34.zip ...'); \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_windows_hotspot_2021-05-07-07-34.zip ; \
+    Write-Host ('Verifying sha256 (57fd30809c471d3ccac943f53c03e572cacbe3dc9d55a17104894f4febf1ad3f) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '57fd30809c471d3ccac943f53c03e572cacbe3dc9d55a17104894f4febf1ad3f') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
