@@ -261,7 +261,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi_pkg() {
 	cat >> "$1" <<'EOI'
-RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar binutils \
+RUN dnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && dnf update -y; dnf clean all
 EOI
 }
@@ -270,7 +270,7 @@ EOI
 # Select the ubi OS packages.
 print_ubi-minimal_pkg() {
 	cat >> "$1" <<'EOI'
-RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar binutils \
+RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-langpack-en gzip tar \
     && microdnf update -y; microdnf clean all
 EOI
 }
@@ -278,7 +278,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
-RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar binutils \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 EOI
 }
@@ -477,9 +477,29 @@ EOI
 }
 
 # Call the script to create the slim package for Ubi
-# Using binutils package installed at startup for the "strip" command
-# Same function used for ubi-minimal, centos and clefos
 print_ubi_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+	dnf install -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+	dnf remove -y binutils; \\
+    dnf clean all; \\
+EOI
+}
+
+# Call the script to create the slim package for Ubi
+print_ubi-minimal_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+	microdnf install -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+	microdnf remove -y binutils; \\
+    microdnf clean all; \\
+EOI
+}
+
+# Call the script to create the slim package for Ubi
+print_centos_slim_package() {
 	cat >> "$1" <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
     /usr/local/bin/slim-java.sh ${jhome}; \\
@@ -661,8 +681,11 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
-	if [ "${btype}" == "slim" ]; then
+	if [ "${btype}" == "slim" && ${os} == "ubi"]; then
 		print_ubi_slim_package "$1"
+	fi
+	if [ "${btype}" == "slim" && ${os} == "ubi-minimal"]; then
+		print_ubi-minimal_slim_package "$1"
 	fi
 	print_java_install_post "$1"
 }
@@ -687,7 +710,7 @@ RUN set -eux; \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	if [ "${btype}" == "slim" ]; then
-		print_ubi_slim_package "$1"
+		print_centos_slim_package "$1"
 	fi
 	print_java_install_post "$1"
 }
