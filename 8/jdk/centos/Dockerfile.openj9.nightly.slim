@@ -32,12 +32,12 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='4f33a6ef637d010d5bea20d0291254ddfbc82cff9b48a95d4aec4d943a606b85'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-04-03-49/OpenJDK8U-jdk_ppc64le_linux_openj9_2021-05-04-03-49.tar.gz'; \
+         ESUM='bbe29459537bcf71c4f89b2649ca0886bfbc75850bd09794fe2f45bc1b58e1bd'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_ppc64le_linux_openj9_2021-05-08-08-14.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='e1c5ba563048d19d87d474f4b4a998a5d3f2537b3dbd2fc94d6a490adee5dc99'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-04-03-49/OpenJDK8U-jdk_x64_linux_openj9_2021-05-04-03-49.tar.gz'; \
+         ESUM='aa2ecf20e514a385c18b1e00429923cd4a274d66fa28319184da07e0dd84ef33'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_x64_linux_openj9_2021-05-08-08-14.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
