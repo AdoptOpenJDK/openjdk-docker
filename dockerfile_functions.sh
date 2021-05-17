@@ -158,7 +158,7 @@ EOI
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> "$1" <<-EOI
-	FROM alpine:3.12
+	FROM alpine:3.13
 
 	EOI
 }
@@ -216,7 +216,7 @@ print_alpine_pkg() {
 print_alpine_glibc_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
-    && GLIBC_VER="2.31-r0" \
+    && GLIBC_VER="2.33-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
     && GCC_LIBS_SHA256="f80320a03ff73e82271064e4f684cd58d7dbdb07aa06a2c4eea8e0f3c507c45c" \
