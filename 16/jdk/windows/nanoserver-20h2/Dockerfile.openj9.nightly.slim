@@ -27,10 +27,10 @@ ENV JAVA_VERSION jdk16u
 
 COPY slim-java* C:/ProgramData/Java/
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_x64_windows_openj9_2021-05-04-09-44.zip ...'); \
-    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-04-09-44/OpenJDK16U-jdk_x64_windows_openj9_2021-05-04-09-44.zip ; \
-    Write-Host ('Verifying sha256 (1b6fc1bc641217e868879d2322efbb7d6c1e047b04ef2fd17c451cee0c943220) ...'); \
-    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '1b6fc1bc641217e868879d2322efbb7d6c1e047b04ef2fd17c451cee0c943220') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_x64_windows_openj9_2021-05-08-12-45.zip ...'); \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_x64_windows_openj9_2021-05-08-12-45.zip ; \
+    Write-Host ('Verifying sha256 (33ceb1488ebd350cbc2d0c0cd530cb051ab32fb82752dc6e90ca3d1c4bf53656) ...'); \
+    if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '33ceb1488ebd350cbc2d0c0cd530cb051ab32fb82752dc6e90ca3d1c4bf53656') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \

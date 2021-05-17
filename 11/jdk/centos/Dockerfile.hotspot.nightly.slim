@@ -32,20 +32,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='895c8109f242fc785a03c70ddbd569b30a42f04e4eb14855f199e3d5f0f21085'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-05-05-06-09.tar.gz'; \
+         ESUM='fe5f36959a11a574f688d2a27b7c13843bc6a483694ca6ebe054482a37713350'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='49e02b02bba7b018e13c8261290348e8157cdc235e7a8f0cdf1300e457562163'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jdk_arm_linux_hotspot_2021-05-05-06-09.tar.gz'; \
+         ESUM='dc496edbccfb7dec6c9fc4a1855fe6768fbec29d6b95b93ee18f0e873421ea4d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_arm_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='4f480f05bacab95542b81d0f0e4417f82a5f581a48e90c5c8b3cae3ae0d04477'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-05-05-06-09.tar.gz'; \
+         ESUM='fbc40cc6412457b3bcfc309f157157c3bbaf5a87396df184fd599f9b103e7e13'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='64a0093e1294fe23c053c9025c0fba797ea1f294f2eecf9280d4aed3f6cb759b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-05-06-09/OpenJDK11U-jdk_x64_linux_hotspot_2021-05-05-06-09.tar.gz'; \
+         ESUM='2219cf4ec181453d7ce07b91b295f78c71933bc8b01c5ba9f2fbe74bc2b978f4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_x64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
