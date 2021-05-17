@@ -205,18 +205,30 @@ function get_arches() {
 
 # Check if the given VM is supported on the current architecture.
 # This is based on the hotspot_shasums_latest.sh/openj9_shasums_latest.sh
-function vm_supported_onarch() {
+# along with arches present in config/${vm}.config
+function vm_supported_onarch_config() {
 	local vm=$1
 	local sums=$2
+	local version=$3
+	local pkg=$4
+	local os=$5
+	local test_arch
 
-	if [ -n "$3" ]; then
-		test_arch=$3;
+	if [ -n "$6" ]; then
+		test_arch=$6;
 	else
 		test_arch=$(uname -m)
 	fi
 
-	local suparches=$(get_arches "${sums}")
-	local sup=$(echo "${suparches}" | grep "${test_arch}")
+	# First get the arches for which the builds are available as per shasums file
+	local sup_arches_for_build=$(get_arches "${sums}" | sort | uniq)
+	# Next, check the arches that are supported for the underlying OS as per config file
+	local sup_arches_for_os=$(parse_vm_entry "${vm}" "${version}" "${pkg}" "${os}" "Architectures:")
+	# Now the actual arches are the intersection of the above two
+	local merge_arches="${sup_arches_for_build} ${sup_arches_for_os}"
+	local supported_arches=$(echo ${merge_arches} | tr ' ' '\n' | sort | uniq -d)
+
+	local sup=$(echo "${supported_arches}" | grep "${test_arch}")
 	echo "${sup}"
 }
 
@@ -356,7 +368,7 @@ function build_tags() {
 			fi
 			# Check if all the supported arches are available for this build.
 			# shellcheck disable=SC2154 #declared externally
-			supported=$(vm_supported_onarch "${vm}" "${shasums}" "${arch}")
+			supported=$(vm_supported_onarch_config "${vm}" "${shasums}" "${ver}" "${pkg}" "${os}" "${arch}")
 			if [ -z "${supported}" ]; then
 				continue;
 			fi

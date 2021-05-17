@@ -405,7 +405,7 @@ do
 		# Check if the VM is supported for the current arch
 		shasums="${package}"_"${vm}"_"${version}"_"${build}"_sums
 		build_time="${package}"_"${vm}"_"${version}"_"${build}"_build_time
-		sup=$(vm_supported_onarch "${vm}" "${shasums}")
+		sup=$(vm_supported_onarch_config "${vm}" "${shasums}" "${version}" "${package}" "${os}")
 		if [ -z "${sup}" ]; then
 			continue;
 		fi
