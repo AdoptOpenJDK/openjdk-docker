@@ -84,6 +84,12 @@ function print_manifest_cmd() {
 function print_tags() {
 	local repo="$1"
 	local img_list=""
+
+	# Nothing to do if arch tags is empty
+	if [ -z "${arch_tags}" ]; then
+		return;
+	fi
+
 	# Check if all the individual docker images exist for each expected arch
 	for arch_tag in ${arch_tags}
 	do
