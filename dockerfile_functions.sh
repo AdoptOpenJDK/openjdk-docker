@@ -684,7 +684,7 @@ EOI
 	if [ "${btype}" == "slim" ]; then
 		if [ ${os} == "ubi" ]; then	
 			print_ubi_slim_package "$1"	
-		elif [ ${os} == "ubi-minimal"]; then
+		elif [ ${os} == "ubi-minimal" ]; then
 			print_ubi-minimal_slim_package "$1"
 		fi
 	fi
