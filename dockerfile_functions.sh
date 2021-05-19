@@ -487,7 +487,7 @@ print_ubi_slim_package() {
 EOI
 }
 
-# Call the script to create the slim package for Ubi
+# Call the script to create the slim package for Ubi-minimal
 print_ubi-minimal_slim_package() {
 	cat >> "$1" <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
@@ -498,7 +498,18 @@ print_ubi-minimal_slim_package() {
 EOI
 }
 
-# Call the script to create the slim package for Ubi
+# Call the script to create the slim package for leap & tumbleweed
+print_leap_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    zypper install --no-recommends -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    zypper remove -y binutils; \\
+    zypper clean --all; \\
+EOI
+}
+
+# Call the script to create the slim package for Centos & clefos
 print_centos_slim_package() {
 	cat >> "$1" <<-EOI
     export PATH="${jhome}/bin:\$PATH"; \\
@@ -732,6 +743,9 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		print_leap_slim_package "$1"
+	fi
 	print_java_install_post "$1"
 }
 
