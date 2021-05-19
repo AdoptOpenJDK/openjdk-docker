@@ -476,6 +476,47 @@ print_alpine_slim_package() {
 EOI
 }
 
+# Call the script to create the slim package for Ubi
+print_ubi_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    dnf install -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    dnf remove -y binutils; \\
+    dnf clean all; \\
+EOI
+}
+
+# Call the script to create the slim package for Ubi-minimal
+print_ubi-minimal_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    microdnf install -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    microdnf remove -y binutils; \\
+    microdnf clean all; \\
+EOI
+}
+
+# Call the script to create the slim package for leap & tumbleweed
+print_leap_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    zypper install --no-recommends -y binutils; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+    zypper remove -y binutils; \\
+    zypper clean --all; \\
+EOI
+}
+
+# Call the script to create the slim package for Centos & clefos
+print_centos_slim_package() {
+	cat >> "$1" <<-EOI
+    export PATH="${jhome}/bin:\$PATH"; \\
+    /usr/local/bin/slim-java.sh ${jhome}; \\
+EOI
+}
+
 # Print the main RUN command that installs Java on ubuntu.
 print_ubuntu_java_install() {
 	local pkg=$2
@@ -651,6 +692,13 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		if [ "${os}" == "ubi" ]; then	
+			print_ubi_slim_package "$1"	
+		elif [ "${os}" == "ubi-minimal" ]; then
+			print_ubi-minimal_slim_package "$1"
+		fi
+	fi
 	print_java_install_post "$1"
 }
 
@@ -673,6 +721,9 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		print_centos_slim_package "$1"
+	fi
 	print_java_install_post "$1"
 }
 
@@ -692,6 +743,9 @@ RUN set -eux; \\
     case "\${ARCH}" in \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
+	if [ "${btype}" == "slim" ]; then
+		print_leap_slim_package "$1"
+	fi
 	print_java_install_post "$1"
 }
 
