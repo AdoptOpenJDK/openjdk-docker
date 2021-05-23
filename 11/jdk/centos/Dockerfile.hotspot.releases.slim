@@ -57,6 +57,8 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    export PATH="/opt/java/openjdk/bin:$PATH"; \
+    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
     rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \
