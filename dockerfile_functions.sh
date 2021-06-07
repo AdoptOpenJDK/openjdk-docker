@@ -110,7 +110,7 @@ print_clefos_ver() {
 }
 
 print_leap_ver() {
-	os_version="15.2"
+	os_version="15.3"
 
 	cat >> "$1" <<-EOI
 	FROM opensuse/leap:${os_version}
