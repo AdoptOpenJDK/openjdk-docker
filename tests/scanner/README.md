@@ -82,7 +82,7 @@ There are a couple of image options to limit your set of images that you will be
 
 - `--versions` - Sets the Java versions. The default is all of the active(LTS and current) Java versions. At this time they would be `8`, `11` and `14`.
 - `--jvms` - Sets the JVMs. The default are both `openj9` and `hotspot`
-- `--oss` - Sets the OSs. The defaults are `alpine`, `debian`, `debianslim`, `ubi`, `ubi-minimal`, `centos`, `clefos`, and `ubuntu`.
+- `--oss` - Sets the OSs. The defaults are `alpine`, `debian`, `debianslim`, `ubi`, `ubi-minimal`, `centos`, `alma`, `alma-minimal`, `clefos`, and `ubuntu`.
 - `--packages` - Sets the packages. The defaults are both `jdk` and `jre`.
 - `--archs` - Sets the architectures. The default are all the architectures AdoptOpenJDK builds for. That this time they would be `armv7l`, `aarch64`, `ppc64le`, `s390x`, and `x86_64`.
 - `--builds` - Sets the builds. The default are both `slim` and `full`.
