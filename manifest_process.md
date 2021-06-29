@@ -58,7 +58,7 @@ we create the manifest commands for each `os`, `build` (Release or Nightly) and 
 
 - We set the list of operating systems we generate the manifest for
 
-`oses="alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"`
+`oses="alma alma-minimal alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"`
 
 - We now check which jvms are available for the given version by calling the `generate_latest_sums.sh` script so if the respective shasums file is generated for the version and vm combination then we add that to the `available_jvms`
 
