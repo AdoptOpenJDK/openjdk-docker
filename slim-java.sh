@@ -102,7 +102,12 @@ function get_vm_impl() {
 	if [ -n "${impl}" ]; then
 		echo "OpenJ9";
 	else
-		echo "Hotspot";
+	  impl="$(java -version 2>&1 | grep "Dragonwell")";
+	  if [ -n "${impl}" ]; then
+		  echo "Dragonwell";
+	  else
+		  echo "Hotspot";
+	  fi
 	fi
 }
 
