@@ -36,7 +36,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
   - Linux
     - AlmaLinux (8.4): Release, Nightly and Slim
     - AlmaLinux-Minimal (8.4): Release and Nightly
-    - Alpine (3.13): Release, Nightly and Slim
+    - Alpine (3.14): Release, Nightly and Slim
     - CentOS (7): Release, Nightly and Slim
     - ClefOS (7): Release, Nightly and Slim
     - Debian (Buster): Release, Nightly and Slim
