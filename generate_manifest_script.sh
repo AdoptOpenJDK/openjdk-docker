@@ -110,7 +110,7 @@ function print_tags() {
 check_manifest_tool
 
 # Set the OSes that we will be generating manifests for
-oses="alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
+oses="alma alma-minimal alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 
 # Which JVMs are available for the current version
 ./generate_latest_sums.sh "${version}"
