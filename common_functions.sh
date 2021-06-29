@@ -109,7 +109,7 @@ function set_arch_os() {
 		;;
 	aarch64)
 		current_arch="aarch64"
-		oses="centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
+		oses="alma alma-minimal centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 		os_family="linux"
 		;;
 	ppc64el|ppc64le)
@@ -145,7 +145,7 @@ function set_arch_os() {
 			# shellcheck disable=SC2034 # used externally
 			current_arch="x86_64"
 			# shellcheck disable=SC2034 # used externally
-			oses="alpine centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
+			oses="alma alma-minimal alpine centos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 			# alpine-linux (musl libc) based builds are only available on x86_64 currently
 			# shellcheck disable=SC2034 # used externally
 			os_family="alpine-linux linux"

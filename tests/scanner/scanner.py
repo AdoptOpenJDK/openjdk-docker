@@ -860,8 +860,8 @@ def get_args():
                         help="Names of the OSs",
                         nargs='+',
                         type=str,
-                        choices=["alpine", "debian", "debianslim", "ubi", "ubi-minimal", "centos", "clefos", "ubuntu"],
-                        default=["alpine", "debian", "debianslim", "ubi", "ubi-minimal", "centos", "clefos", "ubuntu"])
+                        choices=["alpine", "debian", "debianslim", "ubi", "ubi-minimal", "centos", "clefos", "ubuntu", "alma", "alma-minimal" ],
+                        default=["alpine", "debian", "debianslim", "ubi", "ubi-minimal", "centos", "clefos", "ubuntu", "alma", "alma-minimal" ])
     parser.add_argument("--packages",
                         help="Names of the Packages",
                         nargs='+',

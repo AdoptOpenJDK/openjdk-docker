@@ -26,7 +26,7 @@ set -o pipefail
 source ./common_functions.sh
 
 official_docker_image_file="adoptopenjdk"
-oses="alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
+oses="alma alma-minimal alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal ubuntu"
 
 # shellcheck disable=SC2034 # used externally
 hotspot_latest_tags="hotspot, latest"
@@ -271,7 +271,7 @@ rm -f ${official_docker_image_file}
 print_official_header
 
 # Currently we are not pushing official docker images for Alpine, Debian
-official_os_ignore_array=(alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal)
+official_os_ignore_array=(alma alma-minimal alpine centos clefos debian debianslim leap tumbleweed ubi ubi-minimal)
 
 # Generate config and doc info only for "supported" official builds.
 function generate_official_image_info() {
