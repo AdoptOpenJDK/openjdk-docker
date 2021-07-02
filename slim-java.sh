@@ -231,7 +231,6 @@ function strip_jar() {
 function strip_bin() {
 	echo -n "INFO: Stripping debug info in object files..."
 	find bin -type f ! -path "./*"/java-rmi.cgi -exec strip -s {} \;
-	find . -name "*.so*" -exec strip -s {} \;
 	find . -name jexec -exec strip -s {} \;
 	echo "done"
 }
