@@ -178,7 +178,7 @@ print_lang_locale() {
 print_ubuntu_pkg() {
 	cat >> "$1" <<'EOI'
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
+    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales libfreetype6 fonts-dejavu \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -278,7 +278,7 @@ EOI
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
-RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
+RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar freetype dejavu-sans-fonts \
     && yum update -y; yum clean all
 EOI
 }
