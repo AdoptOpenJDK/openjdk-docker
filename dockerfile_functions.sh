@@ -368,6 +368,13 @@ print_java_install_pre() {
        armhf|armv7l) \\
          ESUM='$(get_shasum "${shasums}" armv7l "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
+		EOI
+			if [ "${version}" == "8" ] && [ "${vm}" == "hotspot" ] && [ "${os}" == "ubuntu" ]; then
+				cat >> "$1" <<-EOI
+         apt-get install -y --no-install-recommends libatomic1 \\
+		EOI
+			fi
+			cat >> "$1" <<-EOI
          ;; \\
 		EOI
 		elif [ "${sarch}" == "ppc64le" ]; then
