@@ -27,30 +27,30 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk8u
+ENV JAVA_VERSION jdk8u-2021-08-20-19-45-beta
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='6a0b070e055dac2d2a08935c905648b95ccb889111bfe17b8b3e96efbb23b59d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jre_aarch64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='8458e65e206f7e8aa1ca680c3169d2fbc215a242ab4e684083fe3ade38dc0351'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-08-20-19-45-beta/OpenJDK8U-jre_aarch64_linux_hotspot_2021-08-20-19-45.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='388b03f7557822e9540c9dcf9b8c0e9c5d48bbdc9242030488bf3f32f35edae5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-06-03-42/OpenJDK8U-jre_arm_linux_hotspot_2021-05-06-03-42.tar.gz'; \
+         ESUM='0fadcffc14ba7fe7f001daacb24a11a362e6ef52a7c257005e9644dcd64520bb'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-08-20-19-45-beta/OpenJDK8U-jre_arm_linux_hotspot_2021-08-20-19-45.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='a19f8e18f9e724bd30145249880f1f0cf195e93ffe5af4c4e9476dab2caf39c8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jre_ppc64le_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='c3e3e83fc50743d333cb39c791e0ccf6bc8bda489ba895ccd1ef3f9516fa9516'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-08-20-19-45-beta/OpenJDK8U-jre_ppc64le_linux_hotspot_2021-08-20-19-45.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='d14678c89afa639554e7c04fc84e5fd011e146ab9b58f8ae68ce40fd20bdd87b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jre_s390x_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='905bb40196f068635ed1b1ef8a9c36ccea12523129a93195e22b525bfb0c85dd'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-08-20-19-45-beta/OpenJDK8U-jre_s390x_linux_hotspot_2021-08-20-19-45.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='73c95338341d3a8e2ad139de0c8a5e2ed1ee5ba50a7df787100caf209150528d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jre_x64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='da4bb3443cb59034614292014f3fa2972d68f4e019919d818b502740db8a6793'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-08-20-19-45-beta/OpenJDK8U-jre_x64_linux_hotspot_2021-08-20-19-45.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
