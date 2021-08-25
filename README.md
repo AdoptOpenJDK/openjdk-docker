@@ -1,4 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
+# ⚠ DEPRECATION NOTICE ⚠
+These Dockerfiles along with their images are officially deprecated in favor of [the `eclipse-temurin` image](https://hub.docker.com/_/eclipse-temurin/), and will receive no further updates after 2021-08-25 (Aug 01, 2021). Please adjust your usage accordingly.
 
 # AdoptOpenJDK and Docker
 Dockerfiles and build scripts for generating Docker Images based on various AdoptOpenJDK binaries. We support both Hotspot and Eclipse OpenJ9 VMs.
