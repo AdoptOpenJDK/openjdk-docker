@@ -24,7 +24,7 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk16u
+ENV JAVA_VERSION jdk16u-2021-08-28-09-48-beta
 
 COPY slim-java* /usr/local/bin/
 
@@ -32,20 +32,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='7c8eeed40e56724590f1a424fa7092b1a7270b08aff9c33d2b2b1712a8640c3a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='f9f380863a842c053a3b7aed4fc5edf1f8918588b9efc000c7cc7db6f375785a'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-08-28-09-48-beta/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-08-28-09-48.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='600da12cfc32352fcb6a326f7a8f6a00c39a5d717fad01e366a06d790499afa2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_arm_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='f819a67625d3aa0c54c948d913d1165374c612086e2499f4022499d17854ee40'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-08-28-09-48-beta/OpenJDK16U-jdk_arm_linux_hotspot_2021-08-28-09-48.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='a66ba353c2ef0a2f7757f9fc80ddeaa2695bdc6897354375ecf0f5fcb3b1e35a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='eb9b24c2308798bf3ac6be99f9ec71b2fcb936863df4e7f07910e76d4fadb13a'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-08-28-09-48-beta/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-08-28-09-48.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='38a11457866abab5e31d9977f44b83542f561905910aa0a2dcaeb253472e9624'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_x64_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='e8b617c55bd57800148339021b3089e9d198330ffbbd3b242312fa245316f2eb'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-08-28-09-48-beta/OpenJDK16U-jdk_x64_linux_hotspot_2021-08-28-09-48.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
