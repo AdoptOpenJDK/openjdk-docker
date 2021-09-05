@@ -24,30 +24,30 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN zypper install --no-recommends -y timezone openssl curl ca-certificates fontconfig gzip tar \
     && zypper update -y; zypper clean --all
 
-ENV JAVA_VERSION jdk11u
+ENV JAVA_VERSION jdk11u-2021-09-03-02-30-beta
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='fe5f36959a11a574f688d2a27b7c13843bc6a483694ca6ebe054482a37713350'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='b205023dd3cc92e3a16bf94f4e00d38d2a441c33fc46fa95ec413e7f52ea0a9c'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-03-02-30-beta/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-09-03-02-30.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='dc496edbccfb7dec6c9fc4a1855fe6768fbec29d6b95b93ee18f0e873421ea4d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_arm_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='929433fe37f96d6e2ce79e189fcb51d5aede85d93d95db723022b047831b3e22'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-03-02-30-beta/OpenJDK11U-jdk_arm_linux_hotspot_2021-09-03-02-30.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='fbc40cc6412457b3bcfc309f157157c3bbaf5a87396df184fd599f9b103e7e13'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='2b16954e06e42fcbe5a07a5c985e884aa9153f16a07e56c4442e33bfca2f472b'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-03-02-30-beta/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-09-03-02-30.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='8d429c00a4f877aef698d22b29fe3684fd37c620919c376b231be857d505c6a8'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_s390x_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='2468c70b6762a0602976cde6a4333d85a3360ab290c701d78d32bfd956894782'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-03-02-30-beta/OpenJDK11U-jdk_s390x_linux_hotspot_2021-09-03-02-30.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='2219cf4ec181453d7ce07b91b295f78c71933bc8b01c5ba9f2fbe74bc2b978f4'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_x64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='55e4d39eb688ff03a59483d50445a6d8eac561cde5a93d32cfd824ba49229269'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-03-02-30-beta/OpenJDK11U-jdk_x64_linux_hotspot_2021-09-03-02-30.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
