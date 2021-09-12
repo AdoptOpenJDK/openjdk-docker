@@ -24,18 +24,18 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk-16.0.1+9_openj9-0.26.0
+ENV JAVA_VERSION jdk-16.0.2+7_openj9-0.27.0
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        ppc64el|ppc64le) \
-         ESUM='f9734c100f0e85ac63b9f9327b77135221a905e1d743cd9cd4edc0ea0e0fe8d9'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jre_ppc64le_linux_openj9_16.0.1_9_openj9-0.26.0.tar.gz'; \
+         ESUM='51dac9a69b594c72adabb2c36634a121be04a17c4ce34628cf9b37fd5010c1a8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/semeru16-binaries/releases/download/jdk-16.0.2%2B7_openj9-0.27.0/ibm-semeru-open-jre_ppc64le_linux_16.0.2_7_openj9-0.27.0.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='fab572dd1a2ef00fd18ad4f5a4c373d0cf140045e61f9104cd5b8dbf6b3a517d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16.0.1%2B9_openj9-0.26.0/OpenJDK16U-jre_x64_linux_openj9_16.0.1_9_openj9-0.26.0.tar.gz'; \
+         ESUM='b077cd0b35d3ed1927c22e5b498264ecff67297992809056187b42662edfc536'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/semeru16-binaries/releases/download/jdk-16.0.2%2B7_openj9-0.27.0/ibm-semeru-open-jre_x64_linux_16.0.2_7_openj9-0.27.0.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

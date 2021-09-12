@@ -26,13 +26,13 @@ RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-lan
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
-      version="jdk8u" \
+      version="jdk8u-2021-09-11-06-01-beta" \
       release="8" \
       run="docker run --rm -ti <image_name:tag> /bin/bash" \
       summary="AdoptOpenJDK Docker Image for OpenJDK with hotspot and ubi-minimal" \
       description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
 
-ENV JAVA_VERSION jdk8u
+ENV JAVA_VERSION jdk8u-2021-09-11-06-01-beta
 
 COPY slim-java* /usr/local/bin/
 
@@ -40,20 +40,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='64688f3768783bf0160fc8137fac5f73cfe8b8525fa2fb32a25d38c6ee4e91eb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_aarch64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='1e9da7abca18321f828d723e57ed44127e48f37524647609ec69c97e61dfff35'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-09-11-06-01-beta/OpenJDK8U-jdk_aarch64_linux_hotspot_2021-09-11-06-01.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='1a9458f2b12070018d62e5750e163af327d2bfa6453710c346767ac5026bb9fb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_ppc64le_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='372c7fdc6848403e6531aa6c1065f7fa9ff6ddd1726a7655281985b370966201'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-09-11-06-01-beta/OpenJDK8U-jdk_ppc64le_linux_hotspot_2021-09-11-06-01.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='82b48eefbc1fef5d28e024cd44abb94cd3f476a21c777ff996dabbe710e1da72'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_s390x_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='0f929cff98ffcea1649be1d664df5e346a0f50650fd158fc174f8781ebe8fe3b'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-09-11-06-01-beta/OpenJDK8U-jdk_s390x_linux_hotspot_2021-09-11-06-01.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='b1ae4b439f6e3f7521606d12fc44ecb1a0cb0b474a99f3fa830896d3d5e55d36'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_x64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='da354ed25128dde6f62c9e394d9a3376acbd93d39706fedde20f7f13c988fcdf'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-09-11-06-01-beta/OpenJDK8U-jdk_x64_linux_hotspot_2021-09-11-06-01.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
