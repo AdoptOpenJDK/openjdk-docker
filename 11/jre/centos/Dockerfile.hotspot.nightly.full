@@ -24,26 +24,26 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN yum install -y tzdata openssl curl ca-certificates fontconfig gzip tar \
     && yum update -y; yum clean all
 
-ENV JAVA_VERSION jdk11u
+ENV JAVA_VERSION jdk11u-2021-09-17-13-10-beta
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d3a33fb03cc59b834f0ce54aed5c788341693ab68cf0652b2a2a519aedf3eb36'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_aarch64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='387d50b455b076e586dfa3bc86be6be792aca7fe2921f14d27ebba78914d329c'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_aarch64_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='56b013ef040c1ed1924039190bf6b8357ce233d8aa6c4fc9e87c121b5edc6694'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_arm_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='16573d525547d68c25dbeb33fa497ced8ac06dbb81704db9816a39c34157fc95'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_arm_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='74ec88e54c1451dbb7ea5ee587f8a4c21ae4256d17d95c97163863844db688e5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_ppc64le_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='5a427b36ac18192469b01d930aeae49248644a73fed87f48e46607366400f07e'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_ppc64le_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='17f7b43930d7b020c7635bb134900821e82220a19f7de763d16fa430785e5bc6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='548e548ed6bed0c7fe3ef8909e8ebca8f2296f1ebbc125e52be36264ab77a018'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_x64_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

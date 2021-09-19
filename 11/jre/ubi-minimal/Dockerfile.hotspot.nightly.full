@@ -26,32 +26,32 @@ RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-lan
 
 LABEL name="AdoptOpenJDK Java" \
       vendor="AdoptOpenJDK" \
-      version="jdk11u" \
+      version="jdk11u-2021-09-17-13-10-beta" \
       release="11" \
       run="docker run --rm -ti <image_name:tag> /bin/bash" \
       summary="AdoptOpenJDK Docker Image for OpenJDK with hotspot and ubi-minimal" \
       description="For more information on this image please see https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/README.md"
 
-ENV JAVA_VERSION jdk11u
+ENV JAVA_VERSION jdk11u-2021-09-17-13-10-beta
 
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='d3a33fb03cc59b834f0ce54aed5c788341693ab68cf0652b2a2a519aedf3eb36'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_aarch64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='387d50b455b076e586dfa3bc86be6be792aca7fe2921f14d27ebba78914d329c'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_aarch64_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='74ec88e54c1451dbb7ea5ee587f8a4c21ae4256d17d95c97163863844db688e5'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_ppc64le_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='5a427b36ac18192469b01d930aeae49248644a73fed87f48e46607366400f07e'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_ppc64le_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='af9425047022d30dfed4b889d613a2c1c272e6f6f1dc407fb34ec3073beee53d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_s390x_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='4d7bb05df02cb5afcc0e8ceb4a83e2954e0648994e1740b9f2a61a631269f942'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_s390x_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='17f7b43930d7b020c7635bb134900821e82220a19f7de763d16fa430785e5bc6'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
+         ESUM='548e548ed6bed0c7fe3ef8909e8ebca8f2296f1ebbc125e52be36264ab77a018'; \
+         BINARY_URL='https://github.com/adoptium/temurin11-binaries/releases/download/jdk11u-2021-09-17-13-10-beta/OpenJDK11U-jre_x64_linux_hotspot_2021-09-17-13-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
