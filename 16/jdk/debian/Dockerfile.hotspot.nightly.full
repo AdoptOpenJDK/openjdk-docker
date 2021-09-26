@@ -27,30 +27,30 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_VERSION jdk16u
+ENV JAVA_VERSION jdk16u-2021-09-25-01-21-beta
 
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='7c8eeed40e56724590f1a424fa7092b1a7270b08aff9c33d2b2b1712a8640c3a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='64237a3a0a0c0edac33a734328e8823cc935e36d44197004dd6b575feaa68346'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-25-01-21-beta/OpenJDK16U-jdk_aarch64_linux_hotspot_2021-09-25-01-21.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='600da12cfc32352fcb6a326f7a8f6a00c39a5d717fad01e366a06d790499afa2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_arm_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='6a3172fdfdd2886516e41d42e07219ff0fbc2ec8609659f7c736cbfb7e631773'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-25-01-21-beta/OpenJDK16U-jdk_arm_linux_hotspot_2021-09-25-01-21.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='a66ba353c2ef0a2f7757f9fc80ddeaa2695bdc6897354375ecf0f5fcb3b1e35a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='be13b9ff0d19ea57f3c6f1dc0e946e4cfd9f40bfb04c22bf32df3858151059b8'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-25-01-21-beta/OpenJDK16U-jdk_ppc64le_linux_hotspot_2021-09-25-01-21.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='87c8f2cc2a4915c7c245ab794ae76aba939a6c9582c1ed3e4dd8583984a66b6e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_s390x_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM='7f8c26977e053c1b6241dc8c373fbea6dbde4a10d69a92e2ad4695667d066411'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-25-01-21-beta/OpenJDK16U-jdk_s390x_linux_hotspot_2021-09-25-01-21.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='38a11457866abab5e31d9977f44b83542f561905910aa0a2dcaeb253472e9624'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jdk_x64_linux_hotspot_2021-05-08-12-45.tar.gz'; \
+         ESUM=''; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-18-01-10-beta/OpenJDK16U-jdk_x64_linux_hotspot_2021-09-18-01-10.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
