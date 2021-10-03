@@ -24,15 +24,15 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 RUN apk add --no-cache tzdata musl-locales musl-locales-lang \
     && rm -rf /var/cache/apk/*
 
-ENV JAVA_VERSION jdk16u
+ENV JAVA_VERSION jdk16u-2021-09-25-01-21-beta
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='9115d9ae0c4441308c5ea8d32329a0eebb7b77e8f05e025c1a3755a6b3b773de'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk16u-2021-05-08-12-45/OpenJDK16U-jre_x64_alpine-linux_hotspot_2021-05-07-23-30.tar.gz'; \
+         ESUM='b3022528b7d4b35a59d76f4fdc8dfd4c532c93f34fdea79de5a538e41cac3826'; \
+         BINARY_URL='https://github.com/adoptium/temurin16-binaries/releases/download/jdk16u-2021-09-25-01-21-beta/OpenJDK16U-jre_x64_alpine-linux_hotspot_2021-09-24-23-33.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

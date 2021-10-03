@@ -54,15 +54,15 @@ RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
     && apk del --purge .build-deps glibc-i18n \
     && rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
-ENV JAVA_VERSION jdk8u
+ENV JAVA_VERSION jdk8u-2021-10-02-02-55-beta
 
 RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
        amd64|x86_64) \
-         ESUM='73c95338341d3a8e2ad139de0c8a5e2ed1ee5ba50a7df787100caf209150528d'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jre_x64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
+         ESUM='63b3bcad9c8bc69f602f384f8eb10a2729a05a2b7951b06947b6d549237a4eb1'; \
+         BINARY_URL='https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u-2021-10-02-02-55-beta/OpenJDK8U-jre_x64_linux_hotspot_2021-10-02-02-55.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
