@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi:8.3
+FROM registry.access.redhat.com/ubi8/ubi:8.4
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -40,24 +40,20 @@ RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='8f491e4cb0fca99bdfc1a6cbf778c461f4417c1b960d17cca6b026d19c168974'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_aarch64_linux_hotspot_2021-01-28-00-11.tar.gz'; \
-         ;; \
-       armhf|armv7l) \
-         ESUM='e9d2898d218778572e75cae9c1e42e409c8a625a53503a046f1e384417809d57'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_arm_linux_hotspot_2021-01-28-00-11.tar.gz'; \
+         ESUM='64688f3768783bf0160fc8137fac5f73cfe8b8525fa2fb32a25d38c6ee4e91eb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_aarch64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='82649b31563f34095cda52914c7c64085b15127796d1d57b034a3de8126160bd'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_ppc64le_linux_hotspot_2021-01-28-00-11.tar.gz'; \
+         ESUM='1a9458f2b12070018d62e5750e163af327d2bfa6453710c346767ac5026bb9fb'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_ppc64le_linux_hotspot_2021-05-08-08-14.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='ff150c9e933ffdba5e69982dd84d8e6ec6b3c118ce8bb568f40b22cff8959615'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_s390x_linux_hotspot_2021-01-28-00-11.tar.gz'; \
+         ESUM='82b48eefbc1fef5d28e024cd44abb94cd3f476a21c777ff996dabbe710e1da72'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_s390x_linux_hotspot_2021-05-08-08-14.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='fc146b519518726dc98cb05bca375d93da7d7a7083067c94816c8478a5886291'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_linux_hotspot_2021-01-28-00-11.tar.gz'; \
+         ESUM='b1ae4b439f6e3f7521606d12fc44ecb1a0cb0b474a99f3fa830896d3d5e55d36'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_x64_linux_hotspot_2021-05-08-08-14.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \
@@ -69,6 +65,11 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    export PATH="/opt/java/openjdk/bin:$PATH"; \
+    dnf install -y binutils; \
+    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
+    dnf remove -y binutils; \
+    dnf clean all; \
     rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \

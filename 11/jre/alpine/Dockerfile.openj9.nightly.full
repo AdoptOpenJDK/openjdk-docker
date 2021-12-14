@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 
-FROM alpine:3.12
+FROM alpine:3.14
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
-    && GLIBC_VER="2.31-r0" \
+    && GLIBC_VER="2.33-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
     && GCC_LIBS_SHA256="f80320a03ff73e82271064e4f684cd58d7dbdb07aa06a2c4eea8e0f3c507c45c" \
@@ -60,21 +60,9 @@ RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='35fc89cae0bd22c5a675227e46ea77af48f49e09240705932235de7c36f51e09'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_aarch64_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='5f723102ac2e3bf3e384e99411e43dbbcca5216c22cbbedd5867b000fbefdf3e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_ppc64le_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='853277c413ff7bbf59029a73025e34b719e32ec24631e547ef4761614bded491'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_s390x_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
        amd64|x86_64) \
-         ESUM='25a33265b7ec7f4a53ecf7cd32d405ebae5733e0d0d4eaf982fc79b1b187999b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jre_x64_linux_openj9_2021-01-27-07-02.tar.gz'; \
+         ESUM='2662f8166aeb5fac26f4e57ab278ef723d6a846b7812147dfd2c02aea955b5a7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_linux_openj9_2021-05-07-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

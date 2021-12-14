@@ -25,8 +25,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ENV JAVA_VERSION jdk15u
 
 RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_x64_windows_openj9_2021-01-22-02-31.msi ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    wget https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_x64_windows_openj9_2021-01-22-02-31.msi -O 'openjdk.msi'; \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_x64_windows_openj9_2021-01-22-02-31.msi -O 'openjdk.msi' ; \
     Write-Host ('Verifying sha256 (c31fb4fd82c149e5303cb632d451d137112527adae7a9a5b21ec211ea3c657d3) ...'); \
     if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'c31fb4fd82c149e5303cb632d451d137112527adae7a9a5b21ec211ea3c657d3') { \
             Write-Host 'FAILED!'; \
@@ -36,9 +35,15 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/
     New-Item -ItemType Directory -Path C:\temp | Out-Null; \
     \
     Write-Host 'Installing using MSI ...'; \
-    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+    $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
     '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+    $proc.WaitForExit() ; \
+    if ($proc.ExitCode -ne 0) { \
+            Write-Host 'FAILED installing MSI!' ; \
+            exit 1; \
+    }; \
+    \
     Remove-Item -Path C:\temp -Recurse | Out-Null; \
     Write-Host 'Removing openjdk.msi ...'; \
     Remove-Item openjdk.msi -Force
-ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle"
+ENV JAVA_TOOL_OPTIONS="-XX:+IgnoreUnrecognizedVMOptions -XX:+IdleTuningGcOnIdle -Xshareclasses:name=openj9_system_scc,cacheDir=/opt/java/.scc,readonly,nonFatal"

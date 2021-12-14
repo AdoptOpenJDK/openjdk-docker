@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM registry.access.redhat.com/ubi8/ubi:8.3
+FROM registry.access.redhat.com/ubi8/ubi:8.4
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -39,10 +39,6 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='b69a4bc87ed2e985d252cff02d53f1a11b8d83d39e0800cd4a1cab4521375314'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7_openj9-0.24.0/OpenJDK15U-jdk_aarch64_linux_openj9_15.0.2_7_openj9-0.24.0.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='5b2158268de0be247801b7823ee3e7f739254d77718a1879848627181feee2f4'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7_openj9-0.24.0/OpenJDK15U-jdk_ppc64le_linux_openj9_15.0.2_7_openj9-0.24.0.tar.gz'; \
@@ -65,6 +61,11 @@ RUN set -eux; \
     mkdir -p /opt/java/openjdk; \
     cd /opt/java/openjdk; \
     tar -xf /tmp/openjdk.tar.gz --strip-components=1; \
+    export PATH="/opt/java/openjdk/bin:$PATH"; \
+    dnf install -y binutils; \
+    /usr/local/bin/slim-java.sh /opt/java/openjdk; \
+    dnf remove -y binutils; \
+    dnf clean all; \
     rm -rf /tmp/openjdk.tar.gz;
 
 ENV JAVA_HOME=/opt/java/openjdk \

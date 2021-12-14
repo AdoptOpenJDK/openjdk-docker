@@ -3,8 +3,6 @@ name: CI
 # Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -14,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2016, windows-2019, ubuntu-20.04]
-        version: [8, 11, 14, 15]
+        version: [8, 11, 15, 16]
         vm: [hotspot, openj9]
         package: [jdk, jre]
         runtype: [test]

@@ -24,11 +24,10 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 
 ENV JAVA_VERSION jdk8u
 
-RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-01-28-00-11.msi ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_windows_hotspot_2021-01-28-00-11.msi -O 'openjdk.msi'; \
-    Write-Host ('Verifying sha256 (f8ffd0c4c42a6192f97200716cbb93b533c122cc138a747809874f38abec11f5) ...'); \
-    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'f8ffd0c4c42a6192f97200716cbb93b533c122cc138a747809874f38abec11f5') { \
+RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_x64_windows_hotspot_2021-05-08-08-14.msi ...'); \
+    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_x64_windows_hotspot_2021-05-08-08-14.msi ; \
+    Write-Host ('Verifying sha256 (2348157db3f5da5c465bc3d3feca352d46e00b7c4ed569fdb083456136731e25) ...'); \
+    if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne '2348157db3f5da5c465bc3d3feca352d46e00b7c4ed569fdb083456136731e25') { \
             Write-Host 'FAILED!'; \
             exit 1; \
     }; \
@@ -36,8 +35,14 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk8-binaries/r
     New-Item -ItemType Directory -Path C:\temp | Out-Null; \
     \
     Write-Host 'Installing using MSI ...'; \
-    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+    $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
     '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+    $proc.WaitForExit() ; \
+    if ($proc.ExitCode -ne 0) { \
+            Write-Host 'FAILED installing MSI!' ; \
+            exit 1; \
+    }; \
+    \
     Remove-Item -Path C:\temp -Recurse | Out-Null; \
     Write-Host 'Removing openjdk.msi ...'; \
     Remove-Item openjdk.msi -Force

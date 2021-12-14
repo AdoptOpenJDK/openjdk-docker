@@ -1,4 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/mlgtt6ndfb38y6ns/branch/master?svg=true)](https://ci.appveyor.com/project/gdams/openjdk-docker-k2x5l/branch/master)
+# ⚠ DEPRECATION NOTICE ⚠
+These Dockerfiles along with their images are officially deprecated in favor of [the `eclipse-temurin` image](https://hub.docker.com/_/eclipse-temurin/), and will receive no further updates after 2021-08-25 (Aug 01, 2021). Please adjust your usage accordingly.
 
 # AdoptOpenJDK and Docker
 Dockerfiles and build scripts for generating Docker Images based on various AdoptOpenJDK binaries. We support both Hotspot and Eclipse OpenJ9 VMs.
@@ -13,7 +14,7 @@ Dockerfiles and build scripts for generating Docker Images based on various Adop
 
 | Alpine | centos | clefos | debian |  debianslim  | leap | tumbleweed | ubi | ubi-minimal | ubuntu(*) |
 |:------:|:------:|:------:|:------:|:------------:|:----:|:----------:|:---:|:-----------:|:------:|
-|  3.13  |    7   |    7   | buster | buster-slim  | 15.2 |   latest   | 8.2 |     8.2     |  20.04 |
+|  3.14  |    7   |    7   | buster | buster-slim  | 15.3 |   latest   | 8.4 |     8.4     |  20.04 |
 
 Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
 
@@ -21,8 +22,12 @@ Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
   - 1809
   - ltsc2016
 
-# Official and Unofficial Images
-AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Unofficial Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
+# musl libc based Alpine Images
+
+Starting from Java 16, hotspot builds are available natively built on musl libc instead of the regular glibc as part of the AdoptOpenJDK project. Currently these are available only for the x86_64 architecture. Accordingly we now have both regular and slim Docker Images for alpine musl based hotspot on x86_64.
+
+# Official and Non-official Images
+AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Non-official Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
 * [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
   - Linux
     - Ubuntu (20.04): Release
@@ -30,15 +35,15 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
     - Windows Server Core (ltsc2016 and 1809): Release
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
   - Linux
-    - Alpine (3.13): Release, Nightly and Slim
+    - Alpine (3.14): Release, Nightly and Slim
     - CentOS (7): Release, Nightly and Slim
     - ClefOS (7): Release, Nightly and Slim
     - Debian (Buster): Release, Nightly and Slim
     - DebianSlim (Buster-slim): Release, Nightly and Slim
-    - Leap (15.2): Release and Nightly
+    - Leap (15.3): Release and Nightly
     - Tumbleweed (latest): Release and Nightly
-    - UBI (8.2): Release, Nightly and Slim
-    - UBI-Minimal (8.2): Release and Nightly
+    - UBI (8.4): Release, Nightly and Slim
+    - UBI-Minimal (8.4): Release and Nightly
     - Ubuntu (20.04): Nightly and Slim
 
 
@@ -166,6 +171,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
    ```
    You should now have two files, `hotspot_shasums_latest.sh` and `openj9_shasums_latest.sh`. These will have the shasums for the latest version for each of the supported arches for hotspot and Eclipse OpenJ9 respectively.
  - [slim-java.sh](/slim-java.sh): Script that is used to generate the slim docker images. This script strips out various aspects of the JDK that are typically not needed in a server side containerized application. This includes debug info, symbols, classes related to audio, desktop etc
+ - [slim-java.ps1](/slim-java.ps1): Script that is used to generate slim docker images on Windows. This script provides the same function as the slim-java.sh script mentioned above.
  - [dockerhub_doc_config_update.sh](/dockerhub_doc_config_update.sh): Script that generates the tag documentation for each of the unofficial AdoptOpenJDK pages on hub.docker.com and the config file for raising a PR at the Official AdoptOpenJDK git repo.
 
 #### Config Files

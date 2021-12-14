@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM opensuse/leap:15.2
+FROM opensuse/leap:15.3
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -40,10 +40,6 @@ RUN set -eux; \
        ppc64el|ppc64le) \
          ESUM='dc2480948ac3e6b192fb77c9d37227510f44482e52a330002d6e7497a62a7d67'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jre_ppc64le_linux_hotspot_15.0.2_7.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='93d81a245f70373a459fe4b1c99c8fb7f357de5c8a14a127f580704270037054'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jre_s390x_linux_hotspot_15.0.2_7.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='31af7efdb1cc0ffd001bc145c3d255266889ad6b502133283ae8bf233d11334c'; \

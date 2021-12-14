@@ -22,7 +22,7 @@ FROM debian:buster
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -35,24 +35,24 @@ RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
        aarch64|arm64) \
-         ESUM='fa023019cf3f71902518fd0273ec581183e036116655d9b15588f4394dba4d75'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-01-27-13-56.tar.gz'; \
+         ESUM='fe5f36959a11a574f688d2a27b7c13843bc6a483694ca6ebe054482a37713350'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_aarch64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        armhf|armv7l) \
-         ESUM='fd94af49e886954d09fb9080c8cdcf02c533b5658bf767cfcc7d6dacb2753171'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jdk_arm_linux_hotspot_2021-01-27-07-02.tar.gz'; \
+         ESUM='dc496edbccfb7dec6c9fc4a1855fe6768fbec29d6b95b93ee18f0e873421ea4d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_arm_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        ppc64el|ppc64le) \
-         ESUM='f8cfa97231260b9ef6c8656fa3b548edfb5e72a05b3de9dbbd27d678d377b2a3'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-01-27-13-56.tar.gz'; \
+         ESUM='fbc40cc6412457b3bcfc309f157157c3bbaf5a87396df184fd599f9b103e7e13'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_ppc64le_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='a73c2724ffb7d35c22b9fc91044e946453d4a562114f5267d54b5bc716b07094'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jdk_s390x_linux_hotspot_2021-01-27-13-56.tar.gz'; \
+         ESUM='8d429c00a4f877aef698d22b29fe3684fd37c620919c376b231be857d505c6a8'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_s390x_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='caa8bc077b1311440ee1d70e91c9fa0599269395247d979f2b3516ef442b32cb'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jdk_x64_linux_hotspot_2021-01-27-07-02.tar.gz'; \
+         ESUM='2219cf4ec181453d7ce07b91b295f78c71933bc8b01c5ba9f2fbe74bc2b978f4'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jdk_x64_linux_hotspot_2021-05-07-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

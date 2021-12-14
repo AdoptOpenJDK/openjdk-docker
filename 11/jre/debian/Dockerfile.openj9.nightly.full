@@ -22,7 +22,7 @@ FROM debian:buster
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata curl ca-certificates fontconfig locales \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
@@ -32,21 +32,17 @@ ENV JAVA_VERSION jdk11u
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='35fc89cae0bd22c5a675227e46ea77af48f49e09240705932235de7c36f51e09'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_aarch64_linux_openj9_2021-01-27-13-56.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
-         ESUM='5f723102ac2e3bf3e384e99411e43dbbcca5216c22cbbedd5867b000fbefdf3e'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_ppc64le_linux_openj9_2021-01-27-13-56.tar.gz'; \
+         ESUM='fabe1caa58b0f717d16fb48ac827ee5c6f2748ca02cfcd0f78d31b1bcdab6aaf'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_ppc64le_linux_openj9_2021-05-07-07-34.tar.gz'; \
          ;; \
        s390x) \
-         ESUM='853277c413ff7bbf59029a73025e34b719e32ec24631e547ef4761614bded491'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-13-56/OpenJDK11U-jre_s390x_linux_openj9_2021-01-27-13-56.tar.gz'; \
+         ESUM='aa74ec58504f68a9fa5be2fd0011e575427fb0072226337c04d78af66c21568d'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_s390x_linux_openj9_2021-05-07-07-34.tar.gz'; \
          ;; \
        amd64|x86_64) \
-         ESUM='25a33265b7ec7f4a53ecf7cd32d405ebae5733e0d0d4eaf982fc79b1b187999b'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-01-27-07-02/OpenJDK11U-jre_x64_linux_openj9_2021-01-27-07-02.tar.gz'; \
+         ESUM='2662f8166aeb5fac26f4e57ab278ef723d6a846b7812147dfd2c02aea955b5a7'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk11u-2021-05-07-07-34/OpenJDK11U-jre_x64_linux_openj9_2021-05-07-07-34.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

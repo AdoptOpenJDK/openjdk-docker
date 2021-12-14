@@ -25,8 +25,7 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ENV JAVA_VERSION jdk-14.0.2+12
 
 RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12/OpenJDK14U-jre_x64_windows_hotspot_14.0.2_12.msi ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    wget https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12/OpenJDK14U-jre_x64_windows_hotspot_14.0.2_12.msi -O 'openjdk.msi'; \
+    curl.exe -LfsSo openjdk.msi https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.2%2B12/OpenJDK14U-jre_x64_windows_hotspot_14.0.2_12.msi ; \
     Write-Host ('Verifying sha256 (bf468c78387b8095914a2d46af6961d5c22697929b66961e346a41fc8bf909d4) ...'); \
     if ((Get-FileHash openjdk.msi -Algorithm sha256).Hash -ne 'bf468c78387b8095914a2d46af6961d5c22697929b66961e346a41fc8bf909d4') { \
             Write-Host 'FAILED!'; \
@@ -36,8 +35,14 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk14-binaries/
     New-Item -ItemType Directory -Path C:\temp | Out-Null; \
     \
     Write-Host 'Installing using MSI ...'; \
-    Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
+    $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList '/i', 'openjdk.msi', '/L*V', 'C:\temp\OpenJDK.log', \
     '/quiet', 'ADDLOCAL=FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome' -Wait -Passthru; \
+    $proc.WaitForExit() ; \
+    if ($proc.ExitCode -ne 0) { \
+            Write-Host 'FAILED installing MSI!' ; \
+            exit 1; \
+    }; \
+    \
     Remove-Item -Path C:\temp -Recurse | Out-Null; \
     Write-Host 'Removing openjdk.msi ...'; \
     Remove-Item openjdk.msi -Force

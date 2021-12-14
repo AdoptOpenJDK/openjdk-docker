@@ -17,18 +17,16 @@
 # limitations under the License.
 #
 
-FROM mcr.microsoft.com/windows/nanoserver:1909
+FROM mcr.microsoft.com/windows/servercore:1909 as installer
 
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 ENV JAVA_VERSION jdk15u
 
-USER ContainerAdministrator
 RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_x64_windows_hotspot_2021-01-22-02-31.zip ...'); \
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    Invoke-WebRequest -Uri https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_x64_windows_hotspot_2021-01-22-02-31.zip -O 'openjdk.zip'; \
+    curl.exe -LfsSo openjdk.zip https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jdk_x64_windows_hotspot_2021-01-22-02-31.zip ; \
     Write-Host ('Verifying sha256 (52e39f7f1a856a5bfeba09bc42c2baa1bc8a9737c60babd7888b47b955a64000) ...'); \
     if ((Get-FileHash openjdk.zip -Algorithm sha256).Hash -ne '52e39f7f1a856a5bfeba09bc42c2baa1bc8a9737c60babd7888b47b955a64000') { \
             Write-Host 'FAILED!'; \
@@ -36,15 +34,24 @@ RUN Write-Host ('Downloading https://github.com/AdoptOpenJDK/openjdk15-binaries/
     }; \
     \
     Write-Host 'Expanding Zip ...'; \
-    Expand-Archive -Path openjdk.zip -DestinationPath C:\ ; \
+    tar.exe -xf openjdk.zip -C C:\ ; \
     $jdkDirectory=(Get-ChildItem -Directory | ForEach-Object { $_.FullName } | Select-String 'jdk'); \
     Move-Item -Path $jdkDirectory C:\openjdk-15; \
     Write-Host 'Removing openjdk.zip ...'; \
     Remove-Item openjdk.zip -Force
 
+FROM mcr.microsoft.com/windows/nanoserver:1909
+
+USER ContainerAdministrator
+# Set JAVA_HOME and PATH environment variables
+RUN setx /M JAVA_HOME "C:\\openjdk-15" & \
+    setx /M PATH "%PATH%;%JAVA_HOME%\\bin"
+
+COPY --from=installer ["/openjdk-15", "/openjdk-15"]
+
 USER ContainerUser
 ENV JAVA_HOME=C:\\openjdk-15 \
     ProgramFiles="C:\\Program Files" \
     WindowsPATH="C:\\Windows\\system32;C:\\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\\PowerShell;${JAVA_HOME}\\bin"
+ENV PATH="${WindowsPATH};${JAVA_HOME}\\bin"
 CMD ["jshell"]

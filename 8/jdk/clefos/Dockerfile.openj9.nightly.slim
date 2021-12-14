@@ -31,21 +31,9 @@ COPY slim-java* /usr/local/bin/
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='ad82df17fea631f41121dbe19c8c0a6bbcca881c25dcb552e287e313c1768f84'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_aarch64_linux_openj9_2021-01-28-00-11.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='891daca1dac3101e9a552f1c393efbbc527992b99a97087db985edb36fb15e9f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_ppc64le_linux_openj9_2021-01-28-00-11.tar.gz'; \
-         ;; \
        s390x) \
-         ESUM='c1e6282d0c0d37c4cdb6f277183f6618a1a58c8e4a8f471aad93b13546f1d27a'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_s390x_linux_openj9_2021-01-28-00-11.tar.gz'; \
-         ;; \
-       amd64|x86_64) \
-         ESUM='6197782cfda477db4f7142b32e6126c2be8431826bf0dc304caeda7e4dd0e892'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-01-28-00-11/OpenJDK8U-jdk_x64_linux_openj9_2021-01-28-00-11.tar.gz'; \
+         ESUM='8ebcd6ae2c0945dbf44a602afbf8a45f36c23f838a6877ce4f92ae3989012e7a'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u-2021-05-08-08-14/OpenJDK8U-jdk_s390x_linux_openj9_2021-05-08-08-14.tar.gz'; \
          ;; \
        *) \
          echo "Unsupported arch: ${ARCH}"; \

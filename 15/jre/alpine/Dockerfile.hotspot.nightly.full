@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 
-FROM alpine:3.12
+FROM alpine:3.14
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN apk add --no-cache tzdata --virtual .build-deps curl binutils zstd \
-    && GLIBC_VER="2.31-r0" \
+    && GLIBC_VER="2.33-r0" \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.1.0-2-x86_64.pkg.tar.zst" \
     && GCC_LIBS_SHA256="f80320a03ff73e82271064e4f684cd58d7dbdb07aa06a2c4eea8e0f3c507c45c" \
@@ -60,22 +60,6 @@ RUN set -eux; \
     apk add --no-cache --virtual .fetch-deps curl; \
     ARCH="$(apk --print-arch)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='8732552717f608cc7f2da0d17142e8d3d153fb818d3eadf8e04cc4fd24e9339f'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_aarch64_linux_hotspot_2021-01-22-02-31.tar.gz'; \
-         ;; \
-       armhf|armv7l) \
-         ESUM='f611de9a822950b643a5660c0e1241656e1c3d9b65730a8dffeeffcd2b49f235'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_arm_linux_hotspot_2021-01-22-02-31.tar.gz'; \
-         ;; \
-       ppc64el|ppc64le) \
-         ESUM='897f0e640d622367887cebe31cf6ae7279ffaccb690ad79ee7fd07b6885d9f17'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_ppc64le_linux_hotspot_2021-01-22-02-31.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='0216c1a759ee37992156b3ae2e470e471656e9c859292229b6e5d4bdbc085fb2'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_s390x_linux_hotspot_2021-01-22-02-31.tar.gz'; \
-         ;; \
        amd64|x86_64) \
          ESUM='ad024b0aff2ae080bd6b42ec154ed140b43e63de24b09e3c36f44452fc4d28c2'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_x64_linux_hotspot_2021-01-22-02-31.tar.gz'; \

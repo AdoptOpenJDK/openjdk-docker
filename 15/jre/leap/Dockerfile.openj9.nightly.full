@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-FROM opensuse/leap:15.2
+FROM opensuse/leap:15.3
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
@@ -29,17 +29,9 @@ ENV JAVA_VERSION jdk15u
 RUN set -eux; \
     ARCH="$(uname -m)"; \
     case "${ARCH}" in \
-       aarch64|arm64) \
-         ESUM='fe7b278f23db03b9ab84baed1d69eb2b88e23b5c2add940cd5896b0f21e61cf1'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_aarch64_linux_openj9_2021-01-22-02-31.tar.gz'; \
-         ;; \
        ppc64el|ppc64le) \
          ESUM='05c34a6694c6bcee1c40d46dafe2548086375e87c443d4d000311eeb1181925c'; \
          BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_ppc64le_linux_openj9_2021-01-22-02-31.tar.gz'; \
-         ;; \
-       s390x) \
-         ESUM='4d04c35f360a26f2153e231a21bbd5b02d2c2e3cf03626a094515cfc75a9e2fa'; \
-         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk15u-2021-01-22-02-31/OpenJDK15U-jre_s390x_linux_openj9_2021-01-22-02-31.tar.gz'; \
          ;; \
        amd64|x86_64) \
          ESUM='40d6d6c79e1987bccf2ab227735b2bcf79a8afba13338101499b4e75caa1012e'; \
