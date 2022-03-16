@@ -158,7 +158,7 @@ EOI
 # Print the supported Alpine OS
 print_alpine_ver() {
 	cat >> "$1" <<-EOI
-	FROM alpine:3.14
+	FROM alpine:3.15
 
 	EOI
 }
