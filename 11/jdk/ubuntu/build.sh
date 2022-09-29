@@ -1,7 +1,7 @@
 #/bin/bash
 # first run these commands in your shell
 #az login
-#az account set --subscription 19827096-9747-4941-a512-691966f8531b
+#az account set --subscription de11fcc2-c589-4276-bafa-50ec92a39434
 #az acr login --name crappdev
 # Build Nvidia image with JVM slim
 cd 11/jdk/ubuntu
