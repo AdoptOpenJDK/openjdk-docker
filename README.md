@@ -14,9 +14,9 @@ Dockerfiles and build scripts for generating Docker Images based on various Adop
 
 | Alpine | centos | clefos | debian |  debianslim  | leap | tumbleweed | ubi | ubi-minimal | ubuntu(*) |
 |:------:|:------:|:------:|:------:|:------------:|:----:|:----------:|:---:|:-----------:|:------:|
-|  3.14  |    7   |    7   | buster | buster-slim  | 15.3 |   latest   | 8.4 |     8.4     |  20.04 |
+|  3.14  |    7   |    7   | buster | buster-slim  | 15.3 |   latest   | 8.4 |     8.4     |  22.04 |
 
-Note: Hotspot is not supported on Ubuntu 20.04 for s390x arch.
+Note: Hotspot is not supported on Ubuntu 22.04 for s390x arch.
 
 * Supported Windows OSes
   - 1809
@@ -30,7 +30,7 @@ Starting from Java 16, hotspot builds are available natively built on musl libc 
 AdoptOpenJDK Docker Images are available as both Official Images (Maintained by Docker) and Non-official Images (Maintained by AdoptOpenJDK). Please choose based on your requirements.
 * [Official Images](https://hub.docker.com/_/adoptopenjdk) are maintained by Docker and updated on every release from AdoptOpenJDK as well as when the underlying OSes are updated. Supported OSes and their versions and type of images are as below.
   - Linux
-    - Ubuntu (20.04): Release
+    - Ubuntu (22.04): Release
   - Windows
     - Windows Server Core (ltsc2016 and 1809): Release
 * [Unofficial Images](https://hub.docker.com/u/adoptopenjdk) are maintained by AdoptOpenJDK and updated on a nightly basis. Supported OSes and their versions and type of images are as below.
@@ -44,7 +44,7 @@ AdoptOpenJDK Docker Images are available as both Official Images (Maintained by 
     - Tumbleweed (latest): Release and Nightly
     - UBI (8.4): Release, Nightly and Slim
     - UBI-Minimal (8.4): Release and Nightly
-    - Ubuntu (20.04): Nightly and Slim
+    - Ubuntu (22.04): Nightly and Slim
 
 
 ## Unofficial Images: Docker Image Build Types and Associated Tags

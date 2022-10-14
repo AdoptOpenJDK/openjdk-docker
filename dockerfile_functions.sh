@@ -44,7 +44,7 @@ print_ubuntu_ver() {
 	if [ ${current_arch} == "armv7l" ]; then
 		os_version="18.04"
 	else
-		os_version="20.04"
+		os_version="22.04"
 	fi
 
 	cat >> "$1" <<-EOI
@@ -385,7 +385,7 @@ print_java_install_pre() {
          ESUM='$(get_shasum "${shasums}" s390x "${osfamily}")'; \\
          BINARY_URL='$(get_v3_binary_url "${JAVA_URL}")'; \\
 		EOI
-			# Ubuntu 20.04 has a newer version of libffi (libffi7)
+			# Ubuntu 22.04 has a newer version of libffi (libffi7)
 			# whereas hotspot has been built on libffi6 and fails if that is not avaialble
 			# Workaround is to install libffi6 on ubuntu / hotspot / s390x
 			if [ "${version}" == "8" ] && [ "${vm}" == "hotspot" ] && [ "${os}" == "ubuntu" ]; then

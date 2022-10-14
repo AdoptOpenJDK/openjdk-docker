@@ -122,7 +122,7 @@ it creates the file declaring the shasums for each combination by getting them f
 Eg: 
 
 ```
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ```
 
 - Next we add the language locales with function `print_lang_locale`

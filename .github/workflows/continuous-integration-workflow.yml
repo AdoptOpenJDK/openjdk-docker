@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2016, windows-2019, ubuntu-20.04]
+        os: [windows-2016, windows-2019, ubuntu-22.04]
         version: [8, 11, 15, 16]
         vm: [hotspot, openj9]
         package: [jdk, jre]
@@ -34,7 +34,7 @@ jobs:
           BUILD_PACKAGE: ${{ matrix.package }}
 
       - name: Build - Linux
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: bash build_latest.sh ${{ matrix.version }} ${{ matrix.vm }} ${{ matrix.package }} ${{ matrix.runtype }}
         env:
           BUILD_VERSION: ${{ matrix.version }}
