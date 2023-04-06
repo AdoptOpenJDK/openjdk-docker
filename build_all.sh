@@ -120,3 +120,4 @@ remove_summary_table_file
 # Cleanup any old containers and images
 cleanup_images
 cleanup_manifest
+clear_build_cache
