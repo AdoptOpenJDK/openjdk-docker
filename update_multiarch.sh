@@ -25,6 +25,8 @@ if [ -n "$1" ]; then
 	set_version "$1"
 fi
 
+build_arg="$2"
+
 # Set the OSes that will be built on based on the current arch
 set_arch_os
 
@@ -44,6 +46,10 @@ do
 			dir=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "Directory:")
 			osfamily=$(parse_vm_entry "${vm}" "${version}" "${package}" "${os}" "OS_Family:")
 
+			if [ ! -z "${build_arg}" ]; then
+				builds="${build_arg}"
+			fi
+			
 			for build in ${builds}
 			do
 				echo "Getting latest shasum info for [ ${version} ${vm} ${package} ${build} ]"
