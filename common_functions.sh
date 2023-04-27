@@ -253,19 +253,6 @@ function cleanup_manifest() {
 	rm -rf ~/.docker/manifests
 }
 
-function clear_build_cache() {
-	# Reduce the size of the build cache to avoid exhaustion of the space
-        docker system df
-        echo Pruning builder cache to 10Gb
-        # docker on our arm32 machines gives parse error if bigger than this
-        if [ "$(uname -m)" = "armv7l" ]; then
-            SPACE_TO_KEEP=2100000000
-        else
-            SPACE_TO_KEEP=10000000000
-        fi
-        docker builder prune -f --keep-storage ${SPACE_TO_KEEP}
-}
-
 # Check if a given docker image exists on the server.
 # This script errors out if the image does not exist.
 function check_image() {
