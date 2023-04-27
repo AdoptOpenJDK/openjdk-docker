@@ -91,6 +91,24 @@ print_ubi-minimal_ver() {
 	EOI
 }
 
+print_alma_ver() {
+	os_version="8.4"
+
+	cat >> "$1" <<-EOI
+	FROM almalinux:${os_version}
+
+	EOI
+}
+
+print_alma-minimal_ver() {
+	os_version="8.4-minimal"
+
+	cat >> "$1" <<-EOI
+	FROM almalinux:${os_version}
+
+	EOI
+}
+
 print_centos_ver() {
 	os_version="7"
 
@@ -275,6 +293,16 @@ RUN microdnf install -y tzdata openssl curl ca-certificates fontconfig glibc-lan
 EOI
 }
 
+# Select the alma packages.
+print_alma_pkg() {
+	print_ubi_pkg "$1"
+}
+
+# Select the alma-minimal packages.
+print_alma-minimal_pkg() {
+	print_ubi-minimal_pkg "$1"
+}
+
 # Select the CentOS packages.
 print_centos_pkg() {
 	cat >> "$1" <<'EOI'
@@ -313,7 +341,7 @@ print_env() {
 	eval jver=\${$jverinfo}
 	jver="${jver}" # to satifsy shellcheck SC2154
 	# Print additional label for UBI alone
-	if [ "${os}" == "ubi-minimal" ] || [ "${os}" == "ubi" ]; then
+	if [ "${os}" == "alma-minimal" ] || [ "${os}" == "alma" ] || [ "${os}" == "ubi-minimal" ] || [ "${os}" == "ubi" ]; then
 		cat >> "$1" <<-EOI
 
 LABEL name="AdoptOpenJDK Java" \\
@@ -693,9 +721,9 @@ RUN set -eux; \\
 EOI
 	print_java_install_pre "${file}" "${pkg}" "${bld}" "${btype}" "${osfamily}" "${os}"
 	if [ "${btype}" == "slim" ]; then
-		if [ "${os}" == "ubi" ]; then	
+		if [ "${os}" == "alma" ] || [ "${os}" == "ubi" ]; then	
 			print_ubi_slim_package "$1"	
-		elif [ "${os}" == "ubi-minimal" ]; then
+		elif [ "${os}" == "alma-minimal" ] || [ "${os}" == "ubi-minimal" ]; then
 			print_ubi-minimal_slim_package "$1"
 		fi
 	fi
@@ -704,6 +732,16 @@ EOI
 
 # Print the main RUN command that installs Java on ubi-minimal
 print_ubi-minimal_java_install() {
+	print_ubi_java_install "$1" "$2" "$3" "$4" "$5" "$6"
+}
+
+# Print the main RUN command that installs Java on alma
+print_alma_java_install() {
+	print_ubi_java_install "$1" "$2" "$3" "$4" "$5" "$6"
+}
+
+# Print the main RUN command that installs Java on alma-minimal
+print_alma-minimal_java_install() {
 	print_ubi_java_install "$1" "$2" "$3" "$4" "$5" "$6"
 }
 
